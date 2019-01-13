@@ -232,31 +232,7 @@ width=`echo "2*$radius" | bc -l`
 
 cat << EOF
 <svg height="$height" width="$width">
-  <!--
-  pi is $pi
-  60 deg. is $rad radians
-  tan 60 is $tan_sixty
-  tan 30 is $tan_thirty
-  sine 30 is $sine_thirty
-  
-  Radius is $radius
-
-  R is $R
-  X is $X
-  B is $B
-  H is $H
-
-  h is $h
-  x is $x
-  b is $b
-  r is $r
-
-  Theta is $theta
-
-  sine theta is $sine_theta
-  cosine theta is $cosine_theta
-
-  -->
+  <!-- Copyright Meta Tooth LLC 2019. -->
   <circle r="$radius" cx="$center_x" cy="$center_y" fill="black"/>
   <polygon points="$ax,$ay $ox,$oy $kx,$ky" fill="white"/>
   <polygon points="$dx,$dy $fx,$fy $mx,$my" fill="black"/>
