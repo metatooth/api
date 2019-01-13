@@ -6,10 +6,10 @@ rad=`echo "60*($pi/180)" | bc -l`
 if [ $# -ne 3 ]
 then
     echo "usage: metalogo.sh <radius> <ratio> <theta>"
-    echo " Create an SVG of width & height twice <radius>. Inset"
-    echo " a triangle inscribed within a circle of <radius>*<ratio>. Then"
-    echo " rotate the triangle by <theta>."
-    echo " for example, metalogo.sh 256 0.8 15"
+    echo "  Create an SVG of width & height twice <radius>. Inset"
+    echo "  a triangle inscribed within a circle of <radius>*<ratio>. Then"
+    echo "  rotate the triangle by <theta>."
+    echo "  for example, metalogo.sh 256 0.8 15"
     exit
 fi
 
