@@ -47,50 +47,185 @@ b=`echo "$h / $tan_sixty" | bc -l`
 x=`echo "$b * $tan_thirty" | bc -l`
 r=`echo "$x / $sine_thirty" | bc -l`
 
-ax=`echo "$center_x" | bc -l`
-ay=`echo "$delta_y" | bc -l`
 
-bx=`echo "$center_x - $b" | bc -l`
-by=`echo "$h + $delta_y" | bc -l`
+# A #
 
-cx=`echo "$center_x + $b" | bc -l`
-cy=`echo "$h + $delta_y" | bc -l`
+x=`echo "$center_x - $center_x" | bc -l`
+y=`echo "$delta_y - $center_y" | bc -l`
 
-dx=`echo "$center_x - (2 * $b)" | bc -l`
-dy=`echo "2 * $h + $delta_y" | bc -l`
+ax=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+ay=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
 
-ex=`echo "$center_x" | bc -l`
-ey=`echo "2 * $h + $delta_y" | bc -l`
+ax=`echo "$ax + $center_x" | bc -l`
+ay=`echo "$ay + $center_y" | bc -l`
 
-fx=`echo "$center_x + (2 * $b)" | bc -l`
-fy=`echo "2 * $h + $delta_y" | bc -l`
 
-gx=`echo "$center_x - (3 * $b)" | bc -l`
-gy=`echo "3 * $h + $delta_y" | bc -l`
+# B #
 
-hx=`echo "$center_x - $b" | bc -l`
-hy=`echo "3 * $h + $delta_y" | bc -l`
+x=`echo "$center_x - $b - $center_x" | bc -l`
+y=`echo "$h + $delta_y - $center_y" | bc -l`
 
-ix=`echo "$center_x + $b" | bc -l`
-iy=`echo "3 * $h + $delta_y" | bc -l`
+bx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+by=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
 
-jx=`echo "$center_x + (3 * $b)" | bc -l`
-jy=`echo "3 * $h + $delta_y" | bc -l`
+bx=`echo "$bx + $center_x" | bc -l`
+by=`echo "$by + $center_y" | bc -l`
 
-kx=`echo "$center_x - (4 * $b)" | bc -l`
-ky=`echo "4 * $h + $delta_y" | bc -l`
 
-lx=`echo "$center_x - (2 * $b)" | bc -l`
-ly=`echo "4 * $h + $delta_y" | bc -l`
+# C #
 
-mx=`echo "$center_x" | bc -l`
-my=`echo "4 * $h + $delta_y" | bc -l`
+x=`echo "$center_x + $b - $center_x" | bc -l`
+y=`echo "$h + $delta_y - $center_y" | bc -l`
 
-nx=`echo "$center_x + (2 * $b)" | bc -l`
-ny=`echo "4 * $h + $delta_y" | bc -l`
+cx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+cy=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
 
-ox=`echo "$center_x + (4 * $b)" | bc -l`
-oy=`echo "4 * $h + $delta_y" | bc -l`
+cx=`echo "$cx + $center_x" | bc -l`
+cy=`echo "$cy + $center_y" | bc -l`
+
+
+# D #
+
+x=`echo "$center_x - (2 * $b) - $center_x" | bc -l`
+y=`echo "(2 * $h) + $delta_y - $center_y" | bc -l`
+
+dx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+dy=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+dx=`echo "$dx + $center_x" | bc -l`
+dy=`echo "$dy + $center_y" | bc -l`
+
+
+# E #
+
+x=`echo "$center_x - $center_x" | bc -l`
+y=`echo "(2 * $h) + $delta_y - $center_y" | bc -l`
+
+ex=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+ey=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+ex=`echo "$ex + $center_x" | bc -l`
+ey=`echo "$ey + $center_y" | bc -l`
+
+
+# F #
+
+x=`echo "$center_x + (2 * $b) - $center_x" | bc -l`
+y=`echo "(2 * $h) + $delta_y - $center_y" | bc -l`
+
+fx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+fy=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+fx=`echo "$fx + $center_x" | bc -l`
+fy=`echo "$fy + $center_y" | bc -l`
+
+
+# G #
+
+x=`echo "$center_x - (3 * $b) - $center_x" | bc -l`
+y=`echo "(3 * $h) + $delta_y - $center_y" | bc -l`
+
+gx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+gy=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+gx=`echo "$gx + $center_x" | bc -l`
+gy=`echo "$gy + $center_y" | bc -l`
+
+
+# H #
+
+x=`echo "$center_x - $b - $center_x" | bc -l`
+y=`echo "(3 * $h) + $delta_y - $center_y" | bc -l`
+
+hx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+hy=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+hx=`echo "$hx + $center_x" | bc -l`
+hy=`echo "$hy + $center_y" | bc -l`
+
+
+# I #
+
+x=`echo "$center_x + $b - $center_x" | bc -l`
+y=`echo "(3 * $h) + $delta_y - $center_y" | bc -l`
+
+ix=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+iy=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+ix=`echo "$ix + $center_x" | bc -l`
+iy=`echo "$iy + $center_y" | bc -l`
+
+
+# J #
+
+x=`echo "$center_x + (3 * $b) - $center_x" | bc -l`
+y=`echo "(3 * $h) + $delta_y - $center_y" | bc -l`
+
+jx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+jy=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+jx=`echo "$jx + $center_x" | bc -l`
+jy=`echo "$jy + $center_y" | bc -l`
+
+
+# K #
+
+x=`echo "$center_x - (4 * $b) - $center_x" | bc -l`
+y=`echo "(4 * $h) + $delta_y - $center_y" | bc -l`
+
+kx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+ky=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+kx=`echo "$kx + $center_x" | bc -l`
+ky=`echo "$ky + $center_y" | bc -l`
+
+
+# L #
+
+x=`echo "$center_x - (2 * $b) - $center_x" | bc -l`
+y=`echo "(4 * $h) + $delta_y - $center_y" | bc -l`
+
+lx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+ly=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+lx=`echo "$lx + $center_x" | bc -l`
+ly=`echo "$ly + $center_y" | bc -l`
+
+
+# M #
+
+x=`echo "$center_x - $center_x" | bc -l`
+y=`echo "(4 * $h) + $delta_y - $center_y" | bc -l`
+
+mx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+my=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+mx=`echo "$mx + $center_x" | bc -l`
+my=`echo "$my + $center_y" | bc -l`
+
+
+# N #
+
+x=`echo "$center_x + (2 * $b) - $center_x" | bc -l`
+y=`echo "(4 * $h) + $delta_y - $center_y" | bc -l`
+
+nx=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+ny=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+nx=`echo "$nx + $center_x" | bc -l`
+ny=`echo "$ny + $center_y" | bc -l`
+
+
+# O #
+
+x=`echo "$center_x + (4 * $b) - $center_x" | bc -l`
+y=`echo "(4 * $h) + $delta_y - $center_y" | bc -l`
+
+ox=`echo "($x * $cosine_theta) - ($y * $sine_theta)" | bc -l`
+oy=`echo "($x * $sine_theta) + ($y * $cosine_theta)" | bc -l`
+
+ox=`echo "$ox + $center_x" | bc -l`
+oy=`echo "$oy + $center_y" | bc -l`
 
 height=`echo "2*$radius" | bc -l`
 width=`echo "2*$radius" | bc -l`
@@ -115,6 +250,11 @@ cat << EOF
   x is $x
   b is $b
   r is $r
+
+  Theta is $theta
+
+  sine theta is $sine_theta
+  cosine theta is $cosine_theta
 
   -->
   <circle r="$radius" cx="$center_x" cy="$center_y" fill="black"/>
