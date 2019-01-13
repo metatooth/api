@@ -5,15 +5,17 @@ rad=`echo "60*($pi/180)" | bc -l`
 
 if [ $# -ne 3 ]
 then
-    echo "usage: metalogo.sh <radius> <ratio> <rotate>"
-    echo ""
-    echo "example, metalogo.sh 256 0.8 15"
+    echo "usage: metalogo.sh <radius> <ratio> <theta>"
+    echo " Create an SVG of width & height twice <radius>. Inset"
+    echo " a triangle inscribed within a circle of <radius>*<ratio>. Then"
+    echo " rotate the triangle by <theta>."
+    echo " for example, metalogo.sh 256 0.8 15"
     exit
 fi
 
 radius=$1
 ratio=$2
-rotate=$3
+theta=$3
 
 center_x=$radius
 center_y=$radius
@@ -25,6 +27,9 @@ delta_y=`echo "$radius - $R" | bc -l`
 tan_sixty=`echo "s($rad)/c($rad)" | bc -l`
 tan_thirty=`echo "s($rad/2)/c($rad/2)" | bc -l`
 sine_thirty=`echo "s($rad/2)" | bc -l`
+
+sine_theta=`echo "s($theta*($pi/180))" | bc -l`
+cosine_theta=`echo "c($theta*($pi/180))" | bc -l`
 
 # Calculate big triangle from R
 
