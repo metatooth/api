@@ -3,21 +3,24 @@
 pi=`echo "4*a(1)" | bc -l`
 rad=`echo "60*($pi/180)" | bc -l`
 
-if [ $# -ne 3 ]
+if [ $# -ne 5 ]
 then
-    echo "usage: metalogo.sh <radius> <ratio> <theta>"
+    echo "usage: metalogo.sh <radius> <ratio> <theta> <primary> <secondary>"
     echo
     echo "  Outputs a SVG of width & height twice <radius>. Draw a circle "
     echo "  of <radius>. Inset a triangle inscribed within a"
     echo "  circle of <radius>*<ratio>. Then rotate the triangle by <theta>."
+    echo "  Use <primary> and <secondary> colors."
     echo
-    echo "  for example, metalogo.sh 256 0.8 15"
+    echo "  for example, metalogo.sh 256 0.8 15 black white"
     exit
 fi
 
 radius=$1
 ratio=$2
 theta=$3
+primary=$4
+secondary=$5
 
 center_x=$radius
 center_y=$radius
@@ -233,12 +236,13 @@ width=`echo "2*$radius" | bc -l`
 cat << EOF
 <svg height="$height" width="$width">
   <!-- Copyright Meta Tooth LLC 2019. -->
-  <circle r="$radius" cx="$center_x" cy="$center_y" fill="black"/>
-  <polygon points="$ax,$ay $ox,$oy $kx,$ky" fill="white"/>
-  <polygon points="$dx,$dy $fx,$fy $mx,$my" fill="black"/>
-  <polygon points="$bx,$by $cx,$cy $ex,$ey" fill="black"/>
-  <polygon points="$gx,$gy $hx,$hy $lx,$ly" fill="black"/>
-  <polygon points="$ix,$iy $jx,$jy $nx,$ny" fill="black"/>
-  <polygon points="$hx,$hy $ix,$iy $ex,$ey" fill="white"/>
+  <rect height="$height" width="$width" style="fill-opacity:0"/>
+  <circle r="$radius" cx="$center_x" cy="$center_y" fill="$primary"/>
+  <polygon points="$ax,$ay $ox,$oy $kx,$ky" fill="$secondary"/>
+  <polygon points="$dx,$dy $fx,$fy $mx,$my" fill="$primary"/>
+  <polygon points="$bx,$by $cx,$cy $ex,$ey" fill="$primary"/>
+  <polygon points="$gx,$gy $hx,$hy $lx,$ly" fill="$primary"/>
+  <polygon points="$ix,$iy $jx,$jy $nx,$ny" fill="$primary"/>
+  <polygon points="$hx,$hy $ix,$iy $ex,$ey" fill="$secondary"/>
 </svg>
 EOF
