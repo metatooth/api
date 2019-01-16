@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 
 add_custom_target(SvgLogos ALL
                   DEPENDS metalogo-black-512.svg metalogo-black-200.svg metalogo-white-512.svg metalogo-white-200.svg)
