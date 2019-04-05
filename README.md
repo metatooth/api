@@ -16,7 +16,7 @@ Use it!
 $ git clone https://bitbucket.org/metatooth/metalogo
 $ cd metalogo
 $ cmake -H. -B_builds
-$ make
+$ cmake --build _builds
 ```
 
 ### Test
