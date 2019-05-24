@@ -1,3 +1,5 @@
+require 'google/cloud/firestore'
+
 class Meal
 
     attr_accessor :id
@@ -8,13 +10,42 @@ class Meal
     attr_accessor :created
     attr_accessor :updated
 
+    @@firestore = Google::Cloud::Firestore.new project_id: ENV['PROJECT_ID']
+
     def self.find_by_user(user)
+        @meals = Array.new
+        meals_ref = @@firestore.col "meals"
+        meals_ref.get do |meal|
+          @meals << Meal.new(meal)
+        end
+        @meals.to_json
     end
 
     def self.get(id)
+        doc_snap = @@firestore.col('meals').doc(id).get
+        if doc_snap.exists?
+            meal = Meal.new(doc_snap[:taken],
+                            doc_snap[:text],
+                            doc_snap[:calories])
+            meal.id = id
+        end
+        meal
     end
 
     def create
+        if self.id.nil?
+            doc_ref = @@firestore.col('meals').doc
+            doc_ref.set({
+              taken: self.taken,
+              text: self.text,
+              calories: self.calories,
+              created: Time.now,
+              updated: Time.now  
+            })
+
+            self.id = doc_ref.document_id
+        end
+        true if self.id
     end
 
     def date
@@ -22,14 +53,14 @@ class Meal
     end
 
     def delete
+        doc_ref = @@firestore.col('meals').doc(self.id)
+        true if doc_ref.delete
     end
 
     def initialize(taken, text, calories)
         @taken = taken
         @text = text
         @calories = calories
-        @created = Time.now
-        @updated = Time.now
     end
 
     def num_calories
@@ -41,6 +72,15 @@ class Meal
     end
 
     def update
+        if self.id
+            resp = @@firestore.col('meals').doc(self.id).set({
+                taken: self.taken,
+                text: self.text,
+                calories: self.calories,
+                update: Time.now
+            })
+        end
+        true if resp
     end
 
     def user
