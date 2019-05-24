@@ -1,2 +1,3 @@
 api/.bundle/
 api/vendor/
+.env
