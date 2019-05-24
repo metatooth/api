@@ -1,2 +1,4 @@
 api/.bundle/
 api/vendor/
+.env
+api/test/response.json
