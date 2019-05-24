@@ -5,7 +5,7 @@ class TestMeal < Test::Unit::TestCase
  
   def setup
     @now = Time.now
-    @meal = Meal.new(@now, 'Escargot! My favorite.', 120)
+    @meal = Meal.new({ taken: @now, text: 'Escargot! My favorite.', calories: 600 })
   end
 
   def teardown
@@ -34,7 +34,7 @@ class TestMeal < Test::Unit::TestCase
   end
 
   def test_meal_num_calories
-    assert_equal(120, @meal.num_calories)
+    assert_equal(600, @meal.num_calories)
   end
   
   def test_meal_read
