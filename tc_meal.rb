@@ -13,7 +13,7 @@ class TestMeal < Test::Unit::TestCase
   end
 
   def test_meal_create
-    @meal.create
+    assert_equal(true, @meal.create)
     assert_not_equal(nil, @meal.id)
   end
   
