@@ -24,9 +24,7 @@ class Meal
     def self.get(id)
         doc_snap = @@firestore.col('meals').doc(id).get
         if doc_snap.exists?
-            meal = Meal.new(doc_snap[:taken],
-                            doc_snap[:text],
-                            doc_snap[:calories])
+            meal = Meal.new(doc_snap)
             meal.id = id
         end
         meal
@@ -57,10 +55,10 @@ class Meal
         true if doc_ref.delete
     end
 
-    def initialize(taken, text, calories)
-        @taken = taken
-        @text = text
-        @calories = calories
+    def initialize(params)
+        @taken = params[:taken]
+        @text = params[:text]
+        @calories = params[:calories]
     end
 
     def num_calories
