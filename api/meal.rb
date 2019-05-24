@@ -1,3 +1,4 @@
+require 'json'
 require 'google/cloud/firestore'
 
 class Meal
@@ -16,22 +17,21 @@ class Meal
         @meals = Array.new
         meals_ref = @@firestore.col "meals"
         meals_ref.get do |meal|
-          @meals << Meal.new(meal)
+          @meals << Meal.new(meal).to_json
         end
-        @meals.to_json
+        @meals
     end
 
     def self.get(id)
         doc_snap = @@firestore.col('meals').doc(id).get
         if doc_snap.exists?
             meal = Meal.new(doc_snap)
-            meal.id = id
         end
         meal
     end
 
     def create
-        if self.id.nil?
+        if self.id.nil? && self.valid?
             doc_ref = @@firestore.col('meals').doc
             doc_ref.set({
               taken: self.taken,
@@ -56,9 +56,19 @@ class Meal
     end
 
     def initialize(params)
-        @taken = params[:taken]
-        @text = params[:text]
-        @calories = params[:calories]
+        if params.class == Google::Cloud::Firestore::DocumentSnapshot
+            @id = params.document_id
+            @taken = params.get('taken')
+            @text = params.get('text')
+            @calories = params.get('calories')
+            @created = params.get('created')
+            @updated = params.get('updated')
+        elsif params.class == String
+            vars = JSON.parse(params)
+            @taken = Time.parse(vars['taken'])
+            @text = vars['text']
+            @calories = vars['calories']
+        end 
     end
 
     def num_calories
@@ -69,13 +79,24 @@ class Meal
         @taken.strftime('%H:%M')
     end
 
+    def to_json
+        {
+            id: self.id,
+            taken: self.taken,
+            text: self.text,
+            calories: self.calories,
+            created: self.created,
+            updated: self.updated 
+        }.to_json
+    end
+
     def update
-        if self.id
+        if self.id && self.valid?
             resp = @@firestore.col('meals').doc(self.id).set({
                 taken: self.taken,
                 text: self.text,
                 calories: self.calories,
-                update: Time.now
+                updated: Time.now
             })
         end
         true if resp
@@ -84,4 +105,7 @@ class Meal
     def user
     end
 
+    def valid?
+        self.taken && self.text && self.calories
+    end
 end
