@@ -7,7 +7,7 @@ class App < Sinatra::Base
 
     get '/version' do
         content_type :json
-        { path: '/v1/', version: Version.string }.to_json
+        { path: '/v1/meals', version: Version.string }.to_json
     end
 
     get '/v1/meals' do
@@ -38,21 +38,24 @@ class App < Sinatra::Base
     end
 
     put '/v1/meals/:id' do
-        puts "ID is #{params[:id]}"
         meal = Meal.get(params[:id])
-        meal.text = params[:text]
-        meal.taken = params[:taken]
-        meal.calories = params[:calories]
-        meal.user_id = params[:user_id]
+        vars = JSON.parse(request.body.read)
+        meal.text = vars['text']
+        meal.taken = vars['taken']
+        meal.calories = vars['calories']
         if meal.update
+            meal.to_json
         else
+            halt 500
         end
     end
 
     delete '/v1/meals/:id' do
         meal = Meal.get(params[:id])
         if meal.delete
+            meal
         else
+            halt 500
         end
     end
 
