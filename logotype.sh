@@ -11,7 +11,7 @@ fi
 
 color=$1
 
-./metalogo.sh 75 0.95 45 black white > logo.svg
+./metalogo.sh 75 0.95 45 $color white > logo.svg
 
 convert logo.svg logo.png
 
