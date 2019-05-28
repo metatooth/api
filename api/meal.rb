@@ -68,6 +68,10 @@ class Meal
             @taken = Time.parse(vars['taken'])
             @text = vars['text']
             @calories = vars['calories']
+        elsif params.class == Hash
+            @taken = params[:taken]
+            @text = params[:text]
+            @calories = params[:calories]
         end 
     end
 
