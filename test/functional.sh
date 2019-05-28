@@ -11,20 +11,22 @@ function check_response () {
     fi
 }
 
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -v http://localhost:9393/v1/meals)
+URL=http://localhost:5000
+
+STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -v $URL/v1/meals)
 check_response STATUS
 
-STATUS=$(curl --write-out "%{http_code}\n" -d @create.json --output response.json -H 'Content-Type: application/json' http://localhost:9393/v1/meals)
+STATUS=$(curl --write-out "%{http_code}\n" -d @create.json --output response.json -H 'Content-Type: application/json' $URL/v1/meals)
 check_response STATUS
 
 ID=`jq -s -r .[0].id response.json`
 
-STATUS=$(curl --write-out "%{http_code}\n" --output response.json -H 'Content-Type: application/json' -v http://localhost:9393/v1/meals/$ID)
+STATUS=$(curl --write-out "%{http_code}\n" --output response.json -H 'Content-Type: application/json' -v $URL/v1/meals/$ID)
 check_response STATUS
 
-STATUS=$(curl --write-out "%{http_code}\n" -d @update.json --output response.json -X PUT -H 'Content-Type: application/json' http://localhost:9393/v1/meals/$ID)
+STATUS=$(curl --write-out "%{http_code}\n" -d @update.json --output response.json -X PUT -H 'Content-Type: application/json' $URL/v1/meals/$ID)
 check_response STATUS
 
-STATUS=$(curl --write-out "%{http_code}\n" --output response.json -X DELETE -H 'Content-Type: application/json' http://localhost:9393/v1/meals/$ID)
+STATUS=$(curl --write-out "%{http_code}\n" --output response.json -X DELETE -H 'Content-Type: application/json' $URL/v1/meals/$ID)
 check_response STATUS
 
