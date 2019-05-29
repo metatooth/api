@@ -1,17 +1,25 @@
 # frozen_string_literal: true
 
 require_relative 'meal'
+require_relative 'user'
 require 'test/unit'
 
 # Test cases for the Meal model.
 class TestMeal < Test::Unit::TestCase
   def setup
     @now = Time.now
-    @meal = Meal.new(taken: @now, text: 'Escargot! My favorite.', calories: 600)
+    @user = User.signup('unit', 'badpass')
+    @meal = Meal.new(
+      user_id: @user.id,
+      taken: @now,
+      text: 'Escargot! My favorite.',
+      calories: 600
+    )
   end
 
   def teardown
     @meal.destroy
+    @user.destroy
   end
 
   def test_meal_create
@@ -20,7 +28,7 @@ class TestMeal < Test::Unit::TestCase
   end
 
   def test_meal_date
-    assert_equal(@now.strftime('%Y-%m-%d'), @meal.date)
+    assert_equal(@now.strftime('%Y-%m-%d'), @meal.taken.strftime('%Y-%m-%d'))
   end
 
   def test_meal_destroy
@@ -35,8 +43,8 @@ class TestMeal < Test::Unit::TestCase
     assert_equal(nil, check)
   end
 
-  def test_meal_num_calories
-    assert_equal(600, @meal.num_calories)
+  def test_meal_calories
+    assert_equal(600, @meal.calories)
   end
 
   def test_meal_read
@@ -44,13 +52,13 @@ class TestMeal < Test::Unit::TestCase
 
     check = Meal.get(@meal.id)
 
-    %w[date time text calories].each do |attr|
+    %w[taken_to_s text calories user_id].each do |attr|
       assert_equal(@meal.send(attr), check.send(attr))
     end
   end
 
   def test_meal_time
-    assert_equal(@now.strftime('%H:%M'), @meal.time)
+    assert_equal(@now.strftime('%H:%M'), @meal.taken.strftime('%H:%M'))
   end
 
   def test_meal_text
