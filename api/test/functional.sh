@@ -20,25 +20,36 @@ function check_response () {
 
 URL=$1
 
-echo "SIGN IN"
-STATUS=$(curl --write-out "%{http_code}\n" -d @tester-signin.json --output response.json -c cookie.txt -H 'Content-Type: application/json' $URL/signin)
+
+echo "SIGN UP"
+STATUS=$(curl --write-out "%{http_code}\n" -d @tester-signin.json --output response.json -H 'Content-Type: application/json' $URL/signup)
 echo $STATUS
 cat response.json
 
+
+echo "SIGN IN"
+STATUS=$(curl --write-out "%{http_code}\n" -d @tester-signin.json --output response.json -c cookie.txt -H 'Content-Type: application/json' $URL/signin)
+echo $STATUS
+
+echo "GET MEALS"
 STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -b cookie.txt -v $URL/v1/meals)
 check_response STATUS
 
+echo "POST MEALS"
 STATUS=$(curl --write-out "%{http_code}\n" -d @create.json --output response.json -b cookie.txt -H 'Content-Type: application/json' $URL/v1/meals)
 check_response STATUS
 
 ID=`jq -s -r .[0].id response.json`
 
+echo "GET MEAL $ID"
 STATUS=$(curl --write-out "%{http_code}\n" --output response.json -b cookie.txt -H 'Content-Type: application/json' -v $URL/v1/meals/$ID)
 check_response STATUS
 
+echo "PUT MEAL $ID"
 STATUS=$(curl --write-out "%{http_code}\n" -d @update.json --output response.json -b cookie.txt -X PUT -H 'Content-Type: application/json' $URL/v1/meals/$ID)
 check_response STATUS
 
+echo "DELETE MEAL $ID"
 STATUS=$(curl --write-out "%{http_code}\n" --output response.json -b cookie.txt -X DELETE -H 'Content-Type: application/json' $URL/v1/meals/$ID)
 check_response STATUS
 
