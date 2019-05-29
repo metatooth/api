@@ -58,7 +58,7 @@ class TestMeal < Test::Unit::TestCase
   end
 
   def test_meal_update
-    @meal.create
+    assert_equal(true, @meal.create)
 
     check = Meal.get(@meal.id)
 
