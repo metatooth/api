@@ -23,16 +23,17 @@ class Meal < Model
 
   def self.get(id)
     doc_snap = @@firestore.col('meals').doc(id).get
-    meal = Meal.new(doc_snap) if doc_snap.exists?
-    meal
+    return Meal.new(doc_snap) if doc_snap.exists?
+
+    nil
   end
 
   def create
-    if @id.nil? && valid?
+    if @id.nil? && valid? == true
       doc_ref = @@firestore.col('meals').doc
       doc_ref.set(taken: @taken, text: @text, calories: @calories,
                   user_id: @user_id, created: Time.now, updated: Time.now)
-      @id = doc_ref.document_id
+      initialize(doc_ref.get)
     end
     true if @id
   end
@@ -111,6 +112,6 @@ class Meal < Model
   end
 
   def valid?
-    @taken && @text && @calories && @user_id
+    (!@taken.nil? && !@text.nil? && !@calories.nil? && !@user_id.nil?)
   end
 end

@@ -15,8 +15,10 @@ class User < Model
 
   def self.authenticate(username, password)
     user = User.find_by_username(username)
-    check_hash = BCrypt::Engine.hash_secret(password, user.password_salt)
-    return user if user && user.password_hash == check_hash
+    if user
+      check_hash = BCrypt::Engine.hash_secret(password, user.password_salt)
+      return user if user.password_hash == check_hash
+    end
 
     nil
   end
@@ -96,7 +98,7 @@ class User < Model
 
   def valid?
     user = User.find_by_username(@username)
-    @type && @username && !user
+    (!@type.nil? && !@username.nil? && user.nil?)
   end
 end
 

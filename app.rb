@@ -6,22 +6,23 @@ require_relative 'meal'
 require_relative 'user'
 require_relative 'version'
 
+# The application.
 class App < Sinatra::Base
-    use Rack::Session::Cookie, :key => 'rack.session',
-        :path => '/',
-        :expire_after => 2592000, # In seconds
-        :secret => ENV['RACK_SECRET']
+  use Rack::Session::Cookie, key: 'rack.session',
+                             path: '/',
+                             expire_after: 2_592_000, # In seconds
+                             secret: ENV['RACK_SECRET']
 
   register do
     def auth(type)
       condition do
-        halt 401 unless send("is_#{type}?")
+        halt 401 unless send("#{type}?")
       end
     end
   end
 
   helpers do
-    def is_user?
+    def user?
       @user != nil
     end
   end
@@ -37,8 +38,10 @@ class App < Sinatra::Base
   post '/signin' do
     body_str = request.body.read
     json = JSON.parse(body_str)
-    if user = User.authenticate(json['username'], json['password'])
-        session[:uid] = user.id
+    if (user = User.authenticate(json['username'], json['password']))
+      session[:uid] = user.id
+    else
+      halt 401
     end
   end
 
@@ -49,7 +52,7 @@ class App < Sinatra::Base
   post '/signup' do
     content_type :json
     json = JSON.parse(request.body.read)
-    if user = User.signup(json['username'], json['password'])
+    if (user = User.signup(json['username'], json['password']))
       user.to_json
     else
       halt 500
@@ -57,20 +60,18 @@ class App < Sinatra::Base
   end
 
   get '/version' do
-    content_type :json
     { path: '/v1/meals', version: Version.string }.to_json
   end
 
   get '/v1/meals', auth: 'user' do
     content_type :json
-    meals = Meal.find_by_user(session[:uid])
-    meals
+    Meal.find_by_user(session[:uid])
   end
 
   post '/v1/meals', auth: 'user' do
-    content_type :json
-    json = request.body.read
-    meal = Meal.new(json)
+    meal = Meal.new(request.body.read)
+    meal.user_id = session[:uid]
+
     if meal.create
       meal.to_json
     else
@@ -79,9 +80,7 @@ class App < Sinatra::Base
   end
 
   get '/v1/meals/:id', auth: 'user' do
-    content_type :json
-    meal = Meal.get(params[:id])
-    if meal
+    if (meal = Meal.get(params[:id]))
       meal.to_json
     else
       halt 500

@@ -10,10 +10,10 @@ class TestMeal < Test::Unit::TestCase
     @now = Time.now
     @user = User.signup('unit', 'badpass')
     @meal = Meal.new(
-      user_id: @user.id,
-      taken: @now,
-      text: 'Escargot! My favorite.',
-      calories: 600
+      'user_id': @user.id,
+      'taken': @now,
+      'text': 'Escargot! My favorite.',
+      'calories': 600
     )
   end
 
