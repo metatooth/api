@@ -1,8 +1,11 @@
 source 'https://rubygems.org'
 
+gem 'bcrypt'
 gem 'json'
 gem 'foreman'
 gem 'google-cloud-firestore'
 gem 'puma'
+gem 'rubocop'
+gem 'ruby-lint'
 gem 'shotgun'
 gem 'sinatra'

@@ -13,12 +13,12 @@ class Meal < Model
   attr_accessor :updated
 
   def self.find_by_user(_user)
-    @meals = []
+    meals = []
     meals_ref = @@firestore.col 'meals'
     meals_ref.get do |meal|
-      @meals << Meal.new(meal).to_json
+      meals << Meal.new(meal).to_json
     end
-    @meals
+    meals
   end
 
   def self.get(id)
@@ -28,14 +28,14 @@ class Meal < Model
   end
 
   def create
-    if id.nil? && valid?
+    if @id.nil? && valid?
       doc_ref = @@firestore.col('meals').doc
-      doc_ref.set(taken: taken, text: text, calories: calories,
-                  created: Time.now, updated: Time.now)
+      doc_ref.set({taken: @taken, text: @text, calories: @calories,
+                  created: Time.now, updated: Time.now})
 
-      self.id = doc_ref.document_id
+      @id = doc_ref.document_id
     end
-    true if id
+    true if @id
   end
 
   def date
@@ -80,7 +80,7 @@ class Meal < Model
   end
 
   def num_calories
-    calories
+    @calories
   end
 
   def time
@@ -89,21 +89,21 @@ class Meal < Model
 
   def to_json(*_args)
     {
-      id: id,
-      taken: taken,
-      text: text,
-      calories: calories,
-      created: created,
-      updated: updated
+      id: @id,
+      taken: @taken,
+      text: @text,
+      calories: @calories,
+      created: @created,
+      updated: @updated
     }.to_json
   end
 
   def update
-    if id && valid?
+    if @id && valid?
       resp = @@firestore.col('meals').doc(id).set(
-        taken: taken,
-        text: text,
-        calories: calories,
+        taken: @taken,
+        text: @text,
+        calories: @calories,
         updated: Time.now
       )
     end
@@ -113,6 +113,6 @@ class Meal < Model
   def user; end
 
   def valid?
-    taken && text && calories
+    @taken && @text && @calories
   end
 end
