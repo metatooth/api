@@ -36,8 +36,7 @@ class App < Sinatra::Base
   end
 
   post '/signin' do
-    body_str = request.body.read
-    json = JSON.parse(body_str)
+    json = JSON.parse(request.body.read)
     if (user = User.authenticate(json['username'], json['password']))
       session[:uid] = user.id
     else
