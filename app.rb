@@ -63,8 +63,14 @@ class App < Sinatra::Base
   end
 
   get '/v1/meals', auth: 'user' do
-    content_type :json
-    Meal.find_by_user(session[:uid])
+    user = User.get(session[:uid])
+    meals = if user.type == 'Admin'
+              Meal.all
+            else
+              Meal.find_by_user(session[:uid])
+            end
+
+    meals
   end
 
   post '/v1/meals', auth: 'user' do
@@ -80,29 +86,46 @@ class App < Sinatra::Base
 
   get '/v1/meals/:id', auth: 'user' do
     if (meal = Meal.get(params[:id]))
-      meal.to_json
+      user = User.get(session[:uid])
+      if user.type == 'Admin' || user.id == meal.user_id
+        meal.to_json
+      else
+        halt 401
+      end
     else
       halt 500
     end
   end
 
   put '/v1/meals/:id', auth: 'user' do
-    meal = Meal.get(params[:id])
-    vars = JSON.parse(request.body.read)
-    meal.text = vars['text']
-    meal.taken = vars['taken']
-    meal.calories = vars['calories']
-    if meal.update
-      meal.to_json
+    if (meal = Meal.get(params[:id]))
+      user = User.get(session[:uid])
+      if user.type == 'Admin' || user.id == meal.user_id
+        vars = JSON.parse(request.body.read)
+        meal.text = vars['text']
+        meal.taken = vars['taken']
+        meal.calories = vars['calories']
+        if meal.update
+          meal.to_json
+        else
+          halt 500
+        end
+      else
+        halt 401
+      end
     else
       halt 500
     end
   end
 
   delete '/v1/meals/:id', auth: 'user' do
-    meal = Meal.get(params[:id])
-    if meal.destroy
-      meal
+    if (meal = Meal.get(params[:id]))
+      user = User.get(session[:uid])
+      if user.type == 'Admin' || user.id == meal.user_id
+        meal.destroy
+      else
+        halt 401
+      end
     else
       halt 500
     end
