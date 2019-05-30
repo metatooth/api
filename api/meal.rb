@@ -23,23 +23,19 @@ class Meal < Model
 
   def self.get(id)
     doc_snap = @@firestore.col('meals').doc(id).get
-    meal = Meal.new(doc_snap) if doc_snap.exists?
-    meal
+    return Meal.new(doc_snap) if doc_snap.exists?
+
+    nil
   end
 
   def create
-    if @id.nil? && valid?
+    if @id.nil? && valid? == true
       doc_ref = @@firestore.col('meals').doc
-      doc_ref.set({taken: @taken, text: @text, calories: @calories,
-                  created: Time.now, updated: Time.now})
-
-      @id = doc_ref.document_id
+      doc_ref.set(taken: @taken, text: @text, calories: @calories,
+                  user_id: @user_id, created: Time.now, updated: Time.now)
+      initialize(doc_ref.get)
     end
     true if @id
-  end
-
-  def date
-    @taken.strftime('%Y-%m-%d')
   end
 
   def destroy
@@ -52,6 +48,7 @@ class Meal < Model
     @taken = snap.get('taken')
     @text = snap.get('text')
     @calories = snap.get('calories')
+    @user_id = snap.get('user_id')
     @created = snap.get('created')
     @updated = snap.get('updated')
   end
@@ -61,12 +58,14 @@ class Meal < Model
     @taken = Time.parse(vars['taken'])
     @text = vars['text']
     @calories = vars['calories']
+    @user_id = vars['user_id']
   end
 
   def init_from_hash(params)
     @taken = params[:taken]
     @text = params[:text]
     @calories = params[:calories]
+    @user_id = params[:user_id]
   end
 
   def initialize(params)
@@ -79,40 +78,40 @@ class Meal < Model
     end
   end
 
-  def num_calories
-    @calories
-  end
-
-  def time
-    @taken.strftime('%H:%M')
-  end
-
   def to_json(*_args)
     {
       id: @id,
       taken: @taken,
       text: @text,
       calories: @calories,
+      user_id: @user_id,
       created: @created,
       updated: @updated
     }.to_json
   end
 
+  def taken_to_s
+    @taken.to_s
+  end
+
   def update
     if @id && valid?
-      resp = @@firestore.col('meals').doc(id).set(
+      resp = @@firestore.col('meals').doc(@id).set(
         taken: @taken,
         text: @text,
         calories: @calories,
+        user_id: @user_id,
         updated: Time.now
       )
     end
     true if resp
   end
 
-  def user; end
+  def user
+    User.get(@user_id)
+  end
 
   def valid?
-    @taken && @text && @calories
+    (!@taken.nil? && !@text.nil? && !@calories.nil? && !@user_id.nil?)
   end
 end
