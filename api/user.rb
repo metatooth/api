@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'bcrypt'
+require 'securerandom'
+
 require_relative 'model'
 
 # A User model.
@@ -10,6 +12,8 @@ class User < Model
   attr_accessor :username
   attr_accessor :password_salt
   attr_accessor :password_hash
+  attr_accessor :access_token
+  attr_accessor :access_expiry
   attr_accessor :created
   attr_accessor :updated
 
@@ -23,6 +27,15 @@ class User < Model
     nil
   end
 
+  def self.find_by_access_token(token)
+    enum = @@firestore.col('users').where('access_token', '==', token).get
+    enum.each do |doc|
+      user = User.new(doc)
+      return user if user.access_expiry > Time.now
+    end
+    nil
+  end
+  
   def self.find_by_username(username)
     enum = @@firestore.col('users').where('username', '==', username).get
     enum.each do |doc|
@@ -34,6 +47,7 @@ class User < Model
   def self.get(id)
     user_snap = @@firestore.col('users').doc(id).get
     user = User.new(user_snap) if user_snap.exists?
+
     user
   end
 
@@ -46,9 +60,11 @@ class User < Model
 
   def create
     if @id.nil? && valid? == true
+      issue_access_token
       doc_ref = @@firestore.col('users').doc
       doc_ref.set(type: @type, username: @username,
                   password_salt: @password_salt, password_hash: @password_hash,
+                  access_token: @access_token, access_expiry: @access_expiry,
                   created: Time.now, updated: Time.now)
       @id = doc_ref.document_id
     end
@@ -65,6 +81,8 @@ class User < Model
     @username = snap.get('username')
     @password_salt = snap.get('password_salt')
     @password_hash = snap.get('password_hash')
+    @access_token = snap.get('access_token')
+    @access_expiry = snap.get('access_expiry')
     @created = snap.get('created')
     @updated = snap.get('updated')
   end
@@ -85,11 +103,24 @@ class User < Model
     end
   end
 
+  def issue_access_token
+    @access_token = SecureRandom.hex(32)
+    @access_expiry = Time.now + 30 * 24 * 60 * 60
+    return @access_token if update
+
+    nil
+  end
+
   def update
-    if @id && valid?
+    if !@id.nil? && valid? == true
       resp = @@firestore.col('users').doc(@id).set(
         type: @type,
         username: @username,
+        password_hash: @password_hash,
+        password_salt: @password_salt,
+        access_token: @access_token,
+        access_expiry: @access_expiry,
+        created: @created,
         updated: Time.now
       )
     end
@@ -97,7 +128,7 @@ class User < Model
   end
 
   def valid?
-    user = User.find_by_username(@username)
+    user = User.find_by_username(@username) if @id.nil?
     (!@type.nil? && !@username.nil? && user.nil?)
   end
 end
