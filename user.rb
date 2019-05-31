@@ -37,7 +37,7 @@ class User < Model
   end
   
   def self.find_by_username(username)
-    enum = @@firestore.col('users').where('username', '==', username).get
+    enum = @@firestore.col('users').where('username', '==', username.upcase).get
     enum.each do |doc|
       return User.new(doc)
     end
@@ -62,7 +62,7 @@ class User < Model
     if @id.nil? && valid? == true
       issue_access_token
       doc_ref = @@firestore.col('users').doc
-      doc_ref.set(type: @type, username: @username,
+      doc_ref.set(type: @type, username: @username.upcase,
                   password_salt: @password_salt, password_hash: @password_hash,
                   access_token: @access_token, access_expiry: @access_expiry,
                   created: Time.now, updated: Time.now)
@@ -115,7 +115,7 @@ class User < Model
     if !@id.nil? && valid? == true
       resp = @@firestore.col('users').doc(@id).set(
         type: @type,
-        username: @username,
+        username: @username.upcase,
         password_hash: @password_hash,
         password_salt: @password_salt,
         access_token: @access_token,
