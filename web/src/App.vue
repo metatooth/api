@@ -120,6 +120,16 @@ export default {
         console.log(e)
       })
     },
+    remove: function (meal) {
+      const scope = this
+      MealsService.destroy(meal.id, this.$data.access_token)
+        .then(response => {
+          console.log(response.data)
+          scope.fetch_meals()
+        }).catch(e => {
+          console.log(e)
+        })
+    },
     save: function () {
       console.log(this.$data.access_token)
       const scope = this
