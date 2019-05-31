@@ -16,10 +16,10 @@ export default {
     },
 
     update: function (id, data, token) {
-        return HTTP.put(`${RESOURCE_NAME}/${id}`, data, { headers: { Authorization: 'Bearer ' + token } })
+        return HTTP.put(`${RESOURCE_NAME}/${id}?token=${token}`, data, { headers: { Authorization: 'Bearer ' + token } })
     },
 
     destroy: function (id, token) {
-        return HTTP.delete(`${RESOURCE_NAME}/${id}`, { headers: { Authorization: 'Bearer ' + token } })
+        return HTTP.delete(`${RESOURCE_NAME}/${id}?token=${token}`, { headers: { Authorization: 'Bearer ' + token } })
     },
 }
