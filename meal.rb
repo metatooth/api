@@ -12,11 +12,11 @@ class Meal < Model
   attr_accessor :created
   attr_accessor :updated
 
-  def self.find_by_user(_user)
+  def self.find_by_user(user_id)
     meals = []
-    meals_ref = @@firestore.col 'meals'
+    meals_ref = @@firestore.col('meals').where('user_id', '==', user_id)
     meals_ref.get do |meal|
-      meals << Meal.new(meal).to_json
+      meals << Meal.new(meal)
     end
     meals
   end
