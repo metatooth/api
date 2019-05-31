@@ -90,7 +90,13 @@ class App < Sinatra::Base
   options '/v1/meals' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'
+    response['Access-Control-Allow-Methods'] = 'GET, POST'
+  end
+
+  options '/v1/meals/:id' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
   get '/v1/meals', auth: 'user' do
