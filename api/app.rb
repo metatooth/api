@@ -48,7 +48,6 @@ class App < Sinatra::Base
   end
 
   post '/v1/signin' do
-    response['Access-Control-Allow-Origin'] = '*'
     json = JSON.parse(request.body.read)
     if (user = User.authenticate(json['username'], json['password']))
       session[:uid] = user.id
@@ -59,6 +58,8 @@ class App < Sinatra::Base
   end
 
   options '/v1/signout' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
     response['Access-Control-Allow-Methods'] = 'GET'
   end
 
@@ -67,6 +68,8 @@ class App < Sinatra::Base
   end
 
   options '/v1/signup' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
     response['Access-Control-Allow-Methods'] = 'POST'
   end
 
@@ -98,7 +101,7 @@ class App < Sinatra::Base
               Meal.find_by_user(session[:uid])
             end
 
-    meals
+    meals.to_json
   end
 
   post '/v1/meals', auth: 'user' do
