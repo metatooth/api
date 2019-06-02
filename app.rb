@@ -47,7 +47,9 @@ class App < Sinatra::Base
     response['Access-Control-Allow-Methods'] = 'POST'
   end
 
-  post '/v1/signin' do
+  post '/v1/signin' do    
+    response['Access-Control-Allow-Origin'] = '*'
+
     json = JSON.parse(request.body.read)
     if (user = User.authenticate(json['username'], json['password']))
       session[:uid] = user.id
