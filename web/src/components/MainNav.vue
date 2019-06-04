@@ -1,14 +1,24 @@
 <template>
-    <section class="section">
-      <nav class="level">
-        <div class="level-left">
-          <p class="title">Calorie Tracker</p>
-        </div>
-        <div class="level-right" v-if="token">
-          <p><a href="#" @click="signout">Sign Out</a></p>
-        </div>
-      </nav>
-    </section>
+  <section class="section">
+    <nav class="level">
+      <div class="level-left">
+        <p class="title">
+          Calorie Tracker
+        </p>
+      </div>
+      <div
+        v-if="token"
+        class="level-right"
+      >
+        <p>
+          <a
+            href="#"
+            @click="signout"
+          >Sign Out</a>
+        </p>
+      </div>
+    </nav>
+  </section>
 </template>
 
 <script>

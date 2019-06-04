@@ -1,46 +1,78 @@
 <template>
   <section class="section">
-      <div class="columns">
-        <div class="column is-4 is-offset-4">
-          <div class="field">
-            <p class="control has-icons-left">
-              <input class="input" ype="text" v-model="username" placeholder="Username" />
-              <span class="icon is-small is-left">
-                <i class="fa fa-user" aria-hidden="true"></i>
-              </span>
-            </p>
-          </div>
+    <div class="columns">
+      <div class="column is-4 is-offset-4">
         <div class="field">
-        <p class="control has-icons-left">
-          <input class="input" type="password" v-model="password" placeholder="Password" />
+          <p class="control has-icons-left">
+            <input
+              v-model="username"
+              class="input"
+              ype="text"
+              placeholder="Username"
+            >
             <span class="icon is-small is-left">
-              <i class="fa fa-lock" aria-hidden="true"></i>
+              <i
+                class="fa fa-user"
+                aria-hidden="true"
+              />
             </span>
           </p>
         </div>
         <div class="field">
-        <p class="control has-icons-left">
-          <input class="input" type="password" v-model="confirm_password" placeholder="Confirm password" @keyup.enter="signup()"/>
+          <p class="control has-icons-left">
+            <input
+              v-model="password"
+              class="input"
+              type="password"
+              placeholder="Password"
+            >
             <span class="icon is-small is-left">
-              <i class="fa fa-lock" aria-hidden="true"></i>
+              <i
+                class="fa fa-lock"
+                aria-hidden="true"
+              />
+            </span>
+          </p>
+        </div>
+        <div class="field">
+          <p class="control has-icons-left">
+            <input
+              v-model="confirm_password"
+              class="input"
+              type="password"
+              placeholder="Confirm password"
+              @keyup.enter="signup()"
+            >
+            <span class="icon is-small is-left">
+              <i
+                class="fa fa-lock"
+                aria-hidden="true"
+              />
             </span>
           </p>
         </div>
         <div class="field is-grouped">
           <p class="control">
-            <a class="button is-primary" :disabled="!isComplete" @click="signup()">Sign Up</a>
+            <a
+              class="button is-primary"
+              :disabled="!isComplete"
+              @click="signup()"
+            >Sign Up</a>
           </p>
           <p class="control">
-            <a class="button is-light" @click="cancel()">Cancel</a>
+            <a
+              class="button is-light"
+              @click="cancel()"
+            >Cancel</a>
           </p>
         </div>
         <p class="help is-danger"> 
           {{ error }}
         </p>
       </div>
-      </div>
-    </section>
-    </template>
+    </div>
+  </section>
+</template>
 
     <script>
     import AuthService from '../api-services/auth'

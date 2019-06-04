@@ -1,10 +1,34 @@
 <template>
-  <div id="app" class="container">
-    <main-nav :token="access_token" :on-signout="do_signout"></main-nav>
-    <sign-up v-if="signup_visible" :on-close="show_signin"></sign-up>
-    <sign-in v-if="signin_visible" :on-signin="do_signin" :on-signup="show_signup"></sign-in>
-    <tracker v-if="tracker_visible" :meals="meals" :token="access_token" :on-edit="show_editor"></tracker>
-    <editor v-if="editor_visible" :record="active_meal" :cache="cache_meal" :token="access_token" :on-close="show_tracker"></editor>
+  <div
+    id="app"
+    class="container"
+  >
+    <main-nav
+      :token="access_token"
+      :on-signout="do_signout"
+    />
+    <sign-up
+      v-if="signup_visible"
+      :on-close="show_signin"
+    />
+    <sign-in
+      v-if="signin_visible"
+      :on-signin="do_signin"
+      :on-signup="show_signup"
+    />
+    <tracker
+      v-if="tracker_visible"
+      :meals="meals"
+      :token="access_token"
+      :on-edit="show_editor"
+    />
+    <editor
+      v-if="editor_visible"
+      :record="active_meal"
+      :cache="cache_meal"
+      :token="access_token"
+      :on-close="show_tracker"
+    />
   </div>
 </template>
 
@@ -18,6 +42,7 @@ import SignIn from './components/SignIn.vue'
 import Tracker from './components/Tracker.vue'
 
 export default {
+  name: 'App',
   components: {
     Editor,
     MainNav,
@@ -25,7 +50,6 @@ export default {
     SignIn,
     Tracker
   },
-  name: 'app',
   data () {
     return {
       access_token: '',

@@ -1,33 +1,49 @@
 <template>
   <section class="section">
     <div class="field">
-        <div class="control">
-            <label for="taken">Meal At</label>
-            <input type="text" v-model="record.taken">
-        </div>
+      <div class="control">
+        <label for="taken">Meal At</label>
+        <input
+          v-model="record.taken"
+          type="text"
+        >
+      </div>
     </div>
     <div class="field">
-        <div class="control">
-            <label for="text">Description</label>
-            <input type="text" v-model="record.text">
-        </div>
+      <div class="control">
+        <label for="text">Description</label>
+        <input
+          v-model="record.text"
+          type="text"
+        >
+      </div>
     </div>
     <div class="field">
-        <div class="control">
-            <label for="calories">Calories</label>
-            <input type="number" v-model="record.calories">
-        </div>
+      <div class="control">
+        <label for="calories">Calories</label>
+        <input
+          v-model="record.calories"
+          type="number"
+        >
+      </div>
     </div>
     <div class="field is-grouped">
-        <p class="control">
-            <a class="button is-primary" :disabled="!isComplete" @click="save()">Save</a>
-        </p>
-        <p class="control">
-            <a class="button is-light" @click="cancel()">Cancel</a>
-        </p>
+      <p class="control">
+        <a
+          class="button is-primary"
+          :disabled="!isComplete"
+          @click="save()"
+        >Save</a>
+      </p>
+      <p class="control">
+        <a
+          class="button is-light"
+          @click="cancel()"
+        >Cancel</a>
+      </p>
     </div>
     <p class="help is-danger"> 
-        {{ error }}
+      {{ error }}
     </p>
   </section>
 </template>
@@ -38,7 +54,8 @@ import MealsService from '../api-services/meals.js'
 export default {
     props: {
         cache: {
-            type: Object
+            type: Object,
+            default: null
         },
         onClose: {
             type: Function,
@@ -47,10 +64,12 @@ export default {
             }
         },
         record: {
-            type: Object
+            type: Object,
+            default: null
         },
         token: {
-            type: String
+            type: String,
+            default: ''
         }
     },
     data: function () {
