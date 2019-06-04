@@ -185,12 +185,11 @@ class App < Sinatra::Base
   get '/v1/users', auth: 'user' do
     user = User.get(session[:uid])
 
-    if user.type == 'UserManager'
-      users = User.all
-    else
-      users = []
-      users << user
-    end
+    users = if user.type == 'UserManager'
+              User.all
+            else
+              users = [user]
+            end
 
     users.to_json
   end
