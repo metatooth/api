@@ -29,7 +29,6 @@ class App < Sinatra::Base
 
   before do
     if params[:token]
-      puts 'TOKEN!'
       user = User.find_by_access_token(params[:token])
       session[:uid] = user.id unless user.nil?
     end
@@ -108,8 +107,15 @@ class App < Sinatra::Base
             else
               Meal.find_by_user(session[:uid])
             end
+    now = Time.now
+    
+    from = Time.parse(params[:from]) if params[:from]
+    to = Time.parse(params[:to]) if params[:to]
 
-    meals.to_json
+    from ||= now - 30 * 24 * 60 * 60
+    to ||= now
+
+    meals.select{|v| v.taken > from && v.taken < to}.to_json
   end
 
   post '/v1/meals', auth: 'user' do
@@ -142,7 +148,7 @@ class App < Sinatra::Base
       if user.type == 'Admin' || user.id == meal.user_id
         vars = JSON.parse(request.body.read)
         meal.text = vars['text']
-        meal.taken = vars['taken']
+        meal.taken = Time.parse(vars['taken'])
         meal.calories = vars['calories']
         if meal.update
           meal.to_json
