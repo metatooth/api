@@ -29,7 +29,6 @@ class App < Sinatra::Base
 
   before do
     if params[:token]
-      puts 'TOKEN!'
       user = User.find_by_access_token(params[:token])
       session[:uid] = user.id unless user.nil?
     end
@@ -109,7 +108,19 @@ class App < Sinatra::Base
               Meal.find_by_user(session[:uid])
             end
 
-    meals.to_json
+    puts "PARAMS #{params}"
+
+    from = Time.parse(params[:from]) if params[:from]
+    to = Time.parse(params[:to]) if params[:to]
+
+    now = Time.now
+    from ||= now - 30 * 24 * 60 * 60
+    to ||= now
+
+    puts "FROM #{from} #{from.class}"
+    puts "TO #{to} #{to.class}"
+
+    meals.select { |v| v.taken > from }.to_json
   end
 
   post '/v1/meals', auth: 'user' do
@@ -142,7 +153,7 @@ class App < Sinatra::Base
       if user.type == 'Admin' || user.id == meal.user_id
         vars = JSON.parse(request.body.read)
         meal.text = vars['text']
-        meal.taken = vars['taken']
+        meal.taken = Time.parse(vars['taken'])
         meal.calories = vars['calories']
         if meal.update
           meal.to_json
@@ -185,12 +196,11 @@ class App < Sinatra::Base
   get '/v1/users', auth: 'user' do
     user = User.get(session[:uid])
 
-    if user.type == 'UserManager'
-      users = User.all
-    else
-      users = []
-      users << user
-    end
+    users = if user.type == 'UserManager'
+              User.all
+            else
+              users = [user]
+            end
 
     users.to_json
   end
@@ -230,7 +240,7 @@ class App < Sinatra::Base
   delete '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
       curr = User.get(session[:uid])
-      if user.id = curr.id || user.type == 'UserManager'
+      if user.id == curr.id || user.type == 'UserManager'
         user.destroy
       else
         halt 401

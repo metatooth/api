@@ -90,6 +90,7 @@ export default {
     },
     methods: {
       signin: function() {
+        this.error = ''
         AuthService.signin({ username: this.username, password: this.password })
           .then(response => {
             this.username = ''

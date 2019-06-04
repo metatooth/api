@@ -12,6 +12,15 @@ class Meal < Model
   attr_accessor :created
   attr_accessor :updated
 
+  def self.all
+    meals = []
+    meals_ref = @@firestore.col('meals')
+    meals_ref.get do |meal|
+      meals << Meal.new(meal)
+    end
+    meals
+  end
+
   def self.find_by_user(user_id)
     meals = []
     meals_ref = @@firestore.col('meals').where('user_id', '==', user_id)
@@ -63,7 +72,7 @@ class Meal < Model
 
   def init_from_hash(params)
     @taken = params[:taken]
-    @text = params[:text]
+    @text = Time.parse(params[:text])
     @calories = params[:calories]
     @user_id = params[:user_id]
   end
@@ -80,13 +89,8 @@ class Meal < Model
 
   def to_json(*_args)
     {
-      id: @id,
-      taken: @taken,
-      text: @text,
-      calories: @calories,
-      user_id: @user_id,
-      created: @created,
-      updated: @updated
+      id: @id, taken: @taken, text: @text, calories: @calories,
+      user_id: @user_id, created: @created, updated: @updated
     }.to_json
   end
 
@@ -97,11 +101,8 @@ class Meal < Model
   def update
     if @id && valid?
       resp = @@firestore.col('meals').doc(@id).set(
-        taken: @taken,
-        text: @text,
-        calories: @calories,
-        user_id: @user_id,
-        updated: Time.now
+        taken: @taken, text: @text, calories: @calories,
+        user_id: @user_id, created: @created, updated: Time.now
       )
     end
     true if resp

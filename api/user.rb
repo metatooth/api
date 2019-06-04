@@ -18,6 +18,15 @@ class User < Model
   attr_accessor :created
   attr_accessor :updated
 
+  def self.all
+    users = []
+    users_ref = @@firestore.col('users')
+    users_ref.get do |user|
+      users << User.new(user)
+    end
+    users
+  end
+
   def self.authenticate(username, password)
     user = User.find_by_username(username)
     if user
@@ -29,7 +38,8 @@ class User < Model
   end
 
   def self.find_by_access_token(token)
-    enum = @@firestore.col('users').where('access_token', '==', token).get
+    enum = @@firestore.col('users')
+                      .where('access_token', '==', token).get
     enum.each do |doc|
       user = User.new(doc)
       return user if user.access_expiry > Time.now
@@ -39,7 +49,8 @@ class User < Model
 
   def self.find_by_username(username)
     unless username.nil?
-      enum = @@firestore.col('users').where('username', '==', username.upcase).get
+      enum = @@firestore.col('users')
+                        .where('username', '==', username.upcase).get
       enum.each do |doc|
         return User.new(doc)
       end
@@ -65,7 +76,8 @@ class User < Model
     if @id.nil? && valid? == true
       issue_access_token
       doc_ref = @@firestore.col('users').doc
-      doc_ref.set(type: @type, username: @username.upcase, expected_daily_calories: 2000,
+      doc_ref.set(type: @type, username: @username.upcase,
+                  expected_daily_calories: 2000,
                   password_salt: @password_salt, password_hash: @password_hash,
                   access_token: @access_token, access_expiry: @access_expiry,
                   created: Time.now, updated: Time.now)
@@ -81,6 +93,7 @@ class User < Model
 
   def init_from_snap(snap)
     @id = snap.document_id
+    @type = snap.get('type')
     @username = snap.get('username')
     @expected_daily_calories = snap.get('expected_daily_calories')
     @password_salt = snap.get('password_salt')
@@ -92,6 +105,7 @@ class User < Model
   end
 
   def init_from_hash(params)
+    @type = params[:type]
     @username = params[:username]
     @expected_daily_calories = params[:expected_daily_calories]
     @password_salt = BCrypt::Engine.generate_salt
@@ -119,6 +133,7 @@ class User < Model
   def to_json(*_args)
     {
       id: @id,
+      type: @type,
       username: @username,
       expected_daily_calories: @expected_daily_calories,
       created: @created,
