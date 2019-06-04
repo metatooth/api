@@ -28,6 +28,12 @@ class App < Sinatra::Base
   end
 
   before do
+    if params[:token]
+      puts "TOKEN!"
+      user = User.find_by_access_token(params[:token])
+      session[:uid] = user.id if !user.nil?
+    end
+    response['Access-Control-Allow-Origin'] = '*'
     @user = User.get(session[:uid])
   end
 
@@ -35,20 +41,41 @@ class App < Sinatra::Base
     'Hello, anonymous.'
   end
 
-  post '/signin' do
+  options '/v1/signin' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
+    response['Access-Control-Allow-Methods'] = 'POST'
+  end
+
+  post '/v1/signin' do    
+    response['Access-Control-Allow-Origin'] = '*'
+
     json = JSON.parse(request.body.read)
     if (user = User.authenticate(json['username'], json['password']))
       session[:uid] = user.id
+      return user.issue_access_token
     else
       halt 401
     end
   end
 
-  get '/signout' do
+  options '/v1/signout' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
+    response['Access-Control-Allow-Methods'] = 'GET'
+  end
+
+  get '/v1/signout' do
     session[:uid] = nil
   end
 
-  post '/signup' do
+  options '/v1/signup' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
+    response['Access-Control-Allow-Methods'] = 'POST'
+  end
+
+  post '/v1/signup' do
     content_type :json
     json = JSON.parse(request.body.read)
     if (user = User.signup(json['username'], json['password']))
@@ -58,8 +85,20 @@ class App < Sinatra::Base
     end
   end
 
-  get '/version' do
+  get '/v1/version' do
     { path: '/v1/meals', version: Version.string }.to_json
+  end
+
+  options '/v1/meals' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'GET, POST'
+  end
+
+  options '/v1/meals/:id' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
   get '/v1/meals', auth: 'user' do
@@ -70,7 +109,7 @@ class App < Sinatra::Base
               Meal.find_by_user(session[:uid])
             end
 
-    meals
+    meals.to_json
   end
 
   post '/v1/meals', auth: 'user' do
