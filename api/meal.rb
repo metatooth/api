@@ -72,7 +72,7 @@ class Meal < Model
 
   def init_from_hash(params)
     @taken = params[:taken]
-    @text = params[:text]
+    @text = Time.parse(params[:text])
     @calories = params[:calories]
     @user_id = params[:user_id]
   end
@@ -110,6 +110,7 @@ class Meal < Model
         text: @text,
         calories: @calories,
         user_id: @user_id,
+        created: @created,
         updated: Time.now
       )
     end
