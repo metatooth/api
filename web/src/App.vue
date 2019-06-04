@@ -4,7 +4,7 @@
     <sign-up v-if="signup_visible" :on-close="show_signin"></sign-up>
     <sign-in v-if="signin_visible" :on-signin="do_signin" :on-signup="show_signup"></sign-in>
     <tracker v-if="tracker_visible" :meals="meals" :token="access_token" :on-edit="show_editor"></tracker>
-    <editor v-if="editor_visible" :meal="active_meal" :token="access_token" :on-close="show_tracker"></editor>
+    <editor v-if="editor_visible" :record="active_meal" :cache="cache_meal" :token="access_token" :on-close="show_tracker"></editor>
   </div>
 </template>
 
@@ -30,6 +30,7 @@ export default {
     return {
       access_token: '',
       active_meal: null,
+      cache_meal: null,
       editor_visible: false,
       meals: [],
       signin_visible: true,
@@ -53,9 +54,17 @@ export default {
     },
     do_signout: function() {
       this.access_token = ''
+      this.show_signin()
     },
     show_editor: function (meal) {
       this.active_meal = meal
+      
+      this.cache_meal = {}
+      this.cache_meal['id'] = meal['id']
+      this.cache_meal['taken'] = meal['taken']
+      this.cache_meal['text'] = meal['text']
+      this.cache_meal['calories'] = meal['calories']
+
       this.signin_visible = false
       this.signup_visible = false
       this.tracker_visible = false
