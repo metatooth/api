@@ -37,9 +37,11 @@ class User < Model
   end
   
   def self.find_by_username(username)
-    enum = @@firestore.col('users').where('username', '==', username.upcase).get
-    enum.each do |doc|
-      return User.new(doc)
+    if !username.nil?
+      enum = @@firestore.col('users').where('username', '==', username.upcase).get
+      enum.each do |doc|
+        return User.new(doc)
+      end
     end
     nil
   end
