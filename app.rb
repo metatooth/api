@@ -107,15 +107,20 @@ class App < Sinatra::Base
             else
               Meal.find_by_user(session[:uid])
             end
-    now = Time.now
-    
+
+    puts "PARAMS #{params}"
+
     from = Time.parse(params[:from]) if params[:from]
     to = Time.parse(params[:to]) if params[:to]
 
+    now = Time.now
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    meals.select{|v| v.taken > from && v.taken < to}.to_json
+    puts "FROM #{from} #{from.class}"
+    puts "TO #{to} #{to.class}"
+
+    meals.select { |v| v.taken > from }.to_json
   end
 
   post '/v1/meals', auth: 'user' do
@@ -235,7 +240,7 @@ class App < Sinatra::Base
   delete '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
       curr = User.get(session[:uid])
-      if user.id = curr.id || user.type == 'UserManager'
+      if user.id == curr.id || user.type == 'UserManager'
         user.destroy
       else
         halt 401

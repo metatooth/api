@@ -38,7 +38,8 @@ class User < Model
   end
 
   def self.find_by_access_token(token)
-    enum = @@firestore.col('users').where('access_token', '==', token).get
+    enum = @@firestore.col('users')
+                      .where('access_token', '==', token).get
     enum.each do |doc|
       user = User.new(doc)
       return user if user.access_expiry > Time.now
@@ -48,7 +49,8 @@ class User < Model
 
   def self.find_by_username(username)
     unless username.nil?
-      enum = @@firestore.col('users').where('username', '==', username.upcase).get
+      enum = @@firestore.col('users')
+                        .where('username', '==', username.upcase).get
       enum.each do |doc|
         return User.new(doc)
       end
@@ -74,7 +76,8 @@ class User < Model
     if @id.nil? && valid? == true
       issue_access_token
       doc_ref = @@firestore.col('users').doc
-      doc_ref.set(type: @type, username: @username.upcase, expected_daily_calories: 2000,
+      doc_ref.set(type: @type, username: @username.upcase,
+                  expected_daily_calories: 2000,
                   password_salt: @password_salt, password_hash: @password_hash,
                   access_token: @access_token, access_expiry: @access_expiry,
                   created: Time.now, updated: Time.now)
