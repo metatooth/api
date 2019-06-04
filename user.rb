@@ -10,6 +10,7 @@ class User < Model
   attr_accessor :id
   attr_accessor :type
   attr_accessor :username
+  attr_accessor :expected_daily_calories
   attr_accessor :password_salt
   attr_accessor :password_hash
   attr_accessor :access_token
@@ -35,9 +36,9 @@ class User < Model
     end
     nil
   end
-  
+
   def self.find_by_username(username)
-    if !username.nil?
+    unless username.nil?
       enum = @@firestore.col('users').where('username', '==', username.upcase).get
       enum.each do |doc|
         return User.new(doc)
@@ -64,7 +65,7 @@ class User < Model
     if @id.nil? && valid? == true
       issue_access_token
       doc_ref = @@firestore.col('users').doc
-      doc_ref.set(type: @type, username: @username.upcase,
+      doc_ref.set(type: @type, username: @username.upcase, expected_daily_calories: 2000,
                   password_salt: @password_salt, password_hash: @password_hash,
                   access_token: @access_token, access_expiry: @access_expiry,
                   created: Time.now, updated: Time.now)
@@ -81,6 +82,7 @@ class User < Model
   def init_from_snap(snap)
     @id = snap.document_id
     @username = snap.get('username')
+    @expected_daily_calories = snap.get('expected_daily_calories')
     @password_salt = snap.get('password_salt')
     @password_hash = snap.get('password_hash')
     @access_token = snap.get('access_token')
@@ -91,6 +93,7 @@ class User < Model
 
   def init_from_hash(params)
     @username = params[:username]
+    @expected_daily_calories = params[:expected_daily_calories]
     @password_salt = BCrypt::Engine.generate_salt
     @password_hash =
       BCrypt::Engine.hash_secret(params[:password], @password_salt)
@@ -113,11 +116,22 @@ class User < Model
     nil
   end
 
+  def to_json(*_args)
+    {
+      id: @id,
+      username: @username,
+      expected_daily_calories: @expected_daily_calories,
+      created: @created,
+      updated: @updated
+    }.to_json
+  end
+
   def update
     if !@id.nil? && valid? == true
       resp = @@firestore.col('users').doc(@id).set(
         type: @type,
         username: @username.upcase,
+        expected_daily_calories: @expected_daily_calories,
         password_hash: @password_hash,
         password_salt: @password_salt,
         access_token: @access_token,
