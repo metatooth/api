@@ -18,6 +18,15 @@ class User < Model
   attr_accessor :created
   attr_accessor :updated
 
+  def self.all
+    users = []
+    users_ref = @@firestore.col('users')
+    users_ref.get do |user|
+      users << User.new(user)
+    end
+    users
+  end
+
   def self.authenticate(username, password)
     user = User.find_by_username(username)
     if user
@@ -81,6 +90,7 @@ class User < Model
 
   def init_from_snap(snap)
     @id = snap.document_id
+    @type = snap.get('type')
     @username = snap.get('username')
     @expected_daily_calories = snap.get('expected_daily_calories')
     @password_salt = snap.get('password_salt')
@@ -92,6 +102,7 @@ class User < Model
   end
 
   def init_from_hash(params)
+    @type = params[:type]
     @username = params[:username]
     @expected_daily_calories = params[:expected_daily_calories]
     @password_salt = BCrypt::Engine.generate_salt
@@ -119,6 +130,7 @@ class User < Model
   def to_json(*_args)
     {
       id: @id,
+      type: @type,
       username: @username,
       expected_daily_calories: @expected_daily_calories,
       created: @created,
