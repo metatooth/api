@@ -10,12 +10,32 @@
         v-if="token"
         class="level-right"
       >
-        <p>
-          <a
-            href="#"
-            @click="signout"
-          >Sign Out</a>
-        </p>
+        <aside class="menu">
+          <ul class="menu-list">
+            <li>
+              <a
+                href="#"
+                @click="settings"
+              >
+                <span class="icon has-icon-left">
+                  <i class="fas fa-user-cog" />
+                </span>
+                Settings
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                @click="signout"
+              >
+                <span class="icon has-icon-left">
+                  <i class="fas fa-sign-out-alt" />
+                </span>
+                Sign Out
+              </a>
+            </li>
+          </ul>
+        </aside>
       </div>
     </nav>
   </section>
@@ -23,6 +43,7 @@
 
 <script>
 import AuthService from '../api-services/auth'
+import UsersService from '../api-services/users'
 
 export default {
     props: {
@@ -30,14 +51,23 @@ export default {
             type: String,
             default: ''
         },
+        onSettings: {
+          type: Function,
+          default: function () {
+            return null
+          }
+        },
         onSignout: {
             type: Function,
             default: function () {
-
+              return null
             }
         }
     },
     methods: {
+        settings: function () {
+          this.onSettings()
+        },
         signout: function () {
             AuthService.signout().then(response => {
                 this.onSignout()

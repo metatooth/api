@@ -5,6 +5,7 @@
   >
     <main-nav
       :token="access_token"
+      :on-settings="do_settings"
       :on-signout="do_signout"
     />
     <sign-up
@@ -29,14 +30,23 @@
       :token="access_token"
       :on-close="show_tracker"
     />
+    <settings
+      v-if="settings_visible"
+      :record="active_user"
+      :cache="cache_user"
+      :token="access_token"
+      :on-close="show_tracker"
+    />
   </div>
 </template>
 
 <script>
 import MealsService from './api-services/meals'
+import UsersService from './api-services/users'
 
 import Editor from './components/Editor.vue'
 import MainNav from './components/MainNav.vue'
+import Settings from './components/Settings.vue'
 import SignUp from './components/SignUp.vue'
 import SignIn from './components/SignIn.vue'
 import Tracker from './components/Tracker.vue'
@@ -46,6 +56,7 @@ export default {
   components: {
     Editor,
     MainNav,
+    Settings,
     SignUp,
     SignIn,
     Tracker
@@ -54,9 +65,12 @@ export default {
     return {
       access_token: '',
       active_meal: null,
+      active_user: null,
       cache_meal: null,
+      cache_user: null,
       editor_visible: false,
       meals: [],
+      settings_visible: false,
       signin_visible: true,
       signup_visible: false,
       tracker_visible: false,
@@ -67,10 +81,29 @@ export default {
     do_cancel_signup: function () {
       this.show_signin()
     },
+    do_settings: function () {
+      this.show_settings()
+    },
     do_signin: function(token) {
       this.access_token = token
       MealsService.get_all(this.access_token).then(response => {
         this.meals = response.data
+      }).catch(error => {
+        console.log(error)
+      })
+
+      UsersService.get_all(this.access_token).then(response => {
+        console.log(response.data[0])
+        if (response.data.length == 1) {
+          // :TRICKY: 20190604 Terry: This single entry _should_ match the authenticated user. 
+          this.active_user = response.data[0]
+        } else {
+          for (let i = 0; i < response.data.length; ++i) {
+            if (response.data[i].access_token == this.access_token) {
+              this.active_user = response.data[i]
+            }
+          }
+        }
         this.show_tracker()
       }).catch(error => {
         console.log(error)
@@ -89,12 +122,24 @@ export default {
       this.cache_meal['text'] = meal['text']
       this.cache_meal['calories'] = meal['calories']
 
+      this.settings_visible = false
       this.signin_visible = false
       this.signup_visible = false
       this.tracker_visible = false
       this.editor_visible = true
     },
+    show_settings: function () {
+      this.cache_user = {}
+      this.cache_user['expected_daily_calories'] = this.active_user['expected_daily_calories']
+
+      this.settings_visible = true
+      this.signin_visible = false
+      this.signup_visible = false
+      this.tracker_visible = false
+      this.editor_visible = false
+    },
     show_signin: function () {
+      this.settings_visible = false
       this.signin_visible = true
       this.signup_visible = false
       this.tracker_visible = false
@@ -102,12 +147,14 @@ export default {
     },
     show_signup: function () {
       this.signin_visible = false
+      this.settings_visible = false
       this.signup_visible = true
       this.tracker_visible = false
       this.editor_visible = false
     },
     show_tracker: function () {
       this.active_meal = null
+      this.settings_visible = false
       this.signin_visible = false
       this.signup_visible = false
       this.tracker_visible = true
