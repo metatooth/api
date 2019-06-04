@@ -29,9 +29,9 @@ class App < Sinatra::Base
 
   before do
     if params[:token]
-      puts "TOKEN!"
+      puts 'TOKEN!'
       user = User.find_by_access_token(params[:token])
-      session[:uid] = user.id if !user.nil?
+      session[:uid] = user.id unless user.nil?
     end
     response['Access-Control-Allow-Origin'] = '*'
     @user = User.get(session[:uid])
@@ -47,7 +47,7 @@ class App < Sinatra::Base
     response['Access-Control-Allow-Methods'] = 'POST'
   end
 
-  post '/v1/signin' do    
+  post '/v1/signin' do
     response['Access-Control-Allow-Origin'] = '*'
 
     json = JSON.parse(request.body.read)
@@ -162,6 +162,76 @@ class App < Sinatra::Base
       user = User.get(session[:uid])
       if user.type == 'Admin' || user.id == meal.user_id
         meal.destroy
+      else
+        halt 401
+      end
+    else
+      halt 500
+    end
+  end
+
+  options '/v1/users' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'GET'
+  end
+
+  options '/v1/users/:id' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
+  end
+
+  get '/v1/users', auth: 'user' do
+    user = User.get(session[:uid])
+
+    if user.type == 'UserManager'
+      users = User.all
+    else
+      users = []
+      users << user
+    end
+
+    users.to_json
+  end
+
+  get '/v1/users/:id', auth: 'user' do
+    if (user = User.get(params[:id]))
+      curr = User.get(session[:uid])
+      if curr.id == user.id || curr.type == 'UserManager'
+        user.to_json
+      else
+        halt 401
+      end
+    else
+      halt 500
+    end
+  end
+
+  put '/v1/users/:id', auth: 'user' do
+    if (user = User.get(params[:id]))
+      curr = User.get(session[:uid])
+      if curr.id == user.id || curr.type == 'UserManager'
+        vars = JSON.parse(request.body.read)
+        user.expected_daily_calories = vars['expected_daily_calories']
+        if user.update
+          user.to_json
+        else
+          halt 500
+        end
+      else
+        halt 401
+      end
+    else
+      halt 500
+    end
+  end
+
+  delete '/v1/users/:id', auth: 'user' do
+    if (user = User.get(params[:id]))
+      curr = User.get(session[:uid])
+      if user.id = curr.id || user.type == 'UserManager'
+        user.destroy
       else
         halt 401
       end
