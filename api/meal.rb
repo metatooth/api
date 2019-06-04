@@ -89,13 +89,8 @@ class Meal < Model
 
   def to_json(*_args)
     {
-      id: @id,
-      taken: @taken,
-      text: @text,
-      calories: @calories,
-      user_id: @user_id,
-      created: @created,
-      updated: @updated
+      id: @id, taken: @taken, text: @text, calories: @calories,
+      user_id: @user_id, created: @created, updated: @updated
     }.to_json
   end
 
@@ -106,12 +101,8 @@ class Meal < Model
   def update
     if @id && valid?
       resp = @@firestore.col('meals').doc(@id).set(
-        taken: @taken,
-        text: @text,
-        calories: @calories,
-        user_id: @user_id,
-        created: @created,
-        updated: Time.now
+        taken: @taken, text: @text, calories: @calories,
+        user_id: @user_id, created: @created, updated: Time.now
       )
     end
     true if resp

@@ -3,8 +3,18 @@ import {HTTP} from './http-common'
 const RESOURCE_NAME = '/meals'
 
 export default {
-    get_all: function (token) {
-        return HTTP.get(`${RESOURCE_NAME}?token=${token}`)
+    get_all: function (token, from = null, to = null) {
+        let resource = `${RESOURCE_NAME}?token=${token}`
+        
+        if (from) {
+            resource = resource + `&from=${from}`
+        }
+
+        if (to) {
+            resource = resource + `&to=${to}`
+        }
+        
+        return HTTP.get(resource)
     },
 
     get: function (id, token) {

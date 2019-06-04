@@ -86,11 +86,13 @@ export default {
     },
     do_signin: function(token) {
       this.access_token = token
-      MealsService.get_all(this.access_token).then(response => {
-        this.meals = response.data
-      }).catch(error => {
-        console.log(error)
-      })
+      
+      MealsService.get_all(this.access_token)
+        .then(response => {
+          this.meals = response.data
+        }).catch(error => {
+          console.log(error)
+        })
 
       UsersService.get_all(this.access_token).then(response => {
         console.log(response.data[0])

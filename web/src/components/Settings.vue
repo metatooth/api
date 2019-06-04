@@ -1,5 +1,8 @@
 <template>
   <section class="section">
+    <p>
+      Hello, {{ record.username }}!
+    </p>
     <div class="field">
       <div class="control">
         <label for="expected_daily_calories">Expected Daily Calories</label>
