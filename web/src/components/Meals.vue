@@ -2,7 +2,7 @@
   <section class="section">
     <hr>
     <p class="subtitle">
-      Query meals
+      Filter report
     </p>
     <div class="field is-grouped">
       <div class="control">
