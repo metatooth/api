@@ -1,140 +1,124 @@
 <template>
   <section class="section">
-    <section class="section">
-      <div class="field is-grouped">
-        <div class="control">
-          <label>From Date
-            <input
-              v-model="fromDate"
-              type="text"
-            >
-          </label>
+    <div class="field is-grouped">
+      <div class="control">
+        <label>From Date
+          <input
+            v-model="fromDate"
+            type="text"
+            placeholder="For example, 2007-08-03"
+          >
+        </label>
 
-          <label>To Date
-            <input
-              v-model="toDate"
-              type="text"
-            >
-          </label>
-        </div>
+        <label>To Date
+          <input
+            v-model="toDate"
+            type="text"
+            placeholder="For example, 2009-09-11"
+          >
+        </label>
+        <a
+          class="button is-primary"
+          @click="filter"
+        >Query</a>
       </div>
-
-      <div class="field is-grouped">
-        <div class="control">
-          <label>Between
-            <input
-              v-model="fromTime"
-              type="text"
-            >
-          </label>
-
-          <label>And
-            <input
-              v-model="toTime"
-              type="text"
-            >
-          </label>
-        </div>
-      </div>      
-      <div class="field">
-        <div class="control">
-          <a
-            class="button is-primary"
-            @click="filter"
-          >Filter</a>
-        </div>
+    </div>
+    <p class="help is-danger">
+      {{ filter_errors }}
+    </p>
+    <div class="field is-grouped">
+      <div class="control">
+        <label>Between
+          <input
+            v-model="fromTime"
+            type="text"
+            placeholder="For example, 17"
+          >
+        </label>
+        <label>And
+          <input
+            v-model="toTime"
+            type="text"
+            placeholder="For example, 17:30"
+          >
+        </label>
       </div>
-      <p class="help is-danger">
-        {{ filter_errors }}
-      </p>
-    </section>
-    <section
+    </div>      
+    <table
       v-show="meals.length"
       v-cloak
-      class="main"
+      class="table"
     >
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Meal At</th>
-            <th>Description</th>
-            <th>Calories</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="meal in decoratedMeals" 
-            :key="meal.id"
-            class="meal-list"
-            :class="{ highlight: meal.overlimit }"
-          >
-            <td>
-              {{ meal.taken }}
-            </td>
-            <td>
-              {{ meal.text }}
-            </td>
-            <td>
-              {{ meal.calories }}
-            </td>
-            <td>
-              <a
-                class="button is-primary"
-                @click="edit(meal)"
-              >
-                <span class="icon">
-                  <i class="fas fa-edit" />
-                </span>
-              </a>
+      <thead>
+        <tr>
+          <th>Meal At</th>
+          <th>Description</th>
+          <th>Calories</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="meal in decoratedMeals" 
+          :key="meal.id"
+          class="meal-list"
+          :class="{ highlight: meal.overlimit }"
+        >
+          <td>
+            {{ meal.yyyymmdd }} {{ meal.hhmm }}
+          </td>
+          <td>
+            {{ meal.text }}
+          </td>
+          <td>
+            {{ meal.calories }}
+          </td>
+          <td>
+            <a
+              class="button"
+              @click="edit(meal)"
+            >
+              <span class="icon">
+                <i class="fas fa-edit" />
+              </span>
+            </a>
                 &nbsp;
-              <a
-                class="button is-danger"
-                @click="remove(meal)"
-              >
-                <span class="icon">
-                  <i class="fas fa-times" />
-                </span>
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-    <section class="section">
-      <div class="field">
-        <div class="control">
-          <label>Description
-            <input
-              v-model.trim="text"
-              type="text"
-              placeholder="Description"
+            <a
+              class="button"
+              @click="remove(meal)"
             >
-          </label>
-        </div>
+              <span class="icon">
+                <i class="fas fa-times" />
+              </span>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="field is-grouped">
+      <div class="control">
+        <label>Description
+          <input
+            v-model.trim="text"
+            type="text"
+            placeholder="Description"
+          >
+        </label>
+        <label>Calories
+          <input
+            v-model="calories"
+            type="number"
+            placeholder="Calories"
+            @keyup.enter="save()"
+          >
+        </label>
+        <a
+          class="button is-primary"
+          :disabled="!isComplete"
+          @click="save()"
+        >Save</a>
       </div>
-      <div class="field">
-        <div class="control">
-          <label>Calories
-            <input
-              v-model="calories"
-              type="number"
-              placeholder="Calories"
-              @keyup.enter="save()"
-            >
-          </label>
-        </div>
-      </div>
-      <div class="field">
-        <div class="control">
-          <a
-            class="button is-primary"
-            :disabled="!isComplete"
-            @click="save()"
-          >Save</a>
-        </div>
-      </div>
-    </section>
+    </div>
   </section>
 </template>
 
@@ -184,17 +168,46 @@ export default {
       const daily = new Object
       for (let i = 0; i < this.meals.length; ++i) {
         const taken = new Date(this.meals[i].taken)
-        daily[taken.yyyymmdd()] = 0
-      }
-      for (let i = 0; i < this.meals.length; ++i) {
-        const taken = new Date(this.meals[i].taken)
+        if (!daily[taken.yyyymmdd()]) {
+          daily[taken.yyyymmdd()] = 0 
+        }
+      
         daily[taken.yyyymmdd()] = daily[taken.yyyymmdd()] + parseInt(this.meals[i].calories)
       }
-      for (let i = 0; i < this.meals.length; ++i) {
-        const taken = new Date(this.meals[i].taken)
-        this.meals[i].overlimit = (daily[taken.yyyymmdd()] > this.expectedDailyCalories)
+      const from = this.fromTime.split(':')
+      if (!from[1]) {
+        from[1] = 0
       }
-      return this.meals
+
+      const to = this.toTime.split(':')
+      if (!to[1]) {
+        to[1] = 0
+      }
+
+      const filtered = new Array
+      for (let i = 0; i < this.meals.length; ++i) {
+        const meal = this.meals[i]
+        const taken = new Date(meal.taken)
+        meal.overlimit = (daily[taken.yyyymmdd()] > this.expectedDailyCalories)
+        meal.yyyymmdd = taken.yyyymmdd()
+        meal.hhmm = taken.getHours() + ':' + taken.getMinutes()
+        if (taken.getHours() >= from[0] && taken.getMinutes() >= from[1]) {
+          if (taken.getHours() < to[0]) {
+            filtered.push(this.meals[i])
+          } else if (taken.getHours() == to[0] && taken.getMinutes <= to[1]) {
+            filtered.push(meal)
+          }
+        }
+      }
+      return filtered.sort(function (a, b) {
+        if (new Date(a.taken) > new Date(b.taken)) {
+          return -1
+        } else if (new Date(a.taken) < new Date(b.taken)) {
+          return 1
+        } else {
+          return null
+        }
+      })
     }
   },
   created: function () {
@@ -202,8 +215,8 @@ export default {
     this.toDate = d.yyyymmdd()
     d.setDate(d.getDate() - 30)
     this.fromDate = d.yyyymmdd()
-    this.fromTime = '00:00'
-    this.toTime = '24:00'
+    this.fromTime = '0'
+    this.toTime = '24'
   },
   methods: {
     clearMeal: function () {
@@ -221,28 +234,10 @@ export default {
       } else if (!this.validDate(this.toDate)) {
         console.log('bad to-date format ' + this.toDate)
         this.filter_errors = 'To Date must be formatted as YYYY-mm-dd'
-      } else if (!this.validTime(this.toTime)) {
-        console.log('bad to-time format ' + this.toTime)
-        this.filter_errors = 'To Time must be formatted as HH:MM'
-      } else if (!this.validTime(this.fromTime)) {
-        console.log('bad from-time format ' + this.fromTime)
-        this.filter_errors = 'From Time must be formatted as HH:MM'
       } else {
         MealsService.get_all(this.token, this.fromDate, this.toDate)
           .then(response => {
-            const from = this.fromTime.split(':')
-            const to = this.toTime.split(':')
-            this.meals = new Array
-            for (let i = 0; i < response.data.length; ++i) {
-              const taken = new Date(response.data[i].taken)
-              if (taken.getHours() >= from[0] && taken.getMinutes() >= from[1]) {
-                if (taken.getHours() < to[0]) {
-                  this.meals.push(response.data[i])
-                } else if (taken.getHours() == to[0] && taken.getMinutes <= to[1]) {
-                  this.meals.push(response.data[i])
-                }
-              }
-            }
+            this.meals = response.data
         }).catch(error => {
           console.log(error)
         })
@@ -285,10 +280,10 @@ export default {
 
 <style>
 .meal-list {
-  background: #00cc00
+  background: #66bb66
 }
 
 .highlight {
-  background: #cc0000
+  background: #bb6666
 }
 </style>
