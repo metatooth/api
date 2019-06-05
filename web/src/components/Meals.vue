@@ -1,6 +1,6 @@
 <template>
   <section class="section">
-    <hr/>
+    <hr>
     <p class="subtitle">
       Filter table
     </p>
@@ -48,7 +48,7 @@
         </label>
       </div>
     </div> 
-    <hr/>  
+    <hr>  
     <table
       v-show="meals.length"
       v-cloak
@@ -100,7 +100,7 @@
         </tr>
       </tbody>
     </table>
-    <hr/>
+    <hr>
     <p class="subtitle">
       Add a meal
     </p>
@@ -137,8 +137,8 @@ import MealsService from '../api-services/meals'
 export default {
   props: {
     expectedDailyCalories: {
-      type: String,
-      default: ''
+      type: Number,
+      default: 2000
     },
     meals: {
       type: Array,
@@ -197,9 +197,11 @@ export default {
       for (let i = 0; i < this.meals.length; ++i) {
         const meal = this.meals[i]
         const taken = new Date(meal.taken)
+        
         meal.overlimit = (daily[taken.yyyymmdd()] > this.expectedDailyCalories)
         meal.yyyymmdd = taken.yyyymmdd()
         meal.hhmm = taken.getHours() + ':' + taken.getMinutes()
+        
         if (taken.getHours() >= from[0] && taken.getMinutes() >= from[1]) {
           if (taken.getHours() < to[0]) {
             filtered.push(this.meals[i])

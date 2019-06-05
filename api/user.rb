@@ -67,6 +67,7 @@ class User < Model
 
   def self.signup(username, password)
     user = User.new(username: username, password: password)
+    user.type = 'User'
     return user if user.create
 
     nil
@@ -106,12 +107,15 @@ class User < Model
   end
 
   def init_from_hash(params)
-    @type = 'User'
     @username = params[:username]
     @expected_daily_calories = params[:expected_daily_calories]
+    init_password_salt_and_hash(params[:password])
+  end
+
+  def init_password_salt_and_hash(password)
     @password_salt = BCrypt::Engine.generate_salt
     @password_hash =
-      BCrypt::Engine.hash_secret(params[:password], @password_salt)
+      BCrypt::Engine.hash_secret(password, @password_salt)
   end
 
   def initialize(params)
@@ -120,6 +124,14 @@ class User < Model
     elsif params.class == Hash
       init_from_hash(params)
     end
+  end
+
+  def is_admin?
+    return (@type == 'Admin')
+  end
+
+  def is_user_manager?
+    return ((@type == 'UserManager') || is_admin?)
   end
 
   def issue_access_token
@@ -131,11 +143,15 @@ class User < Model
   end
 
   def to_json(*_args)
+    # :NOTE: 20190605 Terry: I think this is safe. Only authorized users can access the API,
+    # and only User Managers can accesss the attributes of another user.
     {
       id: @id,
       type: @type,
       username: @username,
       expected_daily_calories: @expected_daily_calories,
+      access_token: @access_token,
+      access_expiry: @access_token,
       created: @created,
       updated: @updated
     }.to_json
