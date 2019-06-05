@@ -64,7 +64,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="meal in meals" 
+            v-for="meal in decoratedMeals" 
             :key="meal.id"
             class="meal-list"
             :class="{ highlight: meal.overlimit }"
@@ -143,6 +143,10 @@ import MealsService from '../api-services/meals'
 
 export default {
   props: {
+    expectedDailyCalories: {
+      type: String,
+      default: ''
+    },
     meals: {
       type: Array,
       default: function () {
@@ -175,6 +179,22 @@ export default {
   computed: {
     isComplete: function () {
       return (this.text.length != 0 && this.calories.length != 0)
+    },
+    decoratedMeals: function () {
+      const daily = new Object
+      for (let i = 0; i < this.meals.length; ++i) {
+        const taken = new Date(this.meals[i].taken)
+        daily[taken.yyyymmdd()] = 0
+      }
+      for (let i = 0; i < this.meals.length; ++i) {
+        const taken = new Date(this.meals[i].taken)
+        daily[taken.yyyymmdd()] = daily[taken.yyyymmdd()] + parseInt(this.meals[i].calories)
+      }
+      for (let i = 0; i < this.meals.length; ++i) {
+        const taken = new Date(this.meals[i].taken)
+        this.meals[i].overlimit = (daily[taken.yyyymmdd()] > this.expectedDailyCalories)
+      }
+      return this.meals
     }
   },
   created: function () {
@@ -264,4 +284,11 @@ export default {
 </script>
 
 <style>
+.meal-list {
+  background: #00cc00
+}
+
+.highlight {
+  background: #cc0000
+}
 </style>
