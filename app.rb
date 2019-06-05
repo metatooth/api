@@ -111,6 +111,10 @@ class App < Sinatra::Base
     from = Time.parse(params[:from]) if params[:from]
     to = Time.parse(params[:to]) if params[:to]
 
+    # :NOTE: 20190605 Terry: Inclusive of the to date.
+
+    to = to + 24*60*60 if to
+
     now = Time.now
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
