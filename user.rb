@@ -73,6 +73,7 @@ class User < Model
   end
 
   def create
+    puts "CREATE #{@id.nil?} #{valid?}"
     if @id.nil? && valid? == true
       issue_access_token
       doc_ref = @@firestore.col('users').doc
@@ -105,7 +106,7 @@ class User < Model
   end
 
   def init_from_hash(params)
-    @type = params[:type]
+    @type = 'User'
     @username = params[:username]
     @expected_daily_calories = params[:expected_daily_calories]
     @password_salt = BCrypt::Engine.generate_salt
@@ -114,7 +115,6 @@ class User < Model
   end
 
   def initialize(params)
-    @type = 'User'
     if params.class == Google::Cloud::Firestore::DocumentSnapshot
       init_from_snap(params)
     elsif params.class == Hash
@@ -160,6 +160,7 @@ class User < Model
 
   def valid?
     user = User.find_by_username(@username) if @id.nil?
+    puts "VALID? #{!@type.nil?} #{!@username.nil?} #{user.nil?}"
     (!@type.nil? && !@username.nil? && user.nil?)
   end
 end
