@@ -108,17 +108,12 @@ class App < Sinatra::Base
               Meal.find_by_user(session[:uid])
             end
 
-    puts "PARAMS #{params}"
-
     from = Time.parse(params[:from]) if params[:from]
     to = Time.parse(params[:to]) if params[:to]
 
     now = Time.now
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
-
-    puts "FROM #{from} #{from.class}"
-    puts "TO #{to} #{to.class}"
 
     meals.select { |v| v.taken > from && v.taken < to}.to_json
   end
