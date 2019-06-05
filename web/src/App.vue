@@ -22,10 +22,10 @@
       :meals="meals"
       :expected-daily-calories="active_user.expected_daily_calories"
       :token="access_token"
-      :on-edit="show_editor"
+      :on-edit="show_editmeal"
     />
-    <editor
-      v-if="editor_visible"
+    <edit-meal
+      v-if="editmeal_visible"
       :record="active_meal"
       :cache="cache_meal"
       :token="access_token"
@@ -45,7 +45,7 @@
 import MealsService from './api-services/meals'
 import UsersService from './api-services/users'
 
-import Editor from './components/Editor.vue'
+import EditMeal from './components/EditMeal.vue'
 import MainNav from './components/MainNav.vue'
 import Settings from './components/Settings.vue'
 import SignUp from './components/SignUp.vue'
@@ -55,7 +55,7 @@ import Meals from './components/Meals.vue'
 export default {
   name: 'App',
   components: {
-    Editor,
+    EditMeal,
     MainNav,
     Meals,
     Settings,
@@ -69,7 +69,7 @@ export default {
       active_user: null,
       cache_meal: null,
       cache_user: null,
-      editor_visible: false,
+      editmeal_visible: false,
       meals: [],
       settings_visible: false,
       signin_visible: true,
@@ -116,7 +116,7 @@ export default {
       this.access_token = ''
       this.show_signin()
     },
-    show_editor: function (meal) {
+    show_editmeal: function (meal) {
       this.active_meal = meal
       
       this.cache_meal = {}
@@ -129,7 +129,7 @@ export default {
       this.signin_visible = false
       this.signup_visible = false
       this.meals_visible = false
-      this.editor_visible = true
+      this.editmeal_visible = true
     },
     show_settings: function () {
       this.cache_user = {}
@@ -139,21 +139,21 @@ export default {
       this.signin_visible = false
       this.signup_visible = false
       this.meals_visible = false
-      this.editor_visible = false
+      this.editmeal_visible = false
     },
     show_signin: function () {
       this.settings_visible = false
       this.signin_visible = true
       this.signup_visible = false
       this.meals_visible = false
-      this.editor_visible = false
+      this.editmeal_visible = false
     },
     show_signup: function () {
       this.signin_visible = false
       this.settings_visible = false
       this.signup_visible = true
       this.meals_visible = false
-      this.editor_visible = false
+      this.editmeal_visible = false
     },
     show_meals: function () {
       this.active_meal = null
@@ -161,7 +161,7 @@ export default {
       this.signin_visible = false
       this.signup_visible = false
       this.meals_visible = true
-      this.editor_visible = false
+      this.editmeal_visible = false
     }
   }
 }
