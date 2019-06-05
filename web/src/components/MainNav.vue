@@ -1,4 +1,5 @@
 <template>
+<section class="section">
   <nav class="level">
     <div class="level-left">
       <p class="title">
@@ -37,6 +38,7 @@
       </aside>
     </div>
   </nav>
+  </section>
 </template>
 
 <script>

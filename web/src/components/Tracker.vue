@@ -1,5 +1,9 @@
 <template>
   <section class="section">
+    <hr/>
+    <p class="subtitle">
+      Filter table
+    </p>
     <div class="field is-grouped">
       <div class="control">
         <label>From Date
@@ -43,7 +47,8 @@
           >
         </label>
       </div>
-    </div>      
+    </div> 
+    <hr/>  
     <table
       v-show="meals.length"
       v-cloak
@@ -95,6 +100,10 @@
         </tr>
       </tbody>
     </table>
+    <hr/>
+    <p class="subtitle">
+      Add a meal
+    </p>
     <div class="field is-grouped">
       <div class="control">
         <label>Description
@@ -279,6 +288,14 @@ export default {
 </script>
 
 <style>
+.section {
+  padding-bottom: 0px
+}
+
+.table {
+  width: 100%
+}
+
 .meal-list {
   background: #66bb66
 }
