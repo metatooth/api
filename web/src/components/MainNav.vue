@@ -1,44 +1,42 @@
 <template>
-  <section class="section">
-    <nav class="level">
-      <div class="level-left">
-        <p class="title">
-          Calorie Tracker
-        </p>
-      </div>
-      <div
-        v-if="token"
-        class="level-right"
-      >
-        <aside class="menu">
-          <ul class="menu-list">
-            <li>
-              <a
-                href="#"
-                @click="settings"
-              >
-                <span class="icon has-icon-left">
-                  <i class="fas fa-user-cog" />
-                </span>
-                Settings
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                @click="signout"
-              >
-                <span class="icon has-icon-left">
-                  <i class="fas fa-sign-out-alt" />
-                </span>
-                Sign Out
-              </a>
-            </li>
-          </ul>
-        </aside>
-      </div>
-    </nav>
-  </section>
+  <nav class="level">
+    <div class="level-left">
+      <p class="title">
+        Calorie Tracker
+      </p>
+    </div>
+    <div
+      v-if="token"
+      class="level-right"
+    >
+      <aside class="menu">
+        <ul class="menu-list">
+          <li>
+            <a
+              href="#"
+              @click="settings"
+            >
+              <span class="icon has-icon-left">
+                <i class="fas fa-user-cog" />
+              </span>
+              Settings
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              @click="signout"
+            >
+              <span class="icon has-icon-left">
+                <i class="fas fa-sign-out-alt" />
+              </span>
+              Sign Out
+            </a>
+          </li>
+        </ul>
+      </aside>
+    </div>
+  </nav>
 </template>
 
 <script>
