@@ -179,7 +179,38 @@ class App < Sinatra::Base
   options '/v1/users' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET'
+    response['Access-Control-Allow-Methods'] = 'GET, POST'
+  end
+
+  get '/v1/users', auth: 'user' do
+    curr = User.get(session[:uid])
+
+    users = if curr.is_user_manager?
+              User.all
+            else
+              users = [curr]
+            end
+
+    users.to_json
+  end
+
+  post '/v1/users', auth: 'user' do
+    content_type :json
+    # :TODO: 20190605 Terry: DRY it up with /v1/signup"
+    curr = User.get(session[:uid])
+    if (!curr.nil? && curr.is_user_manager?)
+      json = JSON.parse(request.body.read)
+      if (user = User.signup(json['username'], json['password']))
+        user.expected_daily_calories = json['expected_daily_calories']
+        user.type = json['type']
+        user.update
+        user.to_json
+      else
+        halt 500
+      end
+    else
+      halt 401
+    end
   end
 
   options '/v1/users/:id' do
@@ -188,22 +219,10 @@ class App < Sinatra::Base
     response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
-  get '/v1/users', auth: 'user' do
-    user = User.get(session[:uid])
-
-    users = if user.type == 'UserManager'
-              User.all
-            else
-              users = [user]
-            end
-
-    users.to_json
-  end
-
   get '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
       curr = User.get(session[:uid])
-      if curr.id == user.id || curr.type == 'UserManager'
+      if curr.id == user.id || curr.is_user_manager?
         user.to_json
       else
         halt 401
@@ -216,9 +235,16 @@ class App < Sinatra::Base
   put '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
       curr = User.get(session[:uid])
-      if curr.id == user.id || curr.type == 'UserManager'
+      if curr.id == user.id || curr.is_user_manager?
         vars = JSON.parse(request.body.read)
+        user.username = vars['username']
+        user.type = vars['type']
         user.expected_daily_calories = vars['expected_daily_calories']
+        
+        if !vars['password'].nil?
+          user.init_password_salt_and_hash(vars['password'])
+        end
+
         if user.update
           user.to_json
         else
@@ -235,7 +261,8 @@ class App < Sinatra::Base
   delete '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
       curr = User.get(session[:uid])
-      if user.id == curr.id || user.type == 'UserManager'
+      # :NOTE: 20190605 Terry: Authenticated user cannot delete themselves. Must be User Manager role.
+      if user.id != curr.id && curr.is_user_manager?
         user.destroy
       else
         halt 401
