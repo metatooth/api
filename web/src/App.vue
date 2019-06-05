@@ -17,8 +17,8 @@
       :on-signin="do_signin"
       :on-signup="show_signup"
     />
-    <tracker
-      v-if="tracker_visible"
+    <meals
+      v-if="meals_visible"
       :meals="meals"
       :expected-daily-calories="active_user.expected_daily_calories"
       :token="access_token"
@@ -29,14 +29,14 @@
       :record="active_meal"
       :cache="cache_meal"
       :token="access_token"
-      :on-close="show_tracker"
+      :on-close="show_meals"
     />
     <settings
       v-if="settings_visible"
       :record="active_user"
       :cache="cache_user"
       :token="access_token"
-      :on-close="show_tracker"
+      :on-close="show_meals"
     />
   </div>
 </template>
@@ -50,17 +50,17 @@ import MainNav from './components/MainNav.vue'
 import Settings from './components/Settings.vue'
 import SignUp from './components/SignUp.vue'
 import SignIn from './components/SignIn.vue'
-import Tracker from './components/Tracker.vue'
+import Meals from './components/Meals.vue'
 
 export default {
   name: 'App',
   components: {
     Editor,
     MainNav,
+    Meals,
     Settings,
     SignUp,
-    SignIn,
-    Tracker
+    SignIn
   },
   data () {
     return {
@@ -74,7 +74,7 @@ export default {
       settings_visible: false,
       signin_visible: true,
       signup_visible: false,
-      tracker_visible: false,
+      meals_visible: false,
       users: []
     }
   },
@@ -107,7 +107,7 @@ export default {
             }
           }
         }
-        this.show_tracker()
+        this.show_meals()
       }).catch(error => {
         console.log(error)
       })
@@ -128,7 +128,7 @@ export default {
       this.settings_visible = false
       this.signin_visible = false
       this.signup_visible = false
-      this.tracker_visible = false
+      this.meals_visible = false
       this.editor_visible = true
     },
     show_settings: function () {
@@ -138,29 +138,29 @@ export default {
       this.settings_visible = true
       this.signin_visible = false
       this.signup_visible = false
-      this.tracker_visible = false
+      this.meals_visible = false
       this.editor_visible = false
     },
     show_signin: function () {
       this.settings_visible = false
       this.signin_visible = true
       this.signup_visible = false
-      this.tracker_visible = false
+      this.meals_visible = false
       this.editor_visible = false
     },
     show_signup: function () {
       this.signin_visible = false
       this.settings_visible = false
       this.signup_visible = true
-      this.tracker_visible = false
+      this.meals_visible = false
       this.editor_visible = false
     },
-    show_tracker: function () {
+    show_meals: function () {
       this.active_meal = null
       this.settings_visible = false
       this.signin_visible = false
       this.signup_visible = false
-      this.tracker_visible = true
+      this.meals_visible = true
       this.editor_visible = false
     }
   }
