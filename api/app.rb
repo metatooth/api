@@ -120,7 +120,7 @@ class App < Sinatra::Base
     puts "FROM #{from} #{from.class}"
     puts "TO #{to} #{to.class}"
 
-    meals.select { |v| v.taken > from }.to_json
+    meals.select { |v| v.taken > from && v.taken < to}.to_json
   end
 
   post '/v1/meals', auth: 'user' do
