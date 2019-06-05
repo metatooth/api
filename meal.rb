@@ -72,7 +72,7 @@ class Meal < Model
 
   def init_from_hash(params)
     @taken = params[:taken]
-    @text = Time.parse(params[:text])
+    @text = params[:text]
     @calories = params[:calories]
     @user_id = params[:user_id]
   end
