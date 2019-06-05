@@ -151,7 +151,7 @@ class User < Model
       username: @username,
       expected_daily_calories: @expected_daily_calories,
       access_token: @access_token,
-      access_expiry: @access_token,
+      access_expiry: @access_expiry,
       created: @created,
       updated: @updated
     }.to_json
