@@ -9,12 +9,16 @@ class TestMeal < Test::Unit::TestCase
   def setup
     @now = Time.now
     @user = User.signup('unit', 'badpass')
-    @meal = Meal.new(
-      'user_id': @user.id,
-      'taken': @now,
-      'text': 'Escargot! My favorite.',
-      'calories': 600
-    )
+    if @user.nil?
+      @user = User.find_by_username('unit')
+    end
+
+    @meal = Meal.new({
+      user_id: @user.id,
+      taken: @now,
+      text: 'Escargot! My favorite.',
+      calories: 600
+    })
   end
 
   def teardown
