@@ -20,6 +20,7 @@
     <tracker
       v-if="tracker_visible"
       :meals="meals"
+      :expected-daily-calories="active_user.expected_daily_calories"
       :token="access_token"
       :on-edit="show_editor"
     />
