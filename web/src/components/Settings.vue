@@ -1,11 +1,11 @@
 <template>
   <section class="section">
-    <p>
+    <p class="subtitle">
       Hello, {{ record.username }}!
     </p>
     <div class="field">
+      <label class="label">Expected Daily Calories</label>
       <div class="control">
-        <label for="expected_daily_calories">Expected Daily Calories</label>
         <input
           v-model="record.expected_daily_calories"
           type="number"

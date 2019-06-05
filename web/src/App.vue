@@ -53,6 +53,9 @@
       :token="access_token"
       :on-close="show_meals"
     />
+    <footer class="footer">
+      Questions to <a href="mailto:tgl@rideside.net">tgl@rideside.net</a>
+    </footer>
   </div>
 </template>
 
@@ -120,7 +123,6 @@ export default {
       UsersService.get_all(this.access_token).then(response => {
         if (response.data.length == 1) {
           this.users = []
-          console.log("response length is one")
           // :TRICKY: 20190604 Terry: This single entry _should_ match the authenticated user. 
           this.active_user = response.data[0]
         } else {
@@ -132,7 +134,6 @@ export default {
             }
           }
         }
-        console.log(this.active_user)
         this.show_meals()
       }).catch(error => {
         console.log(error)

@@ -10,43 +10,42 @@
         v-if="token"
         class="level-right"
       >
-        <aside class="menu">
-          <ul class="menu-list">
-            <li>
-              <a
-                href="#"
-                @click="do_settings"
-              >
-                <span class="icon has-icon-left">
-                  <i class="fas fa-user-cog" />
-                </span>
-                Settings
-              </a>
-            </li>
-            <li v-if="isUserManager">
-              <a
-                href="#"
-                @click="do_users"
-              >
-                <span class="icon has-icon-left">
-                  <i class="fas fa-users" />
-                </span>
-                Users
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                @click="signout"
-              >
-                <span class="icon has-icon-left">
-                  <i class="fas fa-sign-out-alt" />
-                </span>
-                Sign Out
-              </a>
-            </li>
-          </ul>
-        </aside>
+        <div class="level-item">
+          <a
+            href="#"
+            @click="do_settings"
+          >
+            <span class="icon has-icon-left">
+              <i class="fas fa-user-cog" />
+            </span>
+            Settings
+          </a>
+        </div>
+        <div
+          v-if="isUserManager"
+          class="level-item"
+        >
+          <a
+            href="#"
+            @click="do_users"
+          >
+            <span class="icon has-icon-left">
+              <i class="fas fa-users" />
+            </span>
+            Users
+          </a>
+        </div>
+        <div class="level-item">
+          <a
+            href="#"
+            @click="signout"
+          >
+            <span class="icon has-icon-left">
+              <i class="fas fa-sign-out-alt" />
+            </span>
+            Sign Out
+          </a>
+        </div>
       </div>
     </nav>
   </section>

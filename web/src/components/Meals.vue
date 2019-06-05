@@ -2,50 +2,47 @@
   <section class="section">
     <hr>
     <p class="subtitle">
-      Filter table
+      Query meals
     </p>
     <div class="field is-grouped">
       <div class="control">
-        <label>From Date
+        <label>From
           <input
             v-model="fromDate"
+            size="10"
             type="text"
             placeholder="For example, 2007-08-03"
           >
         </label>
 
-        <label>To Date
+        <label>to
           <input
             v-model="toDate"
+            size="10"
             type="text"
             placeholder="For example, 2009-09-11"
+          >
+        </label>
+        <label>between
+          <input
+            v-model="fromTime"
+            size="5"
+            type="text"
+            placeholder="For example, 17"
+          >
+        </label>
+        <label>and
+          <input
+            v-model="toTime"
+            size="5"
+            type="text"
+            placeholder="For example, 17:30"
           >
         </label>
         <a
           class="button is-primary"
           @click="filter"
         >Query</a>
-      </div>
-    </div>
-    <p class="help is-danger">
-      {{ filter_errors }}
-    </p>
-    <div class="field is-grouped">
-      <div class="control">
-        <label>Between
-          <input
-            v-model="fromTime"
-            type="text"
-            placeholder="For example, 17"
-          >
-        </label>
-        <label>And
-          <input
-            v-model="toTime"
-            type="text"
-            placeholder="For example, 17:30"
-          >
-        </label>
       </div>
     </div> 
     <hr>  
@@ -104,28 +101,38 @@
     <p class="subtitle">
       Add a meal
     </p>
+    <div class="field">
+      <label class="label">Description</label>
+      <div class="control">
+        <input
+          v-model.trim="text"
+          type="text"
+          placeholder="Description"
+        >
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Calories</label>
+      <div class="control">
+        <input
+          v-model="calories"
+          type="number"
+          placeholder="Calories"
+          @keyup.enter="save()"
+        >
+      </div>
+    </div>
     <div class="field is-grouped">
       <div class="control">
-        <label>Description
-          <input
-            v-model.trim="text"
-            type="text"
-            placeholder="Description"
-          >
-        </label>
-        <label>Calories
-          <input
-            v-model="calories"
-            type="number"
-            placeholder="Calories"
-            @keyup.enter="save()"
-          >
-        </label>
         <a
           class="button is-primary"
           :disabled="!isComplete"
           @click="save()"
         >Save</a>
+        <a
+          class="button is-text"
+          @click="clearMeal()"
+        >Cancel</a>
       </div>
     </div>
   </section>
@@ -200,7 +207,7 @@ export default {
         
         meal.overlimit = (daily[taken.yyyymmdd()] > this.expectedDailyCalories)
         meal.yyyymmdd = taken.yyyymmdd()
-        meal.hhmm = taken.getHours() + ':' + taken.getMinutes()
+        meal.hhmm = taken.hhmm()
         
         if (taken.getHours() >= from[0] && taken.getMinutes() >= from[1]) {
           if (taken.getHours() < to[0]) {
@@ -255,22 +262,16 @@ export default {
       }
     },
     remove: function (meal) {
-      const doomed_id = meal.id
-      this.meals.splice(this.meals.indexOf(meal), 1)
-
-      console.log('Removing ' + doomed_id)
-      MealsService.destroy(doomed_id, this.token)
+      MealsService.destroy(meal.id, this.token)
         .then(response => {
-          console.log(response)
-        }).catch(e => {
-          console.log(e)
+          this.meals.splice(this.meals.indexOf(meal), 1)
+        }).catch(error => {
+          console.log(error)
       })
     },
     save: function () {
       MealsService.create({ taken: new Date(), text: this.text, calories: this.calories }, this.token)
         .then(response => {
-          console.log(response)
-          console.log(response.data)
           this.meals.push(response.data)
           this.clearMeal()
         }).catch(error => {
