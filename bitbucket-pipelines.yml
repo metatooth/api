@@ -10,6 +10,6 @@
 
 pipelines:
   default:
-    - step:
+   - step:
       script:
         - ./wordpress/heroku-deploy.sh
