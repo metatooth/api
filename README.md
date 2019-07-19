@@ -1,5 +1,7 @@
-## Write an application for time management system
+# Time Tracker
+Write an application for time management system
 
+# Project Definition
 * User must be able to create an account and log in. (If a mobile application, this means that more users can use the app from the same phone).
 * User can add (and edit and delete) a row what he has worked on, what date, for how long.
 * User can add a setting (Preferred working hours per day).

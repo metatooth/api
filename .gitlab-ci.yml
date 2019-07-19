@@ -1,0 +1,8 @@
+test:
+  stage: test
+  script:
+  - apt-get update -qy
+  - apt-get install -y nodejs
+  - cd api
+  - bundle install --path /cache
+  - bundle exec rake test
