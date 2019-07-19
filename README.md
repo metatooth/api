@@ -16,13 +16,13 @@ Write an application for time management system
     * Note1
     * Note2
     * Note3
- * New users need to verify their account by email. Users should not be able to log in until this verification is complete.
- * Additionally, provide an option for the user to log in using at least two social media providers (you can pick from Google, Facebook, Twitter, Github, or similar).
- * When a user fails to log in three times in a row, his or her account should be blocked automatically, and only admins and managers should be able to unblock it.
- * An admin should be able to invite someone to the application by typing an email address in an input field; the system should then send an invitation message automatically, prompting the user to complete the registration.
- * Users have to be able to upload and change their profile picture. If they log in using a social media pull the image from their account they used to log in.
- * REST API. Make it possible to perform all user actions via the API, including authentication (If a mobile application and you don’t know how to create your own backend you can use Firebase.com or similar services to create the API).
- * In any case, you should be able to explain how a REST API works and demonstrate that by creating functional tests that use the REST Layer directly. Please be prepared to use REST clients like Postman, cURL, etc. for this purpose.
- * If it’s a web application, it must be a single-page application. All actions need to be done client side using AJAX, refreshing the page is not acceptable. (If a mobile application, disregard this).
- * Functional UI/UX design is needed. You are not required to create a unique design, however, do follow best practices to make the project as functional as possible.
- * Write unit and e2e tests.
+* New users need to verify their account by email. Users should not be able to log in until this verification is complete.
+* Additionally, provide an option for the user to log in using at least two social media providers (you can pick from Google, Facebook, Twitter, Github, or similar).
+* When a user fails to log in three times in a row, his or her account should be blocked automatically, and only admins and managers should be able to unblock it.
+* An admin should be able to invite someone to the application by typing an email address in an input field; the system should then send an invitation message automatically, prompting the user to complete the registration.
+* Users have to be able to upload and change their profile picture. If they log in using a social media pull the image from their account they used to log in.
+* REST API. Make it possible to perform all user actions via the API, including authentication (If a mobile application and you don’t know how to create your own backend you can use Firebase.com or similar services to create the API).
+* In any case, you should be able to explain how a REST API works and demonstrate that by creating functional tests that use the REST Layer directly. Please be prepared to use REST clients like Postman, cURL, etc. for this purpose.
+* If it’s a web application, it must be a single-page application. All actions need to be done client side using AJAX, refreshing the page is not acceptable. (If a mobile application, disregard this).
+* Functional UI/UX design is needed. You are not required to create a unique design, however, do follow best practices to make the project as functional as possible.
+* Write unit and e2e tests.
