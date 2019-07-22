@@ -125,12 +125,12 @@ class User < Model
     end
   end
 
-  def is_admin?
-    return (@type == 'Admin')
+  def admin?
+    (@type == 'Admin')
   end
 
-  def is_user_manager?
-    return ((@type == 'UserManager') || is_admin?)
+  def user_manager?
+    ((@type == 'UserManager') || is_admin?)
   end
 
   def issue_access_token
@@ -142,8 +142,9 @@ class User < Model
   end
 
   def to_json(*_args)
-    # :NOTE: 20190605 Terry: I think this is safe. Only authorized users can access the API,
-    # and only User Managers can accesss the attributes of another user.
+    # :NOTE: 20190605 Terry: I think this is safe. Only authorized users
+    # can access the API, and only User Managers can accesss the attributes
+    # of another user.
     {
       id: @id,
       type: @type,
