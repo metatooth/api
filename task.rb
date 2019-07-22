@@ -2,45 +2,45 @@
 
 require_relative 'model'
 
-# A model of a meal
-class Meal < Model
+# A model of a task
+class Task < Model
   attr_accessor :id
-  attr_accessor :taken
-  attr_accessor :text
-  attr_accessor :calories
+  attr_accessor :description
+  attr_accessor :date
+  attr_accessor :duration
   attr_accessor :user_id
   attr_accessor :created
   attr_accessor :updated
 
   def self.all
-    meals = []
-    meals_ref = @@firestore.col('meals')
-    meals_ref.get do |meal|
-      meals << Meal.new(meal)
+    tasks = []
+    tasks_ref = @@firestore.col('tasks')
+    tasks_ref.get do |task|
+      tasks << task.new(task)
     end
-    meals
+    tasks
   end
 
   def self.find_by_user(user_id)
-    meals = []
-    meals_ref = @@firestore.col('meals').where('user_id', '==', user_id)
-    meals_ref.get do |meal|
-      meals << Meal.new(meal)
+    tasks = []
+    tasks_ref = @@firestore.col('tasks').where('user_id', '==', user_id)
+    tasks_ref.get do |task|
+      tasks << task.new(task)
     end
-    meals
+    tasks
   end
 
   def self.get(id)
-    doc_snap = @@firestore.col('meals').doc(id).get
-    return Meal.new(doc_snap) if doc_snap.exists?
+    doc_snap = @@firestore.col('tasks').doc(id).get
+    return Task.new(doc_snap) if doc_snap.exists?
 
     nil
   end
 
   def create
     if @id.nil? && valid? == true
-      doc_ref = @@firestore.col('meals').doc
-      doc_ref.set(taken: @taken, text: @text, calories: @calories,
+      doc_ref = @@firestore.col('tasks').doc
+      doc_ref.set(description: @description, date: @date, duration: @duration,
                   user_id: @user_id, created: Time.now, updated: Time.now)
       initialize(doc_ref.get)
     end
@@ -48,15 +48,15 @@ class Meal < Model
   end
 
   def destroy
-    doc_ref = @@firestore.col('meals').doc(id)
+    doc_ref = @@firestore.col('tasks').doc(id)
     true if doc_ref.delete
   end
 
   def init_from_snap(snap)
     @id = snap.document_id
-    @taken = snap.get('taken')
-    @text = snap.get('text')
-    @calories = snap.get('calories')
+    @description = snap.get('description')
+    @date = snap.get('date')
+    @duration = snap.get('duration')
     @user_id = snap.get('user_id')
     @created = snap.get('created')
     @updated = snap.get('updated')
@@ -64,16 +64,16 @@ class Meal < Model
 
   def init_from_string(str)
     vars = JSON.parse(str)
-    @taken = Time.parse(vars['taken'])
-    @text = vars['text']
-    @calories = vars['calories']
+    @description = vars['description']
+    @date = Time.parse(vars['date'])
+    @duration = vars['duration']
     @user_id = vars['user_id']
   end
 
   def init_from_hash(params)
-    @taken = params[:taken]
-    @text = params[:text]
-    @calories = params[:calories]
+    @description = params[:description]
+    @date = params[:date]
+    @duration = params[:duration]
     @user_id = params[:user_id]
   end
 
@@ -89,19 +89,19 @@ class Meal < Model
 
   def to_json(*_args)
     {
-      id: @id, taken: @taken, text: @text, calories: @calories,
+      id: @id, description: @description, date: @date, duration: @duration,
       user_id: @user_id, created: @created, updated: @updated
     }.to_json
   end
 
-  def taken_to_s
-    @taken.to_s
+  def date_to_s
+    @date.to_s
   end
 
   def update
     if @id && valid?
-      resp = @@firestore.col('meals').doc(@id).set(
-        taken: @taken, text: @text, calories: @calories,
+      resp = @@firestore.col('tasks').doc(@id).set(
+        date: @date, description: @description, duration: @duration,
         user_id: @user_id, created: @created, updated: Time.now
       )
     end
@@ -113,6 +113,6 @@ class Meal < Model
   end
 
   def valid?
-    (!@taken.nil? && !@text.nil? && !@calories.nil? && !@user_id.nil?)
+    (!@description.nil? && !@date.nil? && !duration.nil? && !@user_id.nil?)
   end
 end

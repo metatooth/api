@@ -2,7 +2,7 @@
 
 require 'sinatra'
 
-require_relative 'meal'
+require_relative 'task'
 require_relative 'user'
 require_relative 'version'
 
@@ -27,9 +27,7 @@ class App < Sinatra::Base
 
     auth = request.env['HTTP_AUTHORIZATION'].split(' ')
 
-    if auth[0] == 'Bearer'
-      @user = User.find_by_access_token(auth[1])
-    end
+    @user = User.find_by_access_token(auth[1]) if auth[0] == 'Bearer'
     response['Access-Control-Allow-Origin'] = '*'
   end
 
@@ -47,11 +45,10 @@ class App < Sinatra::Base
     response['Access-Control-Allow-Origin'] = '*'
 
     json = JSON.parse(request.body.read)
-    if (user = User.authenticate(json['username'], json['password']))
-      return user.issue_access_token
-    else
-      halt 401
-    end
+    user = User.authenticate(json['username'], json['password'])
+    return user.issue_access_token if user
+
+    halt 401
   end
 
   options '/v1/signout' do
@@ -81,26 +78,26 @@ class App < Sinatra::Base
   end
 
   get '/v1/version' do
-    { path: '/v1/meals', version: Version.string }.to_json
+    { path: '/v1/tasks', version: Version.string }.to_json
   end
 
-  options '/v1/meals' do
+  options '/v1/tasks' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
-  options '/v1/meals/:id' do
+  options '/v1/tasks/:id' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
-  get '/v1/meals', auth: 'user' do
-    meals = if @user.type == 'Admin'
-              Meal.all
+  get '/v1/tasks', auth: 'user' do
+    tasks = if @user.type == 'Admin'
+              Task.all
             else
-              Meal.find_by_user(@user.id)
+              Task.find_by_user(@user.id)
             end
 
     from = Time.parse(params[:from]) if params[:from]
@@ -108,30 +105,30 @@ class App < Sinatra::Base
 
     # :NOTE: 20190605 Terry: Inclusive of the to date.
 
-    to = to + 24*60*60 if to
+    to += 24 * 60 * 60 if to
 
     now = Time.now
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    meals.select { |v| v.taken > from && v.taken < to}.to_json
+    tasks.select { |v| v.taken > from && v.taken < to }.to_json
   end
 
-  post '/v1/meals', auth: 'user' do
-    meal = Meal.new(request.body.read)
-    meal.user_id = @user.id
+  post '/v1/tasks', auth: 'user' do
+    task = Task.new(request.body.read)
+    task.user_id = @user.id
 
-    if meal.create
-      meal.to_json
+    if task.create
+      task.to_json
     else
       halt 500
     end
   end
 
-  get '/v1/meals/:id', auth: 'user' do
-    if (meal = Meal.get(params[:id]))
-      if @user.type == 'Admin' || @user.id == meal.user_id
-        meal.to_json
+  get '/v1/tasks/:id', auth: 'user' do
+    if (task = Task.get(params[:id]))
+      if @user.type == 'Admin' || @user.id == task.user_id
+        task.to_json
       else
         halt 401
       end
@@ -140,15 +137,15 @@ class App < Sinatra::Base
     end
   end
 
-  put '/v1/meals/:id', auth: 'user' do
-    if (meal = Meal.get(params[:id]))
-      if @user.type == 'Admin' || @user.id == meal.user_id
+  put '/v1/tasks/:id', auth: 'user' do
+    if (task = Task.get(params[:id]))
+      if @user.type == 'Admin' || @user.id == task.user_id
         vars = JSON.parse(request.body.read)
-        meal.text = vars['text']
-        meal.taken = Time.parse(vars['taken'])
-        meal.calories = vars['calories']
-        if meal.update
-          meal.to_json
+        task.text = vars['text']
+        task.taken = Time.parse(vars['taken'])
+        task.calories = vars['calories']
+        if task.update
+          task.to_json
         else
           halt 500
         end
@@ -160,10 +157,10 @@ class App < Sinatra::Base
     end
   end
 
-  delete '/v1/meals/:id', auth: 'user' do
-    if (meal = Meal.get(params[:id]))
-      if @user.type == 'Admin' || @user.id == meal.user_id
-        meal.destroy
+  delete '/v1/tasks/:id', auth: 'user' do
+    if (task = Task.get(params[:id]))
+      if @user.type == 'Admin' || @user.id == task.user_id
+        task.destroy
       else
         halt 401
       end
@@ -184,7 +181,7 @@ class App < Sinatra::Base
     users = if curr.is_user_manager?
               User.all
             else
-              users = [curr]
+              [curr]
             end
 
     users.to_json
@@ -194,7 +191,7 @@ class App < Sinatra::Base
     content_type :json
     # :TODO: 20190605 Terry: DRY it up with /v1/signup"
     curr = @user
-    if (!curr.nil? && curr.is_user_manager?)
+    if !curr.nil? && curr.is_user_manager?
       json = JSON.parse(request.body.read)
       if (user = User.signup(json['username'], json['password']))
         user.expected_daily_calories = json['expected_daily_calories']
@@ -236,8 +233,8 @@ class App < Sinatra::Base
         user.username = vars['username']
         user.type = vars['type']
         user.expected_daily_calories = vars['expected_daily_calories']
-        
-        if !vars['password'].nil?
+
+        unless vars['password'].nil?
           user.init_password_salt_and_hash(vars['password'])
         end
 
@@ -257,7 +254,8 @@ class App < Sinatra::Base
   delete '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
       curr = @user
-      # :NOTE: 20190605 Terry: Authenticated user cannot delete themselves. Must be User Manager role.
+      # :NOTE: 20190605 Terry: Authenticated user cannot delete themselves.
+      # Must be User Manager role.
       if user.id != curr.id && curr.is_user_manager?
         user.destroy
       else
