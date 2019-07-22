@@ -23,7 +23,7 @@ class Note < Model
     notes = []
     notes_ref = @@firestore.col('notes').where('task_id', '==', task_id)
     notes_ref.get do |note|
-      notes << note.new(note)
+      notes << Note.new(note)
     end
     notes
   end
@@ -38,7 +38,8 @@ class Note < Model
   def create
     if @id.nil? && valid? == true
       doc_ref = @@firestore.col('notes').doc
-      doc_ref.set(text: @text, task_id: @task_id, created: Time.now, updated: Time.now)
+      doc_ref.set(text: @text, task_id: @task_id,
+                  created: Time.now, updated: Time.now)
       initialize(doc_ref.get)
     end
     true if @id

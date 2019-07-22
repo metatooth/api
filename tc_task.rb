@@ -15,7 +15,7 @@ class TestTask < Test::Unit::TestCase
       user_id: @user.id,
       date: @now,
       description: 'Escargot! My favorite.',
-      duration: 2.5
+      duration: 7200
     )
   end
 
@@ -46,7 +46,7 @@ class TestTask < Test::Unit::TestCase
   end
 
   def test_task_duration
-    assert_equal(2.5, @task.duration)
+    assert_equal(7200, @task.duration)
   end
 
   def test_task_read

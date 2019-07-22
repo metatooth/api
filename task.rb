@@ -16,7 +16,7 @@ class Task < Model
     tasks = []
     tasks_ref = @@firestore.col('tasks')
     tasks_ref.get do |task|
-      tasks << task.new(task)
+      tasks << Task.new(task)
     end
     tasks
   end
@@ -25,7 +25,7 @@ class Task < Model
     tasks = []
     tasks_ref = @@firestore.col('tasks').where('user_id', '==', user_id)
     tasks_ref.get do |task|
-      tasks << task.new(task)
+      tasks << Task.new(task)
     end
     tasks
   end
@@ -45,6 +45,10 @@ class Task < Model
       initialize(doc_ref.get)
     end
     true if @id
+  end
+
+  def date_to_s
+    @date.to_s
   end
 
   def destroy
@@ -87,15 +91,20 @@ class Task < Model
     end
   end
 
+  def notes
+    enum = @@firestore.col('notes').where('task_id', '==', @id).get
+    notes = []
+    enum.each do |doc|
+      notes << Note.new(doc)
+    end
+    notes
+  end
+
   def to_json(*_args)
     {
       id: @id, description: @description, date: @date, duration: @duration,
       user_id: @user_id, created: @created, updated: @updated
     }.to_json
-  end
-
-  def date_to_s
-    @date.to_s
   end
 
   def update

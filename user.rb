@@ -38,8 +38,7 @@ class User < Model
   end
 
   def self.find_by_access_token(token)
-    enum = @@firestore.col('users')
-                      .where('access_token', '==', token).get
+    enum = @@firestore.col('users').where('access_token', '==', token).get
     enum.each do |doc|
       user = User.new(doc)
       return user if user.access_expiry > Time.now
@@ -77,11 +76,10 @@ class User < Model
     if @id.nil? && valid? == true
       issue_access_token
       doc_ref = @@firestore.col('users').doc
-      doc_ref.set(type: @type, username: @username.upcase,
-                  expected_daily_calories: 2000,
-                  password_salt: @password_salt, password_hash: @password_hash,
-                  access_token: @access_token, access_expiry: @access_expiry,
-                  created: Time.now, updated: Time.now)
+      doc_ref.set(type: @type, username: @username.upcase, created: Time.now,
+                  expected_daily_calories: 2000, password_salt: @password_salt,
+                  password_hash: @password_hash, updated: Time.now,
+                  access_token: @access_token, access_expiry: @access_expiry)
       @id = doc_ref.document_id
     end
     true if @id
@@ -130,7 +128,7 @@ class User < Model
   end
 
   def user_manager?
-    ((@type == 'UserManager') || is_admin?)
+    ((@type == 'UserManager') || admin?)
   end
 
   def issue_access_token
@@ -142,33 +140,21 @@ class User < Model
   end
 
   def to_json(*_args)
-    # :NOTE: 20190605 Terry: I think this is safe. Only authorized users
-    # can access the API, and only User Managers can accesss the attributes
-    # of another user.
     {
-      id: @id,
-      type: @type,
-      username: @username,
-      expected_daily_calories: @expected_daily_calories,
-      access_token: @access_token,
-      access_expiry: @access_expiry,
-      created: @created,
-      updated: @updated
+      id: @id, type: @type, username: @username, created: @created,
+      expected_daily_calories: @expected_daily_calories, updated: @updated,
+      access_token: @access_token, access_expiry: @access_expiry
     }.to_json
   end
 
   def update
     if !@id.nil? && valid? == true
       resp = @@firestore.col('users').doc(@id).set(
-        type: @type,
-        username: @username.upcase,
+        type: @type, username: @username.upcase,
         expected_daily_calories: @expected_daily_calories,
-        password_hash: @password_hash,
-        password_salt: @password_salt,
-        access_token: @access_token,
-        access_expiry: @access_expiry,
-        created: @created,
-        updated: Time.now
+        password_hash: @password_hash, password_salt: @password_salt,
+        access_token: @access_token, access_expiry: @access_expiry,
+        created: @created, updated: Time.now
       )
     end
     true if resp
