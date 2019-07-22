@@ -11,18 +11,11 @@ class TestNote < Test::Unit::TestCase
     @now = Time.now
     @user = User.signup('unit', 'badpass')
     @user = User.find_by_username('unit') if @user.nil?
-    @task = Task.new(
-      user_id: @user.id,
-      date: @now,
-      description: 'Filing Technique',
-      duration: 2.5
-    )
+    @task = Task.new(user_id: @user.id, date: @now,
+                     description: 'Filing Technique', duration: 2.5)
     @task.create
 
-    @note = Note.new(
-      task_id: @task.id,
-      text: 'is unstoppable'
-    )
+    @note = Note.new(task_id: @task.id, text: 'is unstoppable')
   end
 
   def teardown
