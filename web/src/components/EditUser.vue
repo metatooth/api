@@ -31,7 +31,7 @@
       <div class="control">
         <label>Expected Daily Calories</label>
         <input
-          v-model="record.expected_daily_calories"
+          v-model="record.preferred_working_seconds_per_day"
           type="number"
           placeholder="How many calories expected per day?"
         >
@@ -109,7 +109,7 @@ export default {
 
             return (this.record.username.length > 0 && 
               this.record.type.length > 0 && 
-              this.record.expected_daily_calories &&
+              this.record.preferred_working_seconds_per_day &&
               pcheck)
         }
     },
@@ -124,7 +124,7 @@ export default {
             let user = {}
             user['username'] = this.record.username
             user['type'] = this.record.type
-            user['expected_daily_calories'] = this.record.expected_daily_calories
+            user['preferred_working_seconds_per_day'] = this.record.preferred_working_seconds_per_day
             if (this.password.length > 7) {
                 user['password'] = this.password
             }

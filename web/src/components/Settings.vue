@@ -7,7 +7,7 @@
       <label class="label">Expected Daily Calories</label>
       <div class="control">
         <input
-          v-model="record.expected_daily_calories"
+          v-model="record.preferred_working_seconds_per_day"
           type="number"
         >
       </div>
@@ -61,7 +61,7 @@ export default {
     },
     methods: {
         cancel: function () {
-            this.record['expected_daily_calories'] = this.cache['expected_daily_calories']
+            this.record['preferred_working_seconds_per_day'] = this.cache['preferred_working_seconds_per_day']
             this.onClose()
         },
         save: function () {

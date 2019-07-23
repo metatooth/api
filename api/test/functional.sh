@@ -101,7 +101,7 @@ ADMIN_ACCESS_TOKEN=`cat response.json`
 echo "Token "$ADMIN_ACCESS_TOKEN
 
 echo "DELETE USER "$USER_ID" as ADMIN"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -x DELETE -H 'Authorization: Bearer '$ADMIN_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/users/$USER_ID)
+STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -H 'Authorization: Bearer '$ADMIN_ACCESS_TOKEN -H 'Content-Type: application/json' -x DELETE $URL/users/$USER_ID)
 echo $STATUS
 cat response.json
 check_200_response STATUS
