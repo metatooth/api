@@ -5,7 +5,7 @@ class App < Sinatra::Base
   options '/v1/users' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET'
+    response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
   get '/v1/users', auth: 'user' do
@@ -18,6 +18,9 @@ class App < Sinatra::Base
             end
 
     users.to_json
+  end
+
+  post '/v1/users', auth: 'admin' do
   end
 
   options '/v1/users/:id' do
