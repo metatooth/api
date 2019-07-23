@@ -19,6 +19,10 @@ class App < Sinatra::Base
     def user?
       @user != nil
     end
+
+    def user_manager?
+      user? && @user.user_manager?
+    end
   end
 
   before do

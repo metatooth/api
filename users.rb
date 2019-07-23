@@ -24,7 +24,7 @@ class App < Sinatra::Base
     content_type :json
     # :TODO: 20190605 Terry: DRY it up with /v1/signup"
     curr = @user
-    if !curr.nil? && curr.is_user_manager?
+    if !curr.nil? && curr.user_manager?
       json = JSON.parse(request.body.read)
       if (user = User.signup(json['username'], json['password']))
         user.expected_daily_calories = json['expected_daily_calories']
@@ -58,38 +58,44 @@ class App < Sinatra::Base
     end
   end
 
-  put '/v1/users/:id', auth: 'user' do
+  put '/v1/users/:id', auth: 'user_manager' do
     if (user = User.get(params[:id]))
       curr = @user
-      if curr.id == user.id || curr.is_user_manager?
-        vars = JSON.parse(request.body.read)
-        user.username = vars['username']
+      vars = JSON.parse(request.body.read)
+      
+      unless vars['type'].nil?
         user.type = vars['type']
+      end
+
+      unless vars['username'].nil?
+        user.username = vars['username']
+      end
+
+      unless vars['expected_daily_calories'].nil?
         user.expected_daily_calories = vars['expected_daily_calories']
+      end
 
-        unless vars['password'].nil?
-          user.init_password_salt_and_hash(vars['password'])
-        end
+      unless vars['failed_attempts'].nil?
+        user.failed_attempts = vars['failed_attempts']
+      end
 
-        if user.update
-          user.to_json
-        else
-          halt 500
-        end
+      unless vars['password'].nil?
+        user.init_password_salt_and_hash(vars['password'])
+      end
+
+      if user.update
+        user.to_json
       else
-        halt 401
+        halt 500
       end
     else
       halt 500
     end
   end
 
-  delete '/v1/users/:id', auth: 'user' do
+  delete '/v1/users/:id', auth: 'user_manager' do
     if (user = User.get(params[:id]))
-      curr = @user
-      # :NOTE: 20190605 Terry: Authenticated user cannot delete themselves.
-      # Must be User Manager role.
-      if user.id != curr.id && curr.is_user_manager?
+      if user.id != @user.id
         user.destroy
       else
         halt 401
