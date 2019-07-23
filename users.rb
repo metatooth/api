@@ -52,8 +52,8 @@ class App < Sinatra::Base
         user.username = vars['username']
       end
 
-      unless vars['preferred_working_hours_per_day'].nil?
-        user.preferred_working_hours_per_day = vars['preferred_working_hours_per_day']
+      unless vars['preferred_working_seconds_per_day'].nil?
+        user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day']
       end
 
       unless vars['failed_attempts'].nil?
@@ -76,8 +76,12 @@ class App < Sinatra::Base
 
   delete '/v1/users/:id', auth: 'user_manager' do
     if (user = User.get(params[:id]))
+      puts "DOOMED #{user.id}..."
       if user.id != @user.id
+        puts "Destroy..."
         user.destroy
+        puts "Done!"
+        true
       else
         halt 401
       end
