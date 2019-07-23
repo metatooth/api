@@ -26,7 +26,7 @@
             {{ user.type }}
           </td>
           <td>
-            {{ user.expected_daily_calories }}
+            {{ user.preferred_working_seconds_per_day }}
           </td>
           <td>
             <a
@@ -86,7 +86,7 @@
       <div class="control">
         <label>Expected Daily Calories</label>
         <input
-          v-model.number="expected_daily_calories"
+          v-model.number="preferred_working_seconds_per_day"
           type="number"
         >
       </div>
@@ -147,7 +147,7 @@ export default {
     return {
       username: '',
       type: 'User',
-      expected_daily_calories: 2000,
+      preferred_working_seconds_per_day: 2000,
       password: '',
       errors: ''
     }
@@ -161,7 +161,7 @@ export default {
     clearUser: function () {
       this.username = ''
       this.type = 'User'
-      this.expected_daily_calories = 2000
+      this.preferred_working_seconds_per_day = 2000
       this.password = ''
     },
     edit: function(user) {
@@ -186,7 +186,7 @@ export default {
     },
     save: function () {
       UsersService.create({ username: this.username, type: this.type,
-        expected_daily_calories: this.expected_daily_calories, password: this.password}, this.token)
+        preferred_working_seconds_per_day: this.preferred_working_seconds_per_day, password: this.password}, this.token)
         .then(response => {
           console.log(response)
           console.log(response.data)

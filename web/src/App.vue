@@ -22,7 +22,7 @@
     <meals
       v-if="meals_visible"
       :meals="meals"
-      :expected-daily-calories="parseInt(active_user.expected_daily_calories)"
+      :expected-daily-calories="parseInt(active_user.preferred_working_seconds_per_day)"
       :token="access_token"
       :on-edit="show_editmeal"
     />
@@ -166,7 +166,7 @@ export default {
       this.cache_user = {}
       this.cache_user['id'] = user['id']
       this.cache_user['username'] = user['username']
-      this.cache_user['expected_daily_calories'] = user['username']
+      this.cache_user['preferred_working_seconds_per_day'] = user['username']
       this.cache_user['type'] = user['type']
 
       this.settings_visible = false
@@ -179,7 +179,7 @@ export default {
     },
     show_settings: function () {
       this.cache_user = {}
-      this.cache_user['expected_daily_calories'] = this.active_user['expected_daily_calories']
+      this.cache_user['preferred_working_seconds_per_day'] = this.active_user['preferred_working_seconds_per_day']
 
       this.settings_visible = true
       this.signin_visible = false

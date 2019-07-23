@@ -5,7 +5,7 @@ class App < Sinatra::Base
   options '/v1/users' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET, POST'
+    response['Access-Control-Allow-Methods'] = 'GET'
   end
 
   get '/v1/users', auth: 'user' do
@@ -18,25 +18,6 @@ class App < Sinatra::Base
             end
 
     users.to_json
-  end
-
-  post '/v1/users', auth: 'user' do
-    content_type :json
-    # :TODO: 20190605 Terry: DRY it up with /v1/signup"
-    curr = @user
-    if !curr.nil? && curr.user_manager?
-      json = JSON.parse(request.body.read)
-      if (user = User.signup(json['username'], json['password']))
-        user.expected_daily_calories = json['expected_daily_calories']
-        user.type = json['type']
-        user.update
-        user.to_json
-      else
-        halt 500
-      end
-    else
-      halt 401
-    end
   end
 
   options '/v1/users/:id' do
@@ -71,8 +52,8 @@ class App < Sinatra::Base
         user.username = vars['username']
       end
 
-      unless vars['expected_daily_calories'].nil?
-        user.expected_daily_calories = vars['expected_daily_calories']
+      unless vars['preferred_working_seconds_per_day'].nil?
+        user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day']
       end
 
       unless vars['failed_attempts'].nil?
@@ -95,8 +76,12 @@ class App < Sinatra::Base
 
   delete '/v1/users/:id', auth: 'user_manager' do
     if (user = User.get(params[:id]))
+      puts "DOOMED #{user.id}..."
       if user.id != @user.id
+        puts "Destroy..."
         user.destroy
+        puts "Done!"
+        true
       else
         halt 401
       end

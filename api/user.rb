@@ -10,7 +10,7 @@ class User < Model
   attr_accessor :id
   attr_accessor :type
   attr_accessor :username
-  attr_accessor :expected_daily_calories
+  attr_accessor :preferred_working_seconds_per_day
   attr_accessor :password_salt
   attr_accessor :password_hash
   attr_accessor :access_token
@@ -90,10 +90,10 @@ class User < Model
     if @id.nil? && valid? == true
       doc_ref = @@firestore.col('users').doc
       @created = @updated = Time.now
-      @expected_daily_calories = 2000
+      @preferred_working_seconds_per_day = 21600
       @failed_attempts = 0
       doc_ref.set(type: @type, username: @username.upcase, created: @created,
-                  expected_daily_calories: @expected_daily, password_salt: @password_salt,
+                  preferred_working_seconds_per_day: @preferred_working_seconds_per_day, password_salt: @password_salt,
                   password_hash: @password_hash, updated: @updated, failed_attempts: @failed_attempts)
       @id = doc_ref.document_id
       issue_access_token
@@ -110,7 +110,7 @@ class User < Model
     @id = snap.document_id
     @type = snap.get('type')
     @username = snap.get('username')
-    @expected_daily_calories = snap.get('expected_daily_calories').to_i
+    @preferred_working_seconds_per_day = snap.get('preferred_working_seconds_per_day').to_i
     @password_salt = snap.get('password_salt')
     @password_hash = snap.get('password_hash')
     @access_token = snap.get('access_token')
@@ -122,7 +122,7 @@ class User < Model
 
   def init_from_hash(params)
     @username = params[:username]
-    @expected_daily_calories = params[:expected_daily_calories]
+    @preferred_working_seconds_per_day = params[:preferred_working_seconds_per_day]
     @failed_attempts = params[:failed_attempts]
     init_password_salt_and_hash(params[:password])
   end
@@ -151,7 +151,7 @@ class User < Model
   def to_json(*_args)
     {
       id: @id, type: @type, username: @username, created: @created,
-      expected_daily_calories: @expected_daily_calories,
+      preferred_working_seconds_per_day: @preferred_working_seconds_per_day,
       failed_attempts: @failed_attempts, updated: @updated,
       access_token: @access_token, access_expiry: @access_expiry
     }.to_json
@@ -159,13 +159,14 @@ class User < Model
 
   def update
     if !@id.nil? && valid? == true
+      @updated = Time.now
       resp = @@firestore.col('users').doc(@id).set(
         type: @type, username: @username.upcase,
-        expected_daily_calories: @expected_daily_calories,
+        preferred_working_seconds_per_day: @preferred_working_seconds_per_day,
         failed_attempts: @failed_attempts,
         password_hash: @password_hash, password_salt: @password_salt,
         access_token: @access_token, access_expiry: @access_expiry,
-        created: @created, updated: Time.now
+        created: @created, updated: @updated
       )
     end
     true if resp
