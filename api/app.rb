@@ -7,6 +7,7 @@ require_relative 'version'
 
 # The application.
 class App < Sinatra::Base
+
   register do
     def auth(type)
       condition do
@@ -16,6 +17,10 @@ class App < Sinatra::Base
   end
 
   helpers do
+    def admin?
+      user? && @user.admin?
+    end
+
     def user?
       @user != nil
     end
@@ -77,7 +82,6 @@ class App < Sinatra::Base
   end
 
   post '/v1/signup' do
-    content_type :json
     json = JSON.parse(request.body.read)
     if (user = User.signup(json['username'], json['password']))
       user.to_json
