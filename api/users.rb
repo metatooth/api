@@ -27,7 +27,7 @@ class App < Sinatra::Base
     if !curr.nil? && curr.user_manager?
       json = JSON.parse(request.body.read)
       if (user = User.signup(json['username'], json['password']))
-        user.expected_daily_calories = json['expected_daily_calories']
+        user.preferred_working_hours_per_day = json['preferred_working_hours_per_day']
         user.type = json['type']
         user.update
         user.to_json
@@ -71,8 +71,8 @@ class App < Sinatra::Base
         user.username = vars['username']
       end
 
-      unless vars['expected_daily_calories'].nil?
-        user.expected_daily_calories = vars['expected_daily_calories']
+      unless vars['preferred_working_hours_per_day'].nil?
+        user.preferred_working_hours_per_day = vars['preferred_working_hours_per_day']
       end
 
       unless vars['failed_attempts'].nil?
