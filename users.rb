@@ -5,7 +5,7 @@ class App < Sinatra::Base
   options '/v1/users' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET, POST'
+    response['Access-Control-Allow-Methods'] = 'GET'
   end
 
   get '/v1/users', auth: 'user' do
@@ -18,25 +18,6 @@ class App < Sinatra::Base
             end
 
     users.to_json
-  end
-
-  post '/v1/users', auth: 'user' do
-    content_type :json
-    # :TODO: 20190605 Terry: DRY it up with /v1/signup"
-    curr = @user
-    if !curr.nil? && curr.user_manager?
-      json = JSON.parse(request.body.read)
-      if (user = User.signup(json['username'], json['password']))
-        user.preferred_working_hours_per_day = json['preferred_working_hours_per_day']
-        user.type = json['type']
-        user.update
-        user.to_json
-      else
-        halt 500
-      end
-    else
-      halt 401
-    end
   end
 
   options '/v1/users/:id' do
