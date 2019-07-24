@@ -59,7 +59,7 @@ class User < Model
   def self.find_by_username(username)
     unless username.nil?
       enum = @@firestore.col('users')
-                        .where('username', '==', username.upcase).get
+                        .where('username', '==', username.downcase).get
       enum.each do |doc|
         return User.new(doc)
       end
@@ -76,7 +76,13 @@ class User < Model
 
   def self.signup(username, password)
     user = User.new(username: username, password: password)
-    user.type = 'User'
+    user.type = 'Admin'
+
+    @@firestore.col('users').get do |u|
+      user.type = 'User'
+      break
+    end
+
     return user if user.create
 
     nil
@@ -92,9 +98,10 @@ class User < Model
       @created = @updated = Time.now
       @preferred_working_seconds_per_day = 21600
       @failed_attempts = 0
-      doc_ref.set(type: @type, username: @username.upcase, created: @created,
-                  preferred_working_seconds_per_day: @preferred_working_seconds_per_day, password_salt: @password_salt,
-                  password_hash: @password_hash, updated: @updated, failed_attempts: @failed_attempts)
+      doc_ref.set(type: @type, username: @username.downcase, created: @created,
+                  preferred_working_seconds_per_day: @preferred_working_seconds_per_day,
+                  password_salt: @password_salt, password_hash: @password_hash,
+                  updated: @updated, failed_attempts: @failed_attempts)
       @id = doc_ref.document_id
       issue_access_token
     end
@@ -161,7 +168,7 @@ class User < Model
     if !@id.nil? && valid? == true
       @updated = Time.now
       resp = @@firestore.col('users').doc(@id).set(
-        type: @type, username: @username.upcase,
+        type: @type, username: @username.downcase,
         preferred_working_seconds_per_day: @preferred_working_seconds_per_day,
         failed_attempts: @failed_attempts,
         password_hash: @password_hash, password_salt: @password_salt,

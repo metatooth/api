@@ -5,7 +5,7 @@ class App < Sinatra::Base
   options '/v1/users' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET'
+    response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
   get '/v1/users', auth: 'user' do
@@ -18,6 +18,15 @@ class App < Sinatra::Base
             end
 
     users.to_json
+  end
+
+  post '/v1/users', auth: 'admin' do
+    json = JSON.parse(request.body.read)
+    if (user = User.signup(json['username'], Time.now.to_i))
+      user.to_json
+    else
+      halt 500
+    end
   end
 
   options '/v1/users/:id' do
