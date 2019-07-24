@@ -98,6 +98,7 @@ class App < Sinatra::Base
         end
 
         note.destroy
+        status 204
       else
         halt 401
       end
