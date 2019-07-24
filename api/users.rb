@@ -21,6 +21,12 @@ class App < Sinatra::Base
   end
 
   post '/v1/users', auth: 'admin' do
+    json = JSON.parse(request.body.read)
+    if (user = User.signup(json['username'], Time.now.to_i))
+      user.to_json
+    else
+      halt 500
+    end
   end
 
   options '/v1/users/:id' do

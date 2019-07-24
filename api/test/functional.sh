@@ -78,6 +78,7 @@ echo "PUT User $USER_MANAGER_ID to UserManager role as Admin"
 STATUS=$(curl -X PUT $URL/users/$USER_MANAGER_ID -d '{ "type": "UserManager" }' -H 'Authorization: Bearer '$ADMIN_ACCESS_TOKEN -H 'Content-Type: application/json' --write-out "%{http_code}\n" --silent --output response.json)
 check_200_response $STATUS
 
+echo ""
 echo "=== TEST SIGN IN ON THIRD ATTEMPT ==="
 
 echo "SIGN IN USER Attempt 1"
@@ -94,6 +95,7 @@ check_200_response $STATUS
 USER_ACCESS_TOKEN=`cat response.json`
 echo "Token $USER_ACCESS_TOKEN"
 
+echo ""
 echo "=== TEST USER LOCKOUT ==="
 
 echo "SIGN IN USER Attempt 1"
@@ -124,18 +126,28 @@ check_200_response $STATUS
 USER_ACCESS_TOKEN=`cat response.json`
 echo "Token $USER_ACCESS_TOKEN"
 
+echo ""
+echo "=== TEST INVITE USER ==="
+
+echo "POST USER as ADMIN"
+STATUS=$(curl $URL/users -d '{ "username" : "Invited'$TIMESTAMP'" }' -H 'Authorization: Bearer '$ADMIN_ACCESS_TOKEN -H 'Content-Type: application/json' --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response $STATUS
+
+echo ""
 echo "=== TEST DELETE USER ==="
 
 echo "DELETE USER "$USER_ID" as Admin"
 STATUS=$(curl -X DELETE $URL/users/$USER_ID -H 'Authorization: Bearer '$ADMIN_ACCESS_TOKEN -H 'Content-Type: application/json' --write-out "%{http_code}\n" --silent --output response.json)
 check_200_response STATUS
 
+echo ""
 echo "=== TEST DELETE USER MANAGER ==="
 
 echo "DELETE USER "$USER_MANAGER_ID" as Admin"
 STATUS=$(curl -X DELETE $URL/users/$USER_MANAGER_ID -H 'Authorization: Bearer '$ADMIN_ACCESS_TOKEN -H 'Content-Type: application/json' --write-out "%{http_code}\n" --silent --output response.json)
 check_200_response STATUS
 
+echo ""
 echo "=== TEST DELETE ADMIN ==="
 
 echo "DELETE USER "$ADMIN_ID" as Admin"
