@@ -8,86 +8,102 @@ if [ "$#" -ne 1 ]; then
 fi
 
 function check_response () {
-    if [[ $1 -eq 200 ]]
+    if [[ $1 -eq $2 ]]
     then
         echo "Success"
-        jq . response.json
     else
         echo "Failure"
         exit
     fi
 }
 
+function check_200_response () {
+    check_response $1 200
+}
+
+function check_204_response () {
+    check_response $1 204
+}
+
+
 URL=$1
+TIMESTAMP=`date +%s`
 
-echo "SIGN UP USER"
-STATUS=$(curl --write-out "%{http_code}\n" -d @user-signin.json --silent --output response.json -H 'Content-Type: application/json' $URL/signup)
-echo $STATUS
-cat response.json
+echo "Signup User$TIMESTAMP"
+STATUS=$(curl $URL/signup -d '{ "username" : "User'$TIMESTAMP'", "password" : "bad password" }' --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response $STATUS
 
-echo "SIGN IN USER"
-STATUS=$(curl --write-out "%{http_code}\n" -d @user-signin.json --silent --output response.json -H 'Content-Type: application/json' $URL/signin)
-echo $STATUS
+echo "Signin User$TIMESTAMP"
+STATUS=$(curl $URL/signin -d '{ "username" : "User'$TIMESTAMP'", "password" : "bad password" }' --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response $STATUS
 USER_ACCESS_TOKEN=`cat response.json`
 
-echo "GET TASKS as USER"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks)
-echo $STATUS
-check_response STATUS
+echo "GET $URL/tasks as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 
-echo "POST TASKS as USER"
-STATUS=$(curl --write-out "%{http_code}\n" -d @create.json --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks)
-check_response STATUS
+echo "POST $URL/tasks as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks -d @create.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output post-one.json)
+check_200_response STATUS
 
-TASK_ID=`jq -s -r .[0].id response.json`
+echo "POST $URL/tasks as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks -d @create.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output post-two.json)
+check_200_response STATUS
+TASK_ID=`jq -s -r .[0].id post-two.json`
 
-echo "GET TASK $TASK_ID as USER"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' -v $URL/tasks/$TASK_ID)
-check_response STATUS
+echo "GET $URL/tasks/$TASK_ID as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks/$TASK_ID -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 
-echo "PUT TASK $TASK_ID as USER"
-STATUS=$(curl --write-out "%{http_code}\n" -d @update.json --silent --output response.json -X PUT -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks/$TASK_ID)
-check_response STATUS
+echo "PUT $URL/tasks/$TASK_ID as User$TIMESTAMP"
+STATUS=$(curl -X PUT $URL/tasks/$TASK_ID -d @update.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 
-echo "GET TASK $TASK_ID NOTES as USER"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' -v $URL/tasks/$TASK_ID/notes)
-check_response STATUS
+echo "GET $URL/tasks/$TASK_ID/notes as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks/$TASK_ID/notes -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 
-echo "POST TASK $TASK_ID NOTES as USER"
-STATUS=$(curl --write-out "%{http_code}\n" -d '{ "text" : "no man is an island" }' --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks/$TASK_ID/notes)
-check_response STATUS
+echo "POST $URL/tasks/$TASK_ID/notes as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks/$TASK_ID/notes -d '{ "text" : "no man is an island" }' -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 NOTE_ID=`jq -s -r .[0].id response.json`
 
-echo "POST TASK $TASK_ID NOTES as USER"
-STATUS=$(curl --write-out "%{http_code}\n" -d '{ "text" : "white pepper" }' --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks/$TASK_ID/notes)
-check_response STATUS
+echo "POST $URL/tasks/$TASK_ID/notes as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks/$TASK_ID/notes -d '{ "text" : "white pepper" }' -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 
-echo "POST TASK $TASK_ID NOTES as USER"
-STATUS=$(curl --write-out "%{http_code}\n" -d '{ "text" : "ice cream" }' --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks/$TASK_ID/notes)
-check_response STATUS
+echo "POST $URL/tasks/$TASK_ID/notes as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks/$TASK_ID/notes -d '{ "text" : "ice cream" }' -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 
-echo "PUT TASK $TASK_ID NOTE $NOTE_ID as USER"
-STATUS=$(curl --write-out "%{http_code}\n" -d '{ "text" : "foobar" }' --silent --output response.json -X PUT -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks/$TASK_ID/notes/$NOTE_ID)
-check_response STATUS
+echo "PUT $URL/tasks/$TASK_ID/notes/$NOTE_ID as User$TIMESTAMP"
+STATUS=$(curl -X PUT $URL/tasks/$TASK_ID/notes/$NOTE_ID -d '{ "text" : "foobar" }' -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 
-echo "GET TASK $TASK_ID NOTES as USER"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' -v $URL/tasks/$TASK_ID/notes)
-check_response STATUS
+echo "GET $URL/tasks/$TASK_ID as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks/$TASK_ID/notes -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
 
-echo "DELETE TASK $TASK_ID NOTE $NOTE_ID as USER"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -X DELETE -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks/$TASK_ID/notes/$NOTE_ID)
-check_response STATUS
+echo "GET $URL/tasks?format=html&from=2019-05-01 as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks?format=html\&from=2019-05-01 -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.html)
+check_200_response $STATUS
 
-echo "GET TASK $TASK_ID NOTES as USER"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' -v $URL/tasks/$TASK_ID/notes)
-check_response STATUS
+exit
 
-echo "DELETE TASK $TASK_ID as USER"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -X DELETE -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/tasks/$TASK_ID)
-check_response STATUS
+echo "DELETE $URL/tasks/$TASK_ID/notes/$NOTE_ID as User$TIMESTAMP"
+STATUS=$(curl -X DELETE $URL/tasks/$TASK_ID/notes/$NOTE_ID -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_204_response $STATUS
 
-echo "GET USERS as USER"
-STATUS=$(curl --write-out "%{http_code}\n" --silent --output response.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN -H 'Content-Type: application/json' $URL/users)
-check_response STATUS
+echo "GET $URL/tasks/$TASK_ID/notes as User$TIMESTAMP"
+STATUS=$(curl $URL/tasks/$TASK_ID/notes -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response $STATUS
+
+echo "DELETE $URL/tasks/$TASK_ID as User$TIMESTAMP"
+STATUS=$(curl -X DELETE $URL/tasks/$TASK_ID -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_204_response $STATUS
+
+echo "GET $URL/users as User$TIMESTAMP"
+STATUS=$(curl $URL/users -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response $STATUS
 
 rm response.json
