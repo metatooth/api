@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'haml'
+
 require_relative 'task'
 
 # The tasks endpoints.
@@ -34,7 +36,14 @@ class App < Sinatra::Base
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    tasks.select { |v| v.date > from && v.date < to }.to_json
+    @tasks = tasks.select { |v| v.date > from && v.date < to }
+
+    status 200
+    if 'html' == params[:format]
+      haml :tasks
+    else
+      @tasks.to_json
+    end
   end
 
   post '/v1/tasks', auth: 'user' do
@@ -42,6 +51,7 @@ class App < Sinatra::Base
     task.user_id = @user.id
 
     if task.create
+      status 200
       task.to_json
     else
       halt 500
@@ -51,6 +61,7 @@ class App < Sinatra::Base
   get '/v1/tasks/:id', auth: 'user' do
     if (task = Task.get(params[:id]))
       if @user.type == 'Admin' || @user.id == task.user_id
+        status 200
         task.to_json
       else
         halt 401
@@ -68,6 +79,7 @@ class App < Sinatra::Base
         task.date = Time.parse(vars['date'])
         task.duration = vars['duration']
         if task.update
+          status 200
           task.to_json
         else
           halt 500
@@ -82,8 +94,8 @@ class App < Sinatra::Base
 
   delete '/v1/tasks/:id', auth: 'user' do
     if (task = Task.get(params[:id]))
-      if @user.type == 'Admin' || @user.id == task.user_id
-        task.destroy
+      if (@user.type == 'Admin' || @user.id == task.user_id)
+        status 204 if task.destroy
       else
         halt 401
       end
