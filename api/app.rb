@@ -4,6 +4,7 @@ require 'sinatra'
 
 require_relative 'user'
 require_relative 'version'
+require_relative 'tracker'
 
 # The application.
 class App < Sinatra::Base
@@ -89,6 +90,47 @@ class App < Sinatra::Base
       halt 500
     end
   end
+
+  options '/v1/trackers' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
+    response['Access-Control-Allow-Methods'] = 'POST'
+  end
+
+  post '/v1/trackers', auth: 'user' do
+    tracker = Tracker.new(user_id: @user.id)
+    if tracker.create
+      status 200
+      tracker.to_json
+    else
+      halt 500
+    end
+  end
+
+  options '/v1/trackers/:id' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
+    response['Access-Control-Allow-Methods'] = 'PUT'
+  end
+
+  put '/v1/trackers/:id', auth: 'user' do
+    if (tracker = Tracker.get(params[:id]))
+      task = Task.new(
+        user_id: @user.id, 
+        date: tracker.created, 
+        duration: (Time.now.to_i - tracker.created.to_i)
+      )
+      if task.create
+        tracker.destroy
+        status 200
+        task.to_json
+      else
+        halt 500
+      end
+    else
+      halt 404
+    end
+  end 
 
   get '/v1/version' do
     { path: '/v1/tasks', version: Version.string }.to_json
