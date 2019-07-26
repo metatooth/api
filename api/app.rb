@@ -4,6 +4,7 @@ require 'sinatra'
 
 require_relative 'user'
 require_relative 'version'
+require_relative 'tracker'
 
 # The application.
 class App < Sinatra::Base
@@ -87,6 +88,46 @@ class App < Sinatra::Base
       user.to_json
     else
       halt 500
+    end
+  end
+
+  post '/v1/trackers/:id', auth: 'user' do
+    tracker = Tracker.new
+    if @user.create
+      status 200
+      tracker.to_json
+    else
+      halt 500
+    end
+  end
+
+  put '/v1/trackers/:id', auth: 'user' do
+    if (tracker = Tracker.get(params[:id]))
+      if task.create
+        task = Task.new(
+          user_id: @user.id, 
+          date: tracker.created, 
+          duration: (Time.now - tracker.created)
+        )
+        status 200
+        task.to_json
+      else
+        halt 500
+      end
+    else
+      halt 404
+    end
+  end
+
+  delete '/v1/trackers/:id', auth: 'user' do
+    if (tracker = Tracker.get(params[:id]))
+      if tracker.destroy
+        status 204
+      else
+        halt 500
+      end      
+    else
+      halt 404      
     end
   end
 
