@@ -43,13 +43,13 @@ STATUS=$(curl $URL/tasks -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-o
 check_200_response STATUS
 
 echo "POST $URL/tasks as User$TIMESTAMP"
-STATUS=$(curl $URL/tasks -d @create.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output post-one.json)
+STATUS=$(curl $URL/tasks -d @create.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
 check_200_response STATUS
 
 echo "POST $URL/tasks as User$TIMESTAMP"
-STATUS=$(curl $URL/tasks -d @create.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output post-two.json)
+STATUS=$(curl $URL/tasks -d @create.json -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
 check_200_response STATUS
-TASK_ID=`jq -s -r .[0].id post-two.json`
+TASK_ID=`jq -s -r .[0].id response.json`
 
 echo "GET $URL/tasks/$TASK_ID as User$TIMESTAMP"
 STATUS=$(curl $URL/tasks/$TASK_ID -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
@@ -84,11 +84,36 @@ echo "GET $URL/tasks/$TASK_ID as User$TIMESTAMP"
 STATUS=$(curl $URL/tasks/$TASK_ID/notes -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
 check_200_response STATUS
 
+echo ""
+echo "=== TEST ONGOING TASK FEATURE ==="
+
+echo "POST $URL/trackers as User$TIMESTAMP"
+STATUS=$(curl -X POST $URL/trackers -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
+TRACKER_ID=`jq -s -r .[0].id response.json`
+
+echo "PUT $URL/trackers/$TRACKER_ID as User$TIMESTAMP"
+STATUS=$(curl -X PUT $URL/trackers/$TRACKER_ID -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
+
+echo "POST $URL/trackers as User$TIMESTAMP"
+STATUS=$(curl -X POST $URL/trackers -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
+TRACKER_ID=`jq -s -r .[0].id response.json`
+
+echo "PUT $URL/trackers/$TRACKER_ID as User$TIMESTAMP"
+STATUS=$(curl -X PUT $URL/trackers/$TRACKER_ID -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+check_200_response STATUS
+
+echo ""
+echo "=== TEST EXPORT FEATURE ==="
+
 echo "GET $URL/tasks?format=html&from=2019-05-01 as User$TIMESTAMP"
 STATUS=$(curl $URL/tasks?format=html\&from=2019-05-01 -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.html)
 check_200_response $STATUS
 
-exit
+echo ""
+echo "=== TEST DELETE ==="
 
 echo "DELETE $URL/tasks/$TASK_ID/notes/$NOTE_ID as User$TIMESTAMP"
 STATUS=$(curl -X DELETE $URL/tasks/$TASK_ID/notes/$NOTE_ID -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
@@ -107,3 +132,4 @@ STATUS=$(curl $URL/users -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-o
 check_200_response $STATUS
 
 rm response.json
+rm response.html

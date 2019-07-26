@@ -98,8 +98,8 @@ class App < Sinatra::Base
   end
 
   post '/v1/trackers', auth: 'user' do
-    tracker = Tracker.new
-    if @user.create
+    tracker = Tracker.new(user_id: @user.id)
+    if tracker.create
       status 200
       tracker.to_json
     else
@@ -110,17 +110,18 @@ class App < Sinatra::Base
   options '/v1/trackers/:id' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type'
-    response['Access-Control-Allow-Methods'] = 'PUT, DELETE'
+    response['Access-Control-Allow-Methods'] = 'PUT'
   end
 
   put '/v1/trackers/:id', auth: 'user' do
     if (tracker = Tracker.get(params[:id]))
+      task = Task.new(
+        user_id: @user.id, 
+        date: tracker.created, 
+        duration: (Time.now.to_i - tracker.created.to_i)
+      )
       if task.create
-        task = Task.new(
-          user_id: @user.id, 
-          date: tracker.created, 
-          duration: (Time.now - tracker.created)
-        )
+        tracker.destroy
         status 200
         task.to_json
       else
@@ -129,19 +130,7 @@ class App < Sinatra::Base
     else
       halt 404
     end
-  end
-
-  delete '/v1/trackers/:id', auth: 'user' do
-    if (tracker = Tracker.get(params[:id]))
-      if tracker.destroy
-        status 204
-      else
-        halt 500
-      end      
-    else
-      halt 404      
-    end
-  end
+  end 
 
   get '/v1/version' do
     { path: '/v1/tasks', version: Version.string }.to_json
