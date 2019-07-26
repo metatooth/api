@@ -122,6 +122,6 @@ class Task < Model
   end
 
   def valid?
-    (!@description.nil? && !@date.nil? && !duration.nil? && !@user_id.nil?)
+    (!@date.nil? && !duration.nil? && !@user_id.nil?)
   end
 end
