@@ -9,5 +9,5 @@
 bundle install
 
 # serve with hot reload at localhost:9393
-bundle exec foremanr run shotgun
+bundle exec foreman run shotgun
 ```
