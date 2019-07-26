@@ -91,7 +91,13 @@ class App < Sinatra::Base
     end
   end
 
-  post '/v1/trackers/:id', auth: 'user' do
+  options '/v1/trackers' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
+    response['Access-Control-Allow-Methods'] = 'POST'
+  end
+
+  post '/v1/trackers', auth: 'user' do
     tracker = Tracker.new
     if @user.create
       status 200
@@ -99,6 +105,12 @@ class App < Sinatra::Base
     else
       halt 500
     end
+  end
+
+  options '/v1/trackers/:id' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type'
+    response['Access-Control-Allow-Methods'] = 'PUT, DELETE'
   end
 
   put '/v1/trackers/:id', auth: 'user' do
