@@ -120,8 +120,7 @@ class App < Sinatra::Base
         date: tracker.created, 
         duration: (Time.now.to_i - tracker.created.to_i)
       )
-      if task.create
-        tracker.destroy
+      if task.create && tracker.destroy
         status 200
         task.to_json
       else
