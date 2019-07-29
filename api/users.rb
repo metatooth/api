@@ -48,38 +48,49 @@ class App < Sinatra::Base
     end
   end
 
-  put '/v1/users/:id', auth: 'user_manager' do
+  put '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
       curr = @user
       vars = JSON.parse(request.body.read)
       
-      unless vars['type'].nil?
-        user.type = vars['type']
-      end
+      if @user.user_manager?
+        unless vars['type'].nil?
+          user.type = vars['type']
+        end
 
-      unless vars['username'].nil?
-        user.username = vars['username']
-      end
+        unless vars['username'].nil?
+          user.username = vars['username']
+        end
 
-      unless vars['preferred_working_seconds_per_day'].nil?
-        user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day']
-      end
+        unless vars['preferred_working_hours_per_day'].nil?
+          user.preferred_working_seconds_per_day = vars['preferred_working_hours_per_day'].to_f / 21600
+        end
 
-      unless vars['failed_attempts'].nil?
-        user.failed_attempts = vars['failed_attempts']
-      end
+        unless vars['failed_attempts'].nil?
+          user.failed_attempts = vars['failed_attempts']
+        end
 
-      unless vars['password'].nil?
-        user.init_password_salt_and_hash(vars['password'])
+        unless vars['password'].nil?
+          user.init_password_salt_and_hash(vars['password'])
+        end
+      elsif user.id == @user.id
+        unless vars['preferred_working_hours_per_day'].nil?
+          user.preferred_working_seconds_per_day = vars['preferred_working_hours_per_day'].to_f / 21600
+        end
+
+        unless vars['password'].nil?
+          user.init_password_salt_and_hash(vars['password'])
+        end
       end
 
       if user.update
+        status 200
         user.to_json
       else
         halt 500
       end
     else
-      halt 500
+      halt 404
     end
   end
 
