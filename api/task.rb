@@ -40,8 +40,9 @@ class Task < Model
   def create
     if @id.nil? && valid? == true
       doc_ref = @@firestore.col('tasks').doc
+      @created = @updated = Time.now
       doc_ref.set(description: @description, completed_on: @completed_on, duration: @duration,
-                  user_id: @user_id, created: Time.now, updated: Time.now)
+                  user_id: @user_id, created: @created, updated: @updated)
       initialize(doc_ref.get)
     end
     true if @id
@@ -103,15 +104,16 @@ class Task < Model
   def to_json(*_args)
     {
       id: @id, description: @description, completed_on: @completed_on, duration: @duration,
-      user_id: @user_id, created: @created, updated: @updated
+      user_id: @user_id, created: @created, updated: @updated, notes: notes
     }.to_json
   end
 
   def update
     if @id && valid?
+      @updated = Time.now
       resp = @@firestore.col('tasks').doc(@id).set(
         completed_on: @completed_on, description: @description, duration: @duration,
-        user_id: @user_id, created: @created, updated: Time.now
+        user_id: @user_id, created: @created, updated: @updated
       )
     end
     true if resp
