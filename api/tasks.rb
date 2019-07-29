@@ -12,12 +12,6 @@ class App < Sinatra::Base
     response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
-  options '/v1/tasks/:id' do
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
-  end
-
   get '/v1/tasks', auth: 'user' do
     tasks = if @user.type == 'Admin'
               Task.all
@@ -28,7 +22,7 @@ class App < Sinatra::Base
     from = Time.parse(params[:from]) if params[:from]
     to = Time.parse(params[:to]) if params[:to]
 
-    # :NOTE: 20190605 Terry: Inclusive of the to date.
+    # :NOTE: 20190605 Terry: Inclusive of the 'to' date.
 
     to += 24 * 60 * 60 if to
 
@@ -36,7 +30,7 @@ class App < Sinatra::Base
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    @tasks = tasks.select { |v| v.date > from && v.date < to }
+    @tasks = tasks.select { |v| v.completed_on > from && v.completed_on < to }
 
     status 200
     if 'html' == params[:format]
@@ -58,6 +52,12 @@ class App < Sinatra::Base
     end
   end
 
+  options '/v1/tasks/:id' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
+  end
+
   get '/v1/tasks/:id', auth: 'user' do
     if (task = Task.get(params[:id]))
       if @user.type == 'Admin' || @user.id == task.user_id
@@ -76,7 +76,7 @@ class App < Sinatra::Base
       if @user.type == 'Admin' || @user.id == task.user_id
         vars = JSON.parse(request.body.read)
         task.description = vars['description']
-        task.date = Time.parse(vars['date'])
+        task.completed_on = Time.parse(vars['completed_on'])
         task.duration = vars['duration']
         if task.update
           status 200
