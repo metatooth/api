@@ -117,7 +117,8 @@ class App < Sinatra::Base
     if (tracker = Tracker.get(params[:id]))
       task = Task.new(
         user_id: @user.id, 
-        date: tracker.created, 
+        completed_on: tracker.created,
+        description: 'describe this', 
         duration: (Time.now.to_i - tracker.created.to_i)
       )
       if task.create && tracker.destroy
