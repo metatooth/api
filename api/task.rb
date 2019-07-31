@@ -6,7 +6,7 @@ require_relative 'model'
 class Task < Model
   attr_accessor :id
   attr_accessor :description
-  attr_accessor :date
+  attr_accessor :completed_on
   attr_accessor :duration
   attr_accessor :user_id
   attr_accessor :created
@@ -40,15 +40,16 @@ class Task < Model
   def create
     if @id.nil? && valid? == true
       doc_ref = @@firestore.col('tasks').doc
-      doc_ref.set(description: @description, date: @date, duration: @duration,
-                  user_id: @user_id, created: Time.now, updated: Time.now)
+      @created = @updated = Time.now
+      doc_ref.set(description: @description, completed_on: @completed_on, duration: @duration,
+                  user_id: @user_id, created: @created, updated: @updated)
       initialize(doc_ref.get)
     end
     true if @id
   end
 
-  def date_to_s
-    @date.to_s
+  def completed_on_to_s
+    @completed_on.to_s
   end
 
   def destroy
@@ -59,7 +60,7 @@ class Task < Model
   def init_from_snap(snap)
     @id = snap.document_id
     @description = snap.get('description')
-    @date = snap.get('date')
+    @completed_on = snap.get('completed_on')
     @duration = snap.get('duration')
     @user_id = snap.get('user_id')
     @created = snap.get('created')
@@ -69,14 +70,14 @@ class Task < Model
   def init_from_string(str)
     vars = JSON.parse(str)
     @description = vars['description']
-    @date = Time.parse(vars['date'])
+    @completed_on = Time.parse(vars['completed_on'])
     @duration = vars['duration']
     @user_id = vars['user_id']
   end
 
   def init_from_hash(params)
     @description = params[:description]
-    @date = params[:date]
+    @completed_on = params[:completed_on]
     @duration = params[:duration]
     @user_id = params[:user_id]
   end
@@ -102,16 +103,17 @@ class Task < Model
 
   def to_json(*_args)
     {
-      id: @id, description: @description, date: @date, duration: @duration,
-      user_id: @user_id, created: @created, updated: @updated
+      id: @id, description: @description, completed_on: @completed_on, duration: @duration,
+      user_id: @user_id, created: @created, updated: @updated, notes: notes
     }.to_json
   end
 
   def update
     if @id && valid?
+      @updated = Time.now
       resp = @@firestore.col('tasks').doc(@id).set(
-        date: @date, description: @description, duration: @duration,
-        user_id: @user_id, created: @created, updated: Time.now
+        completed_on: @completed_on, description: @description, duration: @duration,
+        user_id: @user_id, created: @created, updated: @updated
       )
     end
     true if resp
@@ -122,6 +124,6 @@ class Task < Model
   end
 
   def valid?
-    (!@date.nil? && !duration.nil? && !@user_id.nil?)
+    (!@completed_on.nil? && !duration.nil? && !@user_id.nil?)
   end
 end

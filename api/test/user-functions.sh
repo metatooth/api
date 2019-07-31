@@ -81,8 +81,10 @@ STATUS=$(curl -X PUT $URL/tasks/$TASK_ID/notes/$NOTE_ID -d '{ "text" : "foobar" 
 check_200_response STATUS
 
 echo "GET $URL/tasks/$TASK_ID as User$TIMESTAMP"
-STATUS=$(curl $URL/tasks/$TASK_ID/notes -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
+STATUS=$(curl $URL/tasks/$TASK_ID -H 'Authorization: Bearer '$USER_ACCESS_TOKEN --write-out "%{http_code}\n" --silent --output response.json)
 check_200_response STATUS
+
+exit
 
 echo ""
 echo "=== TEST ONGOING TASK FEATURE ==="
@@ -133,3 +135,6 @@ check_200_response $STATUS
 
 rm response.json
 rm response.html
+
+echo ""
+echo "=== FINISH ==="

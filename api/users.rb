@@ -20,7 +20,7 @@ class App < Sinatra::Base
     users.to_json
   end
 
-  post '/v1/users', auth: 'admin' do
+  post '/v1/users', auth: 'user_manager' do
     json = JSON.parse(request.body.read)
     if (user = User.signup(json['username'], Time.now.to_i))
       user.to_json
@@ -48,38 +48,45 @@ class App < Sinatra::Base
     end
   end
 
-  put '/v1/users/:id', auth: 'user_manager' do
+  put '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
       curr = @user
       vars = JSON.parse(request.body.read)
-      
-      unless vars['type'].nil?
-        user.type = vars['type']
-      end
 
-      unless vars['username'].nil?
-        user.username = vars['username']
-      end
+      if @user.user_manager?
+        user.type = vars['type'] unless vars['type'].nil?
 
-      unless vars['preferred_working_seconds_per_day'].nil?
-        user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day']
-      end
+        user.username = vars['username'] unless vars['username'].nil?
 
-      unless vars['failed_attempts'].nil?
-        user.failed_attempts = vars['failed_attempts']
-      end
+        unless vars['preferred_working_seconds_per_day'].nil?
+          user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day'].to_f
+        end
 
-      unless vars['password'].nil?
-        user.init_password_salt_and_hash(vars['password'])
+        unless vars['failed_attempts'].nil?
+          user.failed_attempts = vars['failed_attempts']
+        end
+
+        unless vars['password'].nil?
+          user.init_password_salt_and_hash(vars['password'])
+        end
+      elsif user.id == @user.id
+        unless vars['preferred_working_seconds_per_day'].nil?
+          user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day'].to_f
+        end
+
+        unless vars['password'].nil?
+          user.init_password_salt_and_hash(vars['password'])
+        end
       end
 
       if user.update
+        status 200
         user.to_json
       else
         halt 500
       end
     else
-      halt 500
+      halt 404
     end
   end
 
@@ -87,9 +94,9 @@ class App < Sinatra::Base
     if (user = User.get(params[:id]))
       puts "DOOMED #{user.id}..."
       if user.id != @user.id
-        puts "Destroy..."
+        puts 'Destroy...'
         user.destroy
-        puts "Done!"
+        puts 'Done!'
         true
       else
         halt 401

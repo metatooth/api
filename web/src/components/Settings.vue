@@ -4,11 +4,13 @@
       Hello, {{ record.username }}!
     </p>
     <div class="field">
-      <label class="label">Expected Daily Calories</label>
+      <label class="label">Preferred Working Hours per Day</label>
       <div class="control">
         <input
-          v-model="record.preferred_working_seconds_per_day"
+          v-model="preferred_working_hours_per_day"
+          class="input"
           type="number"
+          placeholder="e.g. 8"
         >
       </div>
     </div>
@@ -19,7 +21,7 @@
           @click="save()"
         >Save</a>
         <a
-          class="button is-text"
+          class="button is-light"
           @click="cancel()"
         >Cancel</a>
       </div>
@@ -56,18 +58,26 @@ export default {
     },
     data: function () {
         return {
-            error: ''
+          preferred_working_hours_per_day: 8,
+          error: ''
         }
+    },
+    created: function () {
+      this.preferred_working_hours_per_day = this.record.preferred_working_seconds_per_day / 3600
     },
     methods: {
         cancel: function () {
-            this.record['preferred_working_seconds_per_day'] = this.cache['preferred_working_seconds_per_day']
+            this.record.preferred_working_seconds_per_day = this.cache.preferred_working_seconds_per_day
             this.onClose()
         },
         save: function () {
             this.error = ''
+            console.log(this.preferred_working_hours_per_day)
+            this.record.preferred_working_seconds_per_day = this.preferred_working_hours_per_day * 3600
             UsersService.update(this.record['id'], this.record, this.token)
               .then(response => {
+                  console.log(response)
+                  console.log(response.data)
                   this.onClose()
               }).catch(error => {
                   console.log(error)

@@ -106,19 +106,21 @@
                 this.onClose()
             },
             signup: function () {
-              AuthService.signup({username: this.username, password: this.password})
-                .then(response => {
-                  this.username = ''
-                  this.password = ''
-                  this.confirm_password = ''
-                  this.error = ''
-                  console.log(response)
-                  console.log(response.data)
-                  this.onClose()
-                }).catch(error => {
-                  console.log(error)
-                  this.error = error
-                })
+              if (this.isComplete) {
+                AuthService.signup({username: this.username, password: this.password})
+                  .then(response => {
+                    this.username = ''
+                    this.password = ''
+                    this.confirm_password = ''
+                    this.error = ''
+                    console.log(response)
+                    console.log(response.data)
+                    this.onClose()
+                  }).catch(error => {
+                    console.log(error)
+                    this.error = error
+                  })
+              }
             }
         }
       }

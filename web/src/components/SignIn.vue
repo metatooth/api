@@ -90,17 +90,18 @@ export default {
     },
     methods: {
       signin: function() {
-        this.error = ''
-        AuthService.signin({ username: this.username, password: this.password })
-          .then(response => {
-            this.username = ''
-            this.password = ''
-            this.error = ''
-            this.onSignin(response.data)
-          }).catch(error => {
-            this.error = error
-            console.log(error)
-          })
+        if (this.isComplete) {
+          AuthService.signin({ username: this.username, password: this.password })
+            .then(response => {
+              this.username = ''
+              this.password = ''
+              this.error = ''
+              this.onSignin(response.data)
+            }).catch(error => {
+              this.error = error
+              console.log(error)
+            })
+        }
       },
       signup: function() {
         this.username = ''

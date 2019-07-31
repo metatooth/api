@@ -78,7 +78,7 @@ class User < Model
     user = User.new(username: username, password: password)
     user.type = 'Admin'
 
-    @@firestore.col('users').get do |u|
+    @@firestore.col('users').get do |_u|
       user.type = 'User'
       break
     end
@@ -96,7 +96,7 @@ class User < Model
     if @id.nil? && valid? == true
       doc_ref = @@firestore.col('users').doc
       @created = @updated = Time.now
-      @preferred_working_seconds_per_day = 21600
+      @preferred_working_seconds_per_day = 21_600
       @failed_attempts = 0
       doc_ref.set(type: @type, username: @username.downcase, created: @created,
                   preferred_working_seconds_per_day: @preferred_working_seconds_per_day,

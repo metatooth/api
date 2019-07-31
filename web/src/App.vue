@@ -9,6 +9,7 @@
       :on-settings="do_settings"
       :on-signout="do_signout"
       :on-users="show_users"
+      :on-tasks="show_tasks"
     />
     <sign-up
       v-if="signup_visible"
@@ -19,22 +20,23 @@
       :on-signin="do_signin"
       :on-signup="show_signup"
     />
-    <meals
-      v-if="meals_visible"
-      :meals="meals"
-      :expected-daily-calories="parseInt(active_user.preferred_working_seconds_per_day)"
+    <tasks
+      v-if="tasks_visible"
+      :tasks="tasks"
+      :preferred-working-seconds-per-day="parseInt(active_user.preferred_working_seconds_per_day)"
       :token="access_token"
-      :on-edit="show_editmeal"
+      :on-edit="show_edittask"
     />
-    <edit-meal
-      v-if="editmeal_visible"
-      :record="edit_meal"
-      :cache="cache_meal"
+    <edit-task
+      v-if="edittask_visible"
+      :record="edit_task"
+      :cache="cache_task"
       :token="access_token"
-      :on-close="show_meals"
+      :on-close="show_tasks"
     />
     <users
       v-if="users_visible"
+      :current="active_user"
       :users="users"
       :token="access_token"
       :on-edit="show_edituser"
@@ -51,22 +53,22 @@
       :record="active_user"
       :cache="cache_user"
       :token="access_token"
-      :on-close="show_meals"
+      :on-close="show_tasks"
     />
     <footer class="footer">
-      Questions to <a href="mailto:tgl@rideside.net">tgl@rideside.net</a>
+      Questions? Contact <a href="mailto:tgl@rideside.net">tgl@rideside.net</a>
     </footer>
   </div>
 </template>
 
 <script>
-import MealsService from './api-services/meals'
+import TasksService from './api-services/tasks'
 import UsersService from './api-services/users'
 
-import EditMeal from './components/EditMeal.vue'
+import EditTask from './components/EditTask.vue'
 import EditUser from './components/EditUser.vue'
 import MainNav from './components/MainNav.vue'
-import Meals from './components/Meals.vue'
+import Tasks from './components/Tasks.vue'
 import Settings from './components/Settings.vue'
 import SignUp from './components/SignUp.vue'
 import SignIn from './components/SignIn.vue'
@@ -75,10 +77,10 @@ import Users from './components/Users.vue'
 export default {
   name: 'App',
   components: {
-    EditMeal,
+    EditTask,
     EditUser,
     MainNav,
-    Meals,
+    Tasks,
     Settings,
     SignUp,
     SignIn,
@@ -88,17 +90,17 @@ export default {
     return {
       access_token: '',
       active_user: null,
-      cache_meal: null,
+      cache_task: null,
       cache_user: null,
-      edit_meal: null,
+      edit_task: null,
       edit_user: null,
-      editmeal_visible: false,
+      edittask_visible: false,
       edituser_visible: false,
-      meals: [],
+      tasks: [],
       settings_visible: false,
       signin_visible: true,
       signup_visible: false,
-      meals_visible: false,
+      tasks_visible: false,
       users: [],
       users_visible: false
     }
@@ -113,9 +115,9 @@ export default {
     do_signin: function(token) {
       this.access_token = token
       
-      MealsService.get_all(this.access_token)
+      TasksService.get_all(this.access_token)
         .then(response => {
-          this.meals = response.data
+          this.tasks = response.data
         }).catch(error => {
           console.log(error)
         })
@@ -134,7 +136,7 @@ export default {
             }
           }
         }
-        this.show_meals()
+        this.show_tasks()
       }).catch(error => {
         console.log(error)
       })
@@ -143,20 +145,20 @@ export default {
       this.access_token = ''
       this.show_signin()
     },
-    show_editmeal: function (meal) {
-      this.edit_meal = meal
+    show_edittask: function (task) {
+      this.edit_task = task
       
-      this.cache_meal = {}
-      this.cache_meal['id'] = meal['id']
-      this.cache_meal['taken'] = meal['taken']
-      this.cache_meal['text'] = meal['text']
-      this.cache_meal['calories'] = meal['calories']
+      this.cache_task = {}
+      this.cache_task['id'] = task['id']
+      this.cache_task['completed_on'] = task['completed_on']
+      this.cache_task['description'] = task['description']
+      this.cache_task['duration'] = task['duration']
 
       this.settings_visible = false
       this.signin_visible = false
       this.signup_visible = false
-      this.meals_visible = false
-      this.editmeal_visible = true
+      this.tasks_visible = false
+      this.edittask_visible = true
       this.users_visible = false
       this.edituser_visible = false
     },
@@ -166,14 +168,14 @@ export default {
       this.cache_user = {}
       this.cache_user['id'] = user['id']
       this.cache_user['username'] = user['username']
-      this.cache_user['preferred_working_seconds_per_day'] = user['username']
+      this.cache_user['preferred_working_seconds_per_day'] = user['preferred_working_seconds_per_day']
       this.cache_user['type'] = user['type']
 
       this.settings_visible = false
       this.signin_visible = false
       this.signup_visible = false
-      this.meals_visible = false
-      this.editmeal_visible = false
+      this.tasks_visible = false
+      this.edittask_visible = false
       this.users_visible = false
       this.edituser_visible = true
     },
@@ -184,8 +186,8 @@ export default {
       this.settings_visible = true
       this.signin_visible = false
       this.signup_visible = false
-      this.meals_visible = false
-      this.editmeal_visible = false
+      this.tasks_visible = false
+      this.edittask_visible = false
       this.users_visible = false
       this.edituser_visible = false
     },
@@ -193,8 +195,8 @@ export default {
       this.settings_visible = false
       this.signin_visible = true
       this.signup_visible = false
-      this.meals_visible = false
-      this.editmeal_visible = false
+      this.tasks_visible = false
+      this.edittask_visible = false
       this.users_visible = false
       this.edituser_visible = false
     },
@@ -202,18 +204,18 @@ export default {
       this.signin_visible = false
       this.settings_visible = false
       this.signup_visible = true
-      this.meals_visible = false
-      this.editmeal_visible = false
+      this.tasks_visible = false
+      this.edittask_visible = false
       this.users_visible = false
       this.edituser_visible = false
     },
-    show_meals: function () {
-      this.edit_meal = null
+    show_tasks: function () {
+      this.edit_task = null
       this.settings_visible = false
       this.signin_visible = false
       this.signup_visible = false
-      this.meals_visible = true
-      this.editmeal_visible = false
+      this.tasks_visible = true
+      this.edittask_visible = false
       this.users_visible = false
       this.edituser_visible = false
     },
@@ -222,8 +224,8 @@ export default {
       this.settings_visible = false
       this.signin_visible = false
       this.signup_visible = false
-      this.meals_visible = false
-      this.editmeal_visible = false
+      this.tasks_visible = false
+      this.edittask_visible = false
       this.users_visible = true
       this.edituser_visible = false
     }
@@ -237,5 +239,9 @@ export default {
 @import "~bulma/bulma";
 
 [v-cloak] { display: none; }
+
+.section {
+  padding-top: 12px;
+}
 
 </style>

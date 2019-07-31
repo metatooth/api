@@ -94,5 +94,4 @@ class Tracker < Model
   def valid?
     !@user_id.nil?
   end
-
 end

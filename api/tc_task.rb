@@ -13,7 +13,7 @@ class TestTask < Test::Unit::TestCase
 
     @task = Task.new(
       user_id: @user.id,
-      date: @now,
+      completed_on: @now,
       description: 'Escargot! My favorite.',
       duration: 7200
     )
@@ -29,8 +29,8 @@ class TestTask < Test::Unit::TestCase
     assert_not_equal(nil, @task.id)
   end
 
-  def test_task_date
-    assert_equal(@now.strftime('%Y-%m-%d'), @task.date.strftime('%Y-%m-%d'))
+  def test_task_completed_on
+    assert_equal(@now.strftime('%Y-%m-%d'), @task.completed_on.strftime('%Y-%m-%d'))
   end
 
   def test_task_destroy
@@ -54,13 +54,9 @@ class TestTask < Test::Unit::TestCase
 
     check = Task.get(@task.id)
 
-    %w[date_to_s description duration user_id].each do |attr|
+    %w[completed_on_to_s description duration user_id].each do |attr|
       assert_equal(@task.send(attr), check.send(attr))
     end
-  end
-
-  def test_task_time
-    assert_equal(@now.strftime('%H:%M'), @task.date.strftime('%H:%M'))
   end
 
   def test_task_description
