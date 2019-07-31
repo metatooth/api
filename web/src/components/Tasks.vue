@@ -169,6 +169,7 @@
           <td style="text-align: center;">
             <a
               class="button is-light"
+              :disabled="!isComplete"
               @click="clearTask()"
             >
               <span class="icon">
@@ -319,13 +320,15 @@ export default {
       }
     },
     save: function () {
-      TasksService.create({ completed_on: this.completed_on, description: this.description, duration: this.duration * 3600 }, this.token)
-        .then(response => {
-          this.tasks.push(response.data)
-          this.clearTask()
-        }).catch(error => {
-          console.log(error)
-        })
+      if (this.isComplete) {
+        TasksService.create({ completed_on: this.completed_on, description: this.description, duration: this.duration * 3600 }, this.token)
+          .then(response => {
+            this.tasks.push(response.data)
+            this.clearTask()
+          }).catch(error => {
+            console.log(error)
+          })
+      }
     },
     validDate: function(str) {
       const re = /^\d\d\d\d-\d\d-\d\d$/
