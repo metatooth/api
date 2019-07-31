@@ -1,66 +1,100 @@
 <template>
   <section class="section">
-    <div class="field">
-      <div class="control">
-        <label for="taken">Username</label>
-        <input
-          v-model="record.username"
-          type="text"
-        >
+    <div class="field is-horizontal">
+      <div class="field-label">
+        <label class="label">Username</label>
       </div>
-    </div>
-    <div class="field">
-      <div class="control">
-        <label for="text">Role</label>
-        <div class="select">
-          <select v-model="record.type">
-            <option value="User">
-              User
-            </option>
-            <option value="UserManager">
-              UserManager
-            </option>
-            <option value="Admin">
-              Admin
-            </option>
-          </select>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <input
+              v-model="record.username"
+              class="input"
+              type="text"
+            >
+          </div>
         </div>
       </div>
     </div>
-    <div class="field">
-      <div class="control">
-        <label>Expected Daily Calories</label>
-        <input
-          v-model="record.preferred_working_seconds_per_day"
-          type="number"
-          placeholder="How many calories expected per day?"
-        >
+
+    <div class="field is-horizontal">
+      <div class="field-label">
+        <label class="label">Role</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <div class="select">
+              <select v-model="record.type">
+                <option value="User">
+                  User
+                </option>
+                <option value="UserManager">
+                  UserManager
+                </option>
+                <option value="Admin">
+                  Admin
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <div class="control">
-        <label>Password</label>
-        <input
-          v-model="password"
-          type="text"
-          placeholder="Leave blank unless changing password."
-        >
+    <div class="field is-horizontal">
+      <div class="field-label">
+        <label class="label">Preferred Working Hours per Day</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <input
+              v-model.number="preferred_working_hours_per_day"
+              class="input"
+              type="number"
+              placeholder="How many hours preferred per day?"
+            >
+          </div>
+        </div>
       </div>
     </div>
-    <div class="field is-grouped">
-      <p class="control">
-        <a
-          class="button is-primary"
-          :disabled="!isComplete"
-          @click="save()"
-        >Save</a>
-      </p>
-      <p class="control">
-        <a
-          class="button is-light"
-          @click="cancel()"
-        >Cancel</a>
-      </p>
+
+    <div class="field is-horizontal">
+      <div class="field-label">
+        <label class="label">Password</label>
+      </div>
+      <div class="field-body">
+        <div class="field">
+          <div class="control">
+            <input
+              v-model="password"
+              class="input"
+              type="password"
+              placeholder="Leave blank unless changing password."
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="field is-horizontal">
+      <div class="field-label" />
+      <div class="field-body">
+        <div class="field is-grouped">
+          <div class="control">
+            <a
+              class="button is-primary"
+              :disabled="!isComplete"
+              @click="save()"
+            >Save</a>
+          </div>
+          <div class="control">
+            <a
+              class="button is-light"
+              @click="cancel()"
+            >Cancel</a>
+          </div>
+        </div>
+      </div>
     </div>
     <p class="help is-danger"> 
       {{ error }}
@@ -69,7 +103,7 @@
 </template>
 
 <script>
-import UsersService from '../api-services/users.js'
+import usersService from '../api-services/users.js'
 
 export default {
     props: {
@@ -94,6 +128,7 @@ export default {
     },
     data: function () {
         return {
+            preferred_working_hours_per_day: 0,
             password: '',
             error: ''
         }
@@ -109,19 +144,23 @@ export default {
 
             return (this.record.username.length > 0 && 
               this.record.type.length > 0 && 
-              this.record.preferred_working_seconds_per_day &&
+              this.preferred_working_hours_per_day &&
               pcheck)
         }
     },
+    created: function () {
+      this.preferred_working_hours_per_day = this.record.preferred_working_seconds_per_day / 3600
+    },
     methods: {
         cancel: function () {
-            this.record['taken'] = this.cache['taken']
-            this.record['text'] = this.cache['text']
-            this.record['calories'] = this.cache['calories']
+            this.record['username'] = this.cache['username']
+            this.record['role'] = this.cache['role']
+            this.record['preferred_working_seconds_per_day'] = this.cache['preferred_working_seconds_per_day']
             this.onClose()
         },
         save: function () {
             let user = {}
+            this.record.preferred_working_seconds_per_day = this.preferred_working_hours_per_day * 3600
             user['username'] = this.record.username
             user['type'] = this.record.type
             user['preferred_working_seconds_per_day'] = this.record.preferred_working_seconds_per_day
@@ -129,8 +168,10 @@ export default {
                 user['password'] = this.password
             }
  
-            UsersService.update(this.record['id'], user, this.token)
+            usersService.update(this.record['id'], user, this.token)
               .then(response => {
+                console.log(response)
+                console.log(response.data)
                 this.onClose()
               }).catch(error => {
                   console.log(error)

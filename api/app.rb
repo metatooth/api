@@ -8,7 +8,6 @@ require_relative 'tracker'
 
 # The application.
 class App < Sinatra::Base
-
   register do
     def auth(type)
       condition do
@@ -116,9 +115,9 @@ class App < Sinatra::Base
   put '/v1/trackers/:id', auth: 'user' do
     if (tracker = Tracker.get(params[:id]))
       task = Task.new(
-        user_id: @user.id, 
+        user_id: @user.id,
         completed_on: tracker.created,
-        description: 'describe this', 
+        description: 'describe this',
         duration: (Time.now.to_i - tracker.created.to_i)
       )
       if task.create && tracker.destroy
@@ -130,7 +129,7 @@ class App < Sinatra::Base
     else
       halt 404
     end
-  end 
+  end
 
   get '/v1/version' do
     { path: '/v1/tasks', version: Version.string }.to_json

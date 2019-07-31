@@ -10,7 +10,7 @@ class TestTracker < Test::Unit::TestCase
     @now = Time.now
     @user = User.signup('unit', 'badpass')
     @user = User.find_by_username('unit') if @user.nil?
-    @tracker = Tracker.new({user_id: @user.id})
+    @tracker = Tracker.new(user_id: @user.id)
   end
 
   def teardown

@@ -9,8 +9,10 @@
         <tr>
           <th>Username</th>
           <th>Role</th>
-          <th>Expected Daily Calories</th>
-          <th>Actions</th>
+          <th>Preferred Working Hours per Day</th>
+          <th colspan="2">
+            Actions
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -26,106 +28,124 @@
             {{ user.type }}
           </td>
           <td>
-            {{ user.preferred_working_seconds_per_day }}
+            {{ user.preferred_working_seconds_per_day / 3600 }}
           </td>
           <td>
             <a
-              class="button"
+              class="button is-info"
               @click="edit(user)"
             >
               <span class="icon">
                 <i class="fas fa-edit" />
               </span>
             </a>
-                &nbsp;
+          </td>
+          <td>
             <a
-              class="button"
+              v-if="user.id != current.id"
+              class="button is-warning"
               @click="remove(user)"
+            >
+              <span class="icon">
+                <i class="fas fa-trash" />
+              </span>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input
+              v-model.trim="username"
+              class="input"
+              type="text"
+              placeholder="Username"
+            >
+          </td>
+          <td>
+            <div class="select">
+              <select v-model="type">
+                <option value="User">
+                  User
+                </option>
+                <option value="UserManager">
+                  UserManager
+                </option>
+                <option value="Admin">
+                  Admin
+                </option>
+              </select>
+            </div>
+          </td>
+
+          <td>
+            <input
+              v-model.number="preferred_working_hours_per_day"
+              class="input"
+              type="number"
+              placeholder="e.g., 6"
+            >
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <div class="field is-horizontal">
+              <div class="field-label">
+                <label class="label">Password</label> 
+              </div>
+              <div class="field-body">
+                <input
+                  v-model.trim="password"
+                  class="input"
+                  type="password"
+                  placeholder="At least 8 characters"
+                >
+              </div>
+            </div>
+          </td>
+
+
+
+
+          <td style="text-align: center;">
+            <a
+              class="button is-primary"
+              :disabled="!isComplete"
+              @click="save()"
+            >
+              <span class="icon">
+                <i class="fas fa-save" />
+              </span>
+            </a>
+          </td>
+
+          <td style="text-align: center;">
+            <a
+              class="button is-light"
+              :disabled="!isComplete"
+              @click="clearUser()"
             >
               <span class="icon">
                 <i class="fas fa-times" />
               </span>
+
             </a>
           </td>
         </tr>
       </tbody>
     </table>
     <hr>
-    <p class="subtitle">
-      Add a user
-    </p>
-    <div class="field">
-      <div class="control">
-        <label>Username</label>
-        <input
-          v-model.trim="username"
-          type="text"
-          placeholder="Username"
-        >
-      </div>
-    </div>
-    <div class="field">
-      <div class="control">
-        <label>Role</label>
-        <div class="select">
-          <select v-model="type">
-            <option value="User">
-              User
-            </option>
-            <option value="UserManager">
-              UserManager
-            </option>
-            <option value="Admin">
-              Admin
-            </option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="field">
-      <div class="control">
-        <label>Expected Daily Calories</label>
-        <input
-          v-model.number="preferred_working_seconds_per_day"
-          type="number"
-        >
-      </div>
-    </div>
-          
-    <div class="field">
-      <div class="control">
-        <label>Password</label>
-        <input
-          v-model.trim="password"
-          type="text"
-          placeholder="At least 8 characters"
-        >
-      </div>
-    </div>
-
-
-    <div class="field is-grouped">
-      <div class="control">
-        <a
-          class="button is-primary"
-          :disabled="!isComplete"
-          @click="save()"
-        >Save</a>
-
-        <a
-          class="button is-text"
-          @click="clearUser()"
-        >Cancel</a>
-      </div>
-    </div>
   </section>
 </template>
 
 <script>
-import UsersService from '../api-services/users'
+import usersService from '../api-services/users'
 
 export default {
   props: {
+    current: {
+      type: Object,
+      default: null
+    },
     users: {
       type: Array,
       default: function () {
@@ -147,21 +167,21 @@ export default {
     return {
       username: '',
       type: 'User',
-      preferred_working_seconds_per_day: 2000,
+      preferred_working_hours_per_day: 6,
       password: '',
       errors: ''
     }
   },
   computed: {
     isComplete: function () {
-      return (this.username.length != 0 && this.type.length != 0 && this.password.length > 7)
+      return (this.username.length != 0 && this.password.length > 7)
     }
   },
   methods: {
     clearUser: function () {
       this.username = ''
       this.type = 'User'
-      this.preferred_working_seconds_per_day = 2000
+      this.preferred_working_hours_per_day = 6
       this.password = ''
     },
     edit: function(user) {
@@ -169,24 +189,25 @@ export default {
     },
     remove: function (user) {
       const doomed_id = user.id
-      this.users.splice(this.users.indexOf(user), 1)
 
-      // :TODO: 20190605 Terry: Don't allow a user to delete themselves. Delete user's meals.
-      // May needs a backend process. User Manager doesn't have access to other's meals.
+      // :TODO: 20190605 Terry: Don't allow a user to delete themselves. Delete user's tasks.
+      // May need a backend process. User Manager doesn't have access to other's tasks.
 
       console.log('Removing ' + doomed_id)
 
-      UsersService.destroy(doomed_id, this.token)
+      usersService.destroy(doomed_id, this.token)
         .then(response => {
           console.log(response)
+          this.users.splice(this.users.indexOf(user), 1)
         }).catch(e => {
           console.log(e)
       })
 
     },
     save: function () {
-      UsersService.create({ username: this.username, type: this.type,
-        preferred_working_seconds_per_day: this.preferred_working_seconds_per_day, password: this.password}, this.token)
+      if (this.isComplete) {
+      usersService.create({ username: this.username, type: this.type,
+        preferred_working_seconds_per_day: this.preferred_working_hours_per_day * 3600, password: this.password}, this.token)
         .then(response => {
           console.log(response)
           console.log(response.data)
@@ -195,6 +216,9 @@ export default {
         }).catch(error => {
           console.log(error)
         })
+      } else {
+        this.errors = 'Fix input errors. Username and password must meet minimum lengths.'
+      }
     }
   }
 }  

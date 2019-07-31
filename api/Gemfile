@@ -3,9 +3,9 @@
 source 'https://rubygems.org'
 
 gem 'bcrypt'
-gem 'haml'
 gem 'foreman'
 gem 'google-cloud-firestore'
+gem 'haml'
 gem 'json'
 gem 'puma'
 gem 'rubocop'

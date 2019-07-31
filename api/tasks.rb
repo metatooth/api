@@ -33,7 +33,7 @@ class App < Sinatra::Base
     @tasks = tasks.select { |v| v.completed_on > from && v.completed_on < to }
 
     status 200
-    if 'html' == params[:format]
+    if params[:format] == 'html'
       haml :tasks
     else
       @tasks.to_json
@@ -94,7 +94,7 @@ class App < Sinatra::Base
 
   delete '/v1/tasks/:id', auth: 'user' do
     if (task = Task.get(params[:id]))
-      if (@user.type == 'Admin' || @user.id == task.user_id)
+      if @user.type == 'Admin' || @user.id == task.user_id
         status 204 if task.destroy
       else
         halt 401
