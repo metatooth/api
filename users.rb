@@ -22,7 +22,7 @@ class App < Sinatra::Base
 
   post '/v1/users', auth: 'user_manager' do
     json = JSON.parse(request.body.read)
-    if (user = User.signup(json['username'], Time.now.to_i))
+    if (user = User.signup(json['email'], Time.now.to_i))
       user.to_json
     else
       halt 500
@@ -56,7 +56,7 @@ class App < Sinatra::Base
       if @user.user_manager?
         user.type = vars['type'] unless vars['type'].nil?
 
-        user.username = vars['username'] unless vars['username'].nil?
+        user.email = vars['email'] unless vars['email'].nil?
 
         unless vars['preferred_working_seconds_per_day'].nil?
           user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day'].to_f
