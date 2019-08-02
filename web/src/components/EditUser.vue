@@ -61,23 +61,6 @@
     </div>
 
     <div class="field is-horizontal">
-      <div class="field-label">
-        <label class="label">Password</label>
-      </div>
-      <div class="field-body">
-        <div class="field">
-          <div class="control">
-            <input
-              v-model="password"
-              class="input"
-              type="password"
-              placeholder="Leave blank unless changing password."
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="field is-horizontal">
       <div class="field-label" />
       <div class="field-body">
         <div class="field is-grouped">
@@ -130,23 +113,12 @@ export default {
     data: function () {
         return {
             preferred_working_hours_per_day: 0,
-            password: '',
             error: ''
         }
     },
     computed: {
         isComplete: function () {
-            let pcheck = true
-            if (this.password.length > 0) {
-                if (this.password.length < 8) {
-                    pcheck = false
-                }
-            }
-
-            return (this.record.email.length > 0 && 
-              this.record.type.length > 0 && 
-              this.preferred_working_hours_per_day &&
-              pcheck)
+            return (this.record.type.length > 0 && this.preferred_working_hours_per_day)
         }
     },
     created: function () {
@@ -154,22 +126,14 @@ export default {
     },
     methods: {
         cancel: function () {
-            this.record['email'] = this.cache['email']
             this.record['role'] = this.cache['role']
             this.record['preferred_working_seconds_per_day'] = this.cache['preferred_working_seconds_per_day']
             this.onClose()
         },
         save: function () {
-            let user = {}
             this.record.preferred_working_seconds_per_day = this.preferred_working_hours_per_day * 3600
-            user['email'] = this.record.email
-            user['type'] = this.record.type
-            user['preferred_working_seconds_per_day'] = this.record.preferred_working_seconds_per_day
-            if (this.password.length > 7) {
-                user['password'] = this.password
-            }
  
-            usersService.update(this.record['id'], user, this.token)
+            usersService.update(this.record['id'], this.record, this.token)
               .then(response => {
                 console.log(response)
                 console.log(response.data)
