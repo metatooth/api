@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bcrypt'
+require 'net/http'
 require 'securerandom'
 
 require_relative 'model'
@@ -9,10 +10,10 @@ require_relative 'model'
 class User < Model
   attr_accessor :id
   attr_accessor :type
-  attr_accessor :username
+  attr_accessor :email
+  attr_accessor :firebase_id_token
+  attr_accessor :verified
   attr_accessor :preferred_working_seconds_per_day
-  attr_accessor :password_salt
-  attr_accessor :password_hash
   attr_accessor :access_token
   attr_accessor :access_expiry
   attr_accessor :failed_attempts
@@ -28,17 +29,60 @@ class User < Model
     users
   end
 
-  def self.authenticate(username, password)
-    user = User.find_by_username(username)
-    if user && user.failed_attempts < 3
-      check_hash = BCrypt::Engine.hash_secret(password, user.password_salt)
-      if user.password_hash == check_hash
+  def self.authenticate(email, password)
+    user = User.find_by_email(email)
+    if user && user.verified == false
+      data = "{ \"idToken\": \"#{user.firebase_id_token}\" }"
+      url = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyAfqUev9Z8Xxs9j5-qLSJuENEvpBDFEDS0'
+      uri = URI.parse(url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+
+      request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
+      request.body = data
+      response = http.request(request)
+      case response
+      when Net::HTTPSuccess then
+
+        body = JSON.parse(response.body)
+        body['users'].each do |u|
+          if u['localId'] == user.id
+            user.verified = u['emailVerified']
+            user.update
+          end
+        end
+      else
+        puts "ERROR at LOOKUP #{response.inspect}"
+      end
+    end
+
+    data = "{ \"email\": \"#{email}\", \"password\": \"#{password}\", \"returnSecureToken\": \"true\" }"
+    url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAfqUev9Z8Xxs9j5-qLSJuENEvpBDFEDS0'
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
+    request.body = data
+    response = http.request(request)
+    case response
+    when Net::HTTPSuccess then
+      body = JSON.parse(response.body)
+
+      user = User.get(body['localId'])
+
+      if user && user.verified == true
         if user.failed_attempts != 0
           user.failed_attempts = 0
           user.update
         end
         return user
-      else
+      end
+    else
+      puts "ERROR at AUTHENTICATION #{response.inspect}"
+      puts response.body
+      
+      if user && user.verified == true
         user.failed_attempts = user.failed_attempts + 1
         user.update
       end
@@ -56,10 +100,10 @@ class User < Model
     nil
   end
 
-  def self.find_by_username(username)
-    unless username.nil?
+  def self.find_by_email(email)
+    unless email.nil?
       enum = @@firestore.col('users')
-                        .where('username', '==', username.downcase).get
+                        .where('email', '==', email.downcase).get
       enum.each do |doc|
         return User.new(doc)
       end
@@ -74,18 +118,32 @@ class User < Model
     user
   end
 
-  def self.signup(username, password)
-    user = User.new(username: username, password: password)
-    user.type = 'Admin'
+  def self.signup(email, password)
+    data = "{ \"email\": \"#{email}\", \"password\": \"#{password}\" }"
+    url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAfqUev9Z8Xxs9j5-qLSJuENEvpBDFEDS0'
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
 
-    @@firestore.col('users').get do |_u|
-      user.type = 'User'
-      break
+    request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
+    request.body = data
+    response = http.request(request)
+    case response
+    when Net::HTTPSuccess then
+      body = JSON.parse(response.body)
+      user = User.new(id: body['localId'], email: body['email'], firebase_id_token: body['idToken'])
+      user.type = 'Admin'
+
+      @@firestore.col('users').get do |_u|
+        user.type = 'User'
+        break
+      end
+
+      return user if user.create
+    else
+      puts "ERROR at SIGNUP #{response.inspect}"
+      return nil
     end
-
-    return user if user.create
-
-    nil
   end
 
   def admin?
@@ -93,16 +151,16 @@ class User < Model
   end
 
   def create
-    if @id.nil? && valid? == true
-      doc_ref = @@firestore.col('users').doc
+    if valid? == true
       @created = @updated = Time.now
       @preferred_working_seconds_per_day = 21_600
       @failed_attempts = 0
-      doc_ref.set(type: @type, username: @username.downcase, created: @created,
+      @verified = false
+      doc_ref = @@firestore.col('users').doc(@id)
+      doc_ref.set(type: @type, email: @email.downcase, firebase_id_token: @firebase_id_token,
+                  verified: @verified, created: @created,
                   preferred_working_seconds_per_day: @preferred_working_seconds_per_day,
-                  password_salt: @password_salt, password_hash: @password_hash,
                   updated: @updated, failed_attempts: @failed_attempts)
-      @id = doc_ref.document_id
       issue_access_token
     end
     true if @id
@@ -116,10 +174,10 @@ class User < Model
   def init_from_snap(snap)
     @id = snap.document_id
     @type = snap.get('type')
-    @username = snap.get('username')
+    @email = snap.get('email')
+    @verified = snap.get('verified')
+    @firebase_id_token = snap.get('firebase_id_token')
     @preferred_working_seconds_per_day = snap.get('preferred_working_seconds_per_day').to_i
-    @password_salt = snap.get('password_salt')
-    @password_hash = snap.get('password_hash')
     @access_token = snap.get('access_token')
     @access_expiry = snap.get('access_expiry')
     @failed_attempts = snap.get('failed_attempts').to_i
@@ -128,15 +186,12 @@ class User < Model
   end
 
   def init_from_hash(params)
-    @username = params[:username]
+    @id = params[:id]
+    @email = params[:email]
     @preferred_working_seconds_per_day = params[:preferred_working_seconds_per_day]
     @failed_attempts = params[:failed_attempts]
-    init_password_salt_and_hash(params[:password])
-  end
-
-  def init_password_salt_and_hash(password)
-    @password_salt = BCrypt::Engine.generate_salt
-    @password_hash = BCrypt::Engine.hash_secret(password, @password_salt)
+    @firebase_id_token = params[:firebase_id_token]
+    @verified = params[:verified]
   end
 
   def initialize(params)
@@ -157,7 +212,7 @@ class User < Model
 
   def to_json(*_args)
     {
-      id: @id, type: @type, username: @username, created: @created,
+      id: @id, type: @type, email: @email, created: @created,
       preferred_working_seconds_per_day: @preferred_working_seconds_per_day,
       failed_attempts: @failed_attempts, updated: @updated,
       access_token: @access_token, access_expiry: @access_expiry
@@ -168,10 +223,10 @@ class User < Model
     if !@id.nil? && valid? == true
       @updated = Time.now
       resp = @@firestore.col('users').doc(@id).set(
-        type: @type, username: @username.downcase,
+        type: @type, email: @email.downcase, verified: @verified,
+        firebase_id_token: @firebase_id_token,
         preferred_working_seconds_per_day: @preferred_working_seconds_per_day,
         failed_attempts: @failed_attempts,
-        password_hash: @password_hash, password_salt: @password_salt,
         access_token: @access_token, access_expiry: @access_expiry,
         created: @created, updated: @updated
       )
@@ -184,8 +239,8 @@ class User < Model
   end
 
   def valid?
-    user = User.find_by_username(@username) if @id.nil?
-    (!@type.nil? && !@username.nil? && user.nil?)
+    user = User.find_by_email(@email) if @id.nil?
+    (!@type.nil? && !@email.nil? && user.nil?)
   end
 end
 

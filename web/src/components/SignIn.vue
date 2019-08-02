@@ -5,10 +5,10 @@
         <div class="field">
           <p class="control has-icons-left">
             <input
-              v-model="username"
+              v-model="email"
               class="input"
               type="text"
-              placeholder="Username"
+              placeholder="E-mail"
             >
             <span class="icon is-small is-left">
               <i
@@ -78,22 +78,22 @@ export default {
     },
     data: function () {
         return {
-            username: '',
+            email: '',
             password: '', 
             error: ''
         }
     },
     computed: {
       isComplete: function () {
-        return (this.username.length != 0 && this.password.length > 7)
+        return (this.email.length != 0 && this.password.length > 7)
       }
     },
     methods: {
       signin: function() {
         if (this.isComplete) {
-          AuthService.signin({ username: this.username, password: this.password })
+          AuthService.signin({ email: this.email, password: this.password })
             .then(response => {
-              this.username = ''
+              this.email = ''
               this.password = ''
               this.error = ''
               this.onSignin(response.data)
@@ -104,7 +104,7 @@ export default {
         }
       },
       signup: function() {
-        this.username = ''
+        this.email = ''
         this.password = ''
         this.error = ''
         this.onSignup()
