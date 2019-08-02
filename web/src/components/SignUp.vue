@@ -5,10 +5,10 @@
         <div class="field">
           <p class="control has-icons-left">
             <input
-              v-model="username"
+              v-model="email"
               class="input"
-              ype="text"
-              placeholder="Username"
+              type="text"
+              placeholder="E-mail"
             >
             <span class="icon is-small is-left">
               <i
@@ -88,7 +88,7 @@
         },
         data: function () {
             return {
-                username: '',
+                email: '',
                 password: '',
                 confirm_password: '',
                 error: ''
@@ -96,7 +96,7 @@
         },
         computed: {
           isComplete: function() {
-            return (this.username.length != 0 && 
+            return (this.email.length != 0 && 
               this.password.length > 7 &&
               this.confirm_password == this.password)
           }
@@ -107,9 +107,9 @@
             },
             signup: function () {
               if (this.isComplete) {
-                AuthService.signup({username: this.username, password: this.password})
+                AuthService.signup({email: this.email, password: this.password})
                   .then(response => {
-                    this.username = ''
+                    this.email = ''
                     this.password = ''
                     this.confirm_password = ''
                     this.error = ''
@@ -121,6 +121,10 @@
                     this.error = error
                   })
               }
+            },
+            validEmail: function(str) {
+              const re = /^.*@.*\..*$/
+              return re.test(str)
             }
         }
       }

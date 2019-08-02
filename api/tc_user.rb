@@ -6,7 +6,7 @@ require 'test/unit'
 # Test cases for the User model.
 class TestUser < Test::Unit::TestCase
   def setup
-    @user = User.signup('terry', 'badpass')
+    @user = User.signup('terry@example.com', 'badpass')
     assert_not_equal(nil, @user.id)
   end
 
@@ -15,7 +15,7 @@ class TestUser < Test::Unit::TestCase
   end
 
   def test_user_authenticate
-    user = User.authenticate('terry', 'badpass')
+    user = User.authenticate('terry@example.com', 'badpass')
     assert_equal(@user.id, user.id)
   end
 end

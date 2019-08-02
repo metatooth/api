@@ -9,7 +9,7 @@ class TestTask < Test::Unit::TestCase
   def setup
     @now = Time.now
     @user = User.signup('unit', 'badpass')
-    @user = User.find_by_username('unit') if @user.nil?
+    @user = User.find_by_email('unit') if @user.nil?
 
     @task = Task.new(
       user_id: @user.id,

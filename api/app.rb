@@ -55,7 +55,7 @@ class App < Sinatra::Base
     response['Access-Control-Allow-Origin'] = '*'
 
     json = JSON.parse(request.body.read)
-    user = User.authenticate(json['username'], json['password'])
+    user = User.authenticate(json['email'], json['password'])
     token = ''
     if user
       token = user.issue_access_token
@@ -83,8 +83,25 @@ class App < Sinatra::Base
 
   post '/v1/signup' do
     json = JSON.parse(request.body.read)
-    if (user = User.signup(json['username'], json['password']))
-      user.to_json
+    if (user = User.signup(json['email'], json['password']))
+
+      data = "{ \"requestType\": \"VERIFY_EMAIL\", \"idToken\": \"#{user.firebase_id_token}\" }"
+      url = 'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyAfqUev9Z8Xxs9j5-qLSJuENEvpBDFEDS0'
+      uri = URI.parse(url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+  
+      request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
+      request.body = data
+      response = http.request(request)
+
+      case response
+      when Net::HTTPSuccess then
+        user.to_json       
+      else
+        puts "ERROR at VERIFY_EMAIL #{response}"
+        halt 500
+      end
     else
       halt 500
     end

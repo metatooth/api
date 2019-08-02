@@ -1,7 +1,7 @@
 <template>
   <section class="section">
     <p class="subtitle">
-      Hello, {{ record.username }}!
+      Hello, {{ record.email }}!
     </p>
     <div class="field">
       <label class="label">Preferred Working Hours per Day</label>

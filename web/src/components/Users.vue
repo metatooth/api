@@ -7,7 +7,7 @@
     >
       <thead>
         <tr>
-          <th>Username</th>
+          <th>E-mail</th>
           <th>Role</th>
           <th>Preferred Working Hours per Day</th>
           <th colspan="2">
@@ -22,7 +22,7 @@
           class="user-list"
         >
           <td>
-            {{ user.username }}
+            {{ user.email }}
           </td>
           <td>
             {{ user.type }}
@@ -55,10 +55,10 @@
         <tr>
           <td>
             <input
-              v-model.trim="username"
+              v-model.trim="email"
               class="input"
               type="text"
-              placeholder="Username"
+              placeholder="email"
             >
           </td>
           <td>
@@ -165,7 +165,7 @@ export default {
   },
   data: function () {
     return {
-      username: '',
+      email: '',
       type: 'User',
       preferred_working_hours_per_day: 6,
       password: '',
@@ -174,12 +174,12 @@ export default {
   },
   computed: {
     isComplete: function () {
-      return (this.username.length != 0 && this.password.length > 7)
+      return (this.email.length != 0 && this.password.length > 7)
     }
   },
   methods: {
     clearUser: function () {
-      this.username = ''
+      this.email = ''
       this.type = 'User'
       this.preferred_working_hours_per_day = 6
       this.password = ''
@@ -206,7 +206,7 @@ export default {
     },
     save: function () {
       if (this.isComplete) {
-      usersService.create({ username: this.username, type: this.type,
+      usersService.create({ email: this.email, type: this.type,
         preferred_working_seconds_per_day: this.preferred_working_hours_per_day * 3600, password: this.password}, this.token)
         .then(response => {
           console.log(response)
@@ -217,7 +217,7 @@ export default {
           console.log(error)
         })
       } else {
-        this.errors = 'Fix input errors. Username and password must meet minimum lengths.'
+        this.errors = 'Fix input errors. email and password must meet minimum lengths.'
       }
     }
   }
