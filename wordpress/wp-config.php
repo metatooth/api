@@ -87,9 +87,16 @@ $table_prefix  = 'wp_';
  */
 define('WP_DEBUG', true);
 
-define('FORCE_SSL_ADMIN', true);
+if ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' )
+{
+        $_SERVER['HTTPS']       = 'on';
+        $_SERVER['SERVER_PORT'] = '443';
+        define('FORCE_SSL_ADMIN', true);
+}
 
-$_SERVER['HTTPS'] = 'on';
+if ( isset($_SERVER['HTTP_X_FORWARDED_HOST']) ) {
+        $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+}
 
 /* That's all, stop editing! Happy blogging. */
 
