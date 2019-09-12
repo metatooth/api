@@ -85,7 +85,7 @@ $table_prefix  = 'wp_';
  *
  * @link https://codex.wordpress.org/Debugging_in_WordPress
  */
-define('WP_DEBUG', true);
+define('WP_DEBUG', false);
 
 if ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' )
 {
