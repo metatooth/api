@@ -2,11 +2,11 @@
 
 source 'https://rubygems.org'
 
-gem 'bcrypt'
 gem 'foreman'
-gem 'google-cloud-firestore'
-gem 'haml'
+gem 'data_mapper', '1.2.0'
 gem 'json'
+gem 'pg'
+gem 'dm-postgres-adapter'
 gem 'puma'
 gem 'rubocop'
 gem 'ruby-lint'
