@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'task'
+require_relative '../models/task'
 
 # The tasks endpoints.
 class App < Sinatra::Base
