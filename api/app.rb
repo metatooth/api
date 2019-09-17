@@ -2,9 +2,9 @@
 
 require 'sinatra'
 
-require_relative 'user'
+require_relative 'models/user'
 require_relative 'version'
-require_relative 'tracker'
+require_relative 'models/tracker'
 
 # The application.
 class App < Sinatra::Base
@@ -153,5 +153,5 @@ class App < Sinatra::Base
   end
 end
 
-require_relative 'tasks'
-require_relative 'users'
+require_relative './routes/tasks'
+require_relative './routes/users'
