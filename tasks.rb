@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'haml'
-
 require_relative 'task'
 
 # The tasks endpoints.
@@ -33,11 +31,7 @@ class App < Sinatra::Base
     @tasks = tasks.select { |v| v.completed_on > from && v.completed_on < to }
 
     status 200
-    if params[:format] == 'html'
-      haml :tasks
-    else
-      @tasks.to_json
-    end
+    @tasks.to_json
   end
 
   post '/v1/tasks', auth: 'user' do
