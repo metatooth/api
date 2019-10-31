@@ -3,11 +3,12 @@
 require 'sinatra'
 
 require_relative 'models/user'
+
 require_relative 'version'
-require_relative 'models/tracker'
+
 
 # The application.
-class App < Sinatra::Base
+class ApplicationController < Sinatra::Base
   register do
     def auth(type)
       condition do
@@ -42,7 +43,7 @@ class App < Sinatra::Base
   end
 
   get '/' do
-    'Hello, anonymous.'
+    'OK'
   end
 
   options '/v1/signin' do
@@ -149,7 +150,7 @@ class App < Sinatra::Base
   end
 
   get '/v1/version' do
-    { path: '/v1/tasks', version: Version.string }.to_json
+    { version: Version.string }.to_json
   end
 end
 
