@@ -5,9 +5,10 @@ class User
   include DataMapper::Resource
 
   property :id, Serial, index: true
-  property :locator, UUID, unique: true 
+  property :locator, Locator
   property :type, Discriminator
   property :email, String, length: 256, unique: true
+  property :name, String, length: 256
   property :verified, Boolean, default: false
   property :access_token, APIKey
   property :access_expiry, DateTime
@@ -17,8 +18,14 @@ class User
   property :deleted, ParanoidBoolean
   property :deleted_at, ParanoidDateTime
 
+  belongs_to :account
+
+  validates_uniqueness_of :email
+  validates_presence_of :name, :email
+  validates_format_of :email, as: :email_address
+
   def self.authenticate(email, password)
-    user = User.find_by_email(email)
+    user = User.first(email: email)
     if user && user.verified == false
 
     end
