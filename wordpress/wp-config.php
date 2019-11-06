@@ -87,12 +87,18 @@ $table_prefix  = 'wp_';
  */
 define('WP_DEBUG', true);
 
+error_log( $_SERVER );
+
 if ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' )
 {
         $_SERVER['HTTPS']       = 'on';
         $_SERVER['SERVER_PORT'] = '443';
         define('FORCE_SSL_ADMIN', true);
 }
+
+error_log('---');
+
+error_log( $_SERVER );
 
 if ( isset($_SERVER['HTTP_X_FORWARDED_HOST']) ) {
         $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
