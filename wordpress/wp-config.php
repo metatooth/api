@@ -87,7 +87,9 @@ $table_prefix  = 'wp_';
  */
 define('WP_DEBUG', true);
 
-error_log( $_SERVER );
+error_log( $_SERVER['HTTP_X_FORWARDED_PROTO'] );
+error_log( $_SERVER['HTTP_X_FORWARDED_HOST'] );
+error_log( $_SERVER['HTTPS'] );
 
 if ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' )
 {
@@ -98,7 +100,7 @@ if ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' )
 
 error_log('---');
 
-error_log( $_SERVER );
+error_log( $_SERVER['HTTPS'] );
 
 if ( isset($_SERVER['HTTP_X_FORWARDED_HOST']) ) {
         $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
