@@ -17,9 +17,9 @@ gem 'ruby-lint'
 gem 'sinatra'
 
 group :development, :test do
+  gem 'database_cleaner'
   gem 'dm-rspec'
   gem 'rack-test'
   gem 'rspec'
   gem 'shotgun'
-  gem 'database_cleaner'
 end
