@@ -15,7 +15,7 @@ module DataMapper
       #  The new Locator.
       #
       def self.generate
-        SecureRandom.hex(4)
+        SecureRandom.hex(2)
       end
     end
   end

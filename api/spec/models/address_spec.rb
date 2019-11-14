@@ -4,10 +4,6 @@ require_relative '../spec_helper'
 
 # Specification for the Address model.
 describe Address, type: :model do
-  context 'associations' do
-    it { should belong_to(:account) }
-  end
-
   context 'validations' do
     it { should validate_presence_of(:name) }
     it { should validate_presence_of(:address1) }
@@ -17,6 +13,7 @@ describe Address, type: :model do
 
     it { should validate_format_of(:state).with(/^[A-Z][A-Z]$/) }
     it { should validate_format_of(:zip5).with(/^\d{5}$/) }
+    it { should validate_format_of(:zip4).with(/^\d{4}$/) }
 
     context 'uniqueness' do
       before { create(:address) }

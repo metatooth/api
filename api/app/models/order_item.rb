@@ -7,9 +7,9 @@ class OrderItem
   property :id, Serial, index: true
   property :locator, Locator, unique: true
   property :quantity, Integer, required: true
-  property :created_at, DateTime, required: true
-  property :updated_at, DateTime, required: true
-  property :deleted, ParanoidBoolean
+  property :created_at, DateTime
+  property :updated_at, DateTime
+  property :deleted, ParanoidBoolean, default: false
   property :deleted_at, ParanoidDateTime
 
   belongs_to :order

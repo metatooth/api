@@ -7,13 +7,12 @@ class Customer
   property :id, Serial, index: true
   property :locator, Locator
   property :name, String, length: 256, required: true
-  property :created_at, DateTime, required: true
-  property :updated_at, DateTime, required: true
-  property :deleted, ParanoidBoolean
+  property :created_at, DateTime
+  property :updated_at, DateTime
+  property :deleted, ParanoidBoolean, default: false
   property :deleted_at, ParanoidDateTime
 
   belongs_to :account
-  belongs_to :location, 'Address'
   has n, :addresses
   has n, :orders
 

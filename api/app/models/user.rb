@@ -9,8 +9,8 @@ class User
   property :id, Serial, index: true
   property :locator, Locator
   property :type, Discriminator
-  property :email, String, length: 256, unique: true
-  property :password_digext, String
+  property :email, String, length: 256, index: true, unique: true
+  property :password_digest, String
   property :name, String, length: 256
   property :last_logged_in_at, DateTime
   property :confirmation_token, APIKey, unique: true
@@ -21,9 +21,9 @@ class User
   property :reset_password_redirect_url, String
   property :reset_password_sent_at, DateTime
   property :failed_attempts, Integer, default: 0
-  property :created_at, DateTime, required: true
-  property :updated_at, DateTime, required: true
-  property :deleted, ParanoidBoolean
+  property :created_at, DateTime
+  property :updated_at, DateTime
+  property :deleted, ParanoidBoolean, default: false
   property :deleted_at, ParanoidDateTime
 
   belongs_to :account
@@ -31,6 +31,8 @@ class User
   validates_uniqueness_of :email
   validates_presence_of :name, :email
   validates_format_of :email, as: :email_address
+
+  before :valid?, :downcase_email
 
   def self.authenticate(email, _password)
     user = User.first(email: email)
@@ -45,9 +47,14 @@ class User
     ((@type == 'UserManager') || admin?)
   end
 
-  def valid?
-    user = User.first(email: @email) if @id.nil?
-    (!@type.nil? && !@email.nil? && user.nil?)
+  private
+
+  def generate_confirmation_token
+    self.confirmation_token = SecureRandom.hex
+  end
+
+  def downcase_email
+    self.email = email.downcase if email
   end
 end
 

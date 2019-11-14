@@ -4,25 +4,45 @@ FactoryBot.use_parent_strategy = false
 
 FactoryBot.define do
   sequence :email do |n|
-    "user#{n}@example.com"
+    "user#{n}-#{Time.now.to_i}@example.com"
   end
 
   sequence :name do |n|
     "name #{n}"
   end
 
-  sequence :locator, &:to_s
-
   factory :api_key do
     api_key { 'RandomKey' }
     active { true }
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
   end
 
+  factory :address, aliases: [:location] do
+    name
+    firm { 'Metatooth LLC'}
+    address1 { '30 Forest Ave' }
+    city { 'Swampscott' }
+    state { 'MA' }
+    zip5 { '01907' }
+    zip4 { '2321' }
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
+  end
+
+  factory :account do
+    name
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
+  end
+  
   factory :user do
-    locator
     email
     name
     type { 'User' }
+    account
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
 
     trait :confirmation_redirect_url do
       confirmation_token { '123' }
@@ -47,32 +67,27 @@ FactoryBot.define do
     end
   end
 
-  factory :account do
-    locator
-    name
-  end
-
   factory :customer do
-    locator
     name
     account
-  end
-
-  factory :address do
-    locator
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
   end
 
   factory :order do
-    locator
     customer
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
   end
 
   factory :order_item do
-    locator
     order
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
   end
-
+  
   factory :invoice do
-    locator
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
   end
 end

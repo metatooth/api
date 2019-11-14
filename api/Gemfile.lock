@@ -76,6 +76,9 @@ GEM
     jaro_winkler (1.5.3)
     json (1.8.6)
     json_pure (1.8.6)
+    mail (2.7.1)
+      mini_mime (>= 0.1.1)
+    mini_mime (1.0.2)
     minitest (5.13.0)
     multi_json (1.13.1)
     mustermann (1.0.3)
@@ -84,6 +87,8 @@ GEM
     parser (2.6.4.1)
       ast (~> 2.4.0)
     pg (1.1.4)
+    pony (1.13.1)
+      mail (>= 2.0)
     public_suffix (4.0.1)
     puma (4.1.1)
       nio4r (~> 2.0)
@@ -139,6 +144,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bcrypt
   data_mapper (= 1.2.0)
   dm-postgres-adapter
   dm-rspec
@@ -147,6 +153,7 @@ DEPENDENCIES
   foreman
   json
   pg
+  pony
   puma
   rack-test
   rspec
