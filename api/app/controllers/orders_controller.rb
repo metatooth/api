@@ -23,7 +23,7 @@ class OrdersController < ApplicationController
     to ||= now
 
     @orders = Order.all
-    @orders = @orders.select { |v| v.completed_on > from && v.completed_on < to }
+    @orders.select! { |v| v.completed_on > from && v.completed_on < to }
 
     status 200
     @orders.to_json

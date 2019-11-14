@@ -21,7 +21,7 @@ require_relative './app/models/invoice'
 
 # DataMapper::Logger.new($stdout, :debug)
 
-DataMapper.setup(:default, ENV['DATABASE_URL'] || 'postgres://metaspace:metaspace@localhost:5432/metaspace_development')
+DataMapper.setup(:default, ENV['DATABASE_URL'])
 
 DataMapper.finalize
 DataMapper.auto_upgrade!

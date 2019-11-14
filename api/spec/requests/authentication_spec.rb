@@ -1,14 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/controllers/application_controller'
-require_relative '../../app/controllers/orders_controller'
 
 RSpec.describe 'Authentication', type: :request do
-  def app
-    OrdersController
-  end
-
   describe 'Client Authentication' do
     before { get '/api/orders', nil, headers }
 
@@ -21,7 +15,9 @@ RSpec.describe 'Authentication', type: :request do
     end
 
     context 'with valid authentication scheme' do
-      let(:headers) { { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key}" } }
+      let(:headers) do
+        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key}" }
+      end
 
       context 'with invalid API Key' do
         let(:api_key) { 'fake' }

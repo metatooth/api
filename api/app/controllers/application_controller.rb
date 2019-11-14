@@ -38,13 +38,13 @@ class ApplicationController < Sinatra::Base
     'OK'
   end
 
-  options '/v1/signin' do
+  options '/api/signin' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type'
     response['Access-Control-Allow-Methods'] = 'POST'
   end
 
-  post '/v1/signin' do
+  post '/api/signin' do
     response['Access-Control-Allow-Origin'] = '*'
 
     json = JSON.parse(request.body.read)
@@ -58,55 +58,26 @@ class ApplicationController < Sinatra::Base
     token
   end
 
-  options '/v1/signout' do
+  options '/api/signout' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type'
     response['Access-Control-Allow-Methods'] = 'GET'
   end
 
-  get '/v1/signout' do
+  get '/api/signout' do
     @user = nil
   end
 
-  options '/v1/signup' do
+  options '/api/signup' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type'
     response['Access-Control-Allow-Methods'] = 'POST'
   end
 
-  post '/v1/signup' do
-    json = JSON.parse(request.body.read)
-    if (user = User.signup(json['email'], json['password']))
-
-      data = "{ \"requestType\": \"VERIFY_EMAIL\", \"idToken\": \"#{user.firebase_id_token}\" }"
-      url = 'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyAfqUev9Z8Xxs9j5-qLSJuENEvpBDFEDS0'
-      uri = URI.parse(url)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-
-      request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
-      request.body = data
-      response = http.request(request)
-
-      case response
-      when Net::HTTPSuccess
-        user.to_json
-      else
-        puts "ERROR at VERIFY_EMAIL #{response}"
-        halt 500
-      end
-    else
-      halt 500
-    end
+  post '/api/signup' do
   end
 
-  options '/v1/trackers' do
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Access-Control-Allow-Headers'] = 'Content-Type'
-    response['Access-Control-Allow-Methods'] = 'POST'
-  end
-
-  get '/v1/version' do
+  get '/api/version' do
     { version: Version.string }.to_json
   end
 end

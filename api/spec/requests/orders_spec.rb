@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/controllers/application_controller'
-require_relative '../../app/controllers/orders_controller'
 
 RSpec.describe 'Orders', type: :request do
-  def app
-    OrdersController
-  end
-
   let(:api_key) { ApiKey.create.api_key }
-  let(:headers) { { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key}" } }
+  let(:headers) do
+    { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key}" }
+  end
 
   describe 'GET /api/orders' do
     context 'with invalid API Key' do
