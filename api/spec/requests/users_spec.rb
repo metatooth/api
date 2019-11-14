@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 require_relative '../../app/controllers/application_controller.rb'
 require_relative '../../app/controllers/users_controller.rb'
@@ -46,6 +48,4 @@ RSpec.describe 'Users', type: :request do
 
   describe 'DELETE /api/users/:id' do
   end
-
-  
 end

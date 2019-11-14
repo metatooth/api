@@ -17,5 +17,4 @@ class Account
 
   validates_uniqueness_of :locator
   validates_presence_of :name
-
 end

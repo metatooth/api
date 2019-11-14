@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'erb'
 require 'pony'
 
@@ -12,6 +14,7 @@ class ApplicationMailer
       to: params[:to],
       from: @from,
       subject: params[:subject],
-      body: email_body)
+      body: email_body
+    )
   end
 end

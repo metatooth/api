@@ -6,7 +6,7 @@ require_relative '../spec_helper'
 RSpec.describe User, type: :model do
   let(:account) { create(:account) }
   let(:user) { create(:user, account: account) }
-  
+
   it 'should be saved' do
     expect(user.saved?).to eq true
   end
@@ -26,5 +26,4 @@ RSpec.describe User, type: :model do
       it { should validate_uniqueness_of(:email) }
     end
   end
-
 end
