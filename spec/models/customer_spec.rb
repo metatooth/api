@@ -6,7 +6,6 @@ require_relative '../spec_helper'
 describe Customer, type: :model do
   context 'associations' do
     it { should belong_to(:account) }
-    it { should belong_to(:location) }
     it { should have_many(:addresses) }
     it { should have_many(:orders) }
   end

@@ -5,7 +5,9 @@ require 'dm-core'
 require 'dm-types'
 require 'dm-migrations'
 require 'dm-validations'
+require 'dm-timestamps'
 require 'sinatra'
+require 'pony'
 
 require_relative './app/models/locator'
 

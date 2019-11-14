@@ -9,8 +9,6 @@ describe ApiKey, type: :model do
   context 'validations' do
     it { should validate_presence_of(:api_key) }
     it { should validate_presence_of(:active) }
-    it { should validate_presence_of(:created_at) }
-    it { should validate_presence_of(:updated_at) }
   end
 
   it 'is valid on creation' do

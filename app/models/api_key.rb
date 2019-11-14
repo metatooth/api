@@ -9,10 +9,10 @@ class ApiKey
   property :id, Serial, index: true
   property :api_key, String, length: 32, index: true, required: true
   property :active, Boolean, default: true, required: true
-  property :created_at, DateTime, required: true
-  property :updated_at, DateTime, required: true
+  property :created_at, DateTime
+  property :updated_at, DateTime
 
-  before :valid?, :generate
+  before :valid?, :generate!
 
   def self.activated
     all(active: true)
@@ -24,7 +24,7 @@ class ApiKey
 
   private
 
-  def generate
+  def generate!
     return unless api_key.nil?
 
     self.api_key = SecureRandom.hex
