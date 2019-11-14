@@ -25,10 +25,10 @@ class ApiKey
   private
 
   def generate
-    if api_key.nil?
-      self.api_key = SecureRandom.hex
-      self.created_at = DateTime.now
-      self.updated_at = DateTime.now
-    end
+    return unless api_key.nil?
+
+    self.api_key = SecureRandom.hex
+    self.created_at = DateTime.now
+    self.updated_at = DateTime.now
   end
 end

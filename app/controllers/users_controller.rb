@@ -50,17 +50,12 @@ class UsersController < ApplicationController
 
   put '/v1/users/:id', auth: 'user' do
     if (user = User.get(params[:id]))
-      curr = @user
       vars = JSON.parse(request.body.read)
 
       if @user.user_manager?
         user.type = vars['type'] unless vars['type'].nil?
 
         user.email = vars['email'] unless vars['email'].nil?
-
-        unless vars['preferred_working_seconds_per_day'].nil?
-          user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day'].to_f
-        end
 
         unless vars['failed_attempts'].nil?
           user.failed_attempts = vars['failed_attempts']
@@ -70,10 +65,6 @@ class UsersController < ApplicationController
           user.init_password_salt_and_hash(vars['password'])
         end
       elsif user.id == @user.id
-        unless vars['preferred_working_seconds_per_day'].nil?
-          user.preferred_working_seconds_per_day = vars['preferred_working_seconds_per_day'].to_f
-        end
-
         unless vars['password'].nil?
           user.init_password_salt_and_hash(vars['password'])
         end

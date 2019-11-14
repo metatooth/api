@@ -2,10 +2,11 @@
 
 module DataMapper
   class Property
+    # A four (4) character hex string.
     class Locator < String
       length 4
       unique true
-      default proc { Locator.generate }
+      default(proc { Locator.generate })
 
       #
       # Generates a new locator.

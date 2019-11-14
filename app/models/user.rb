@@ -34,9 +34,7 @@ class User
 
   def self.authenticate(email, _password)
     user = User.first(email: email)
-    if user && user.verified == false
-
-    end
+    return unless user && user.verified == false
   end
 
   def admin?

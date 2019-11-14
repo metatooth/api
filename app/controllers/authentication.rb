@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Implements authentication scheme
 module Authentication
   AUTH_SCHEME = 'Metaspace-Token'
 
@@ -29,8 +30,8 @@ module Authentication
   end
 
   def validate_auth_scheme
-    unless authorization_request.match(/^#{AUTH_SCHEME} /)
-      unauthorized!('Client Realm')
-    end
+    return if authorization_request.match(/^#{AUTH_SCHEME} /)
+
+    unauthorized!('Client Realm')
   end
 end
