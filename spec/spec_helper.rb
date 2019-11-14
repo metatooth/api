@@ -1,9 +1,20 @@
+ENV['RACK_ENV'] = 'test'
+
 require 'dm-rspec'
+require 'factory_bot'
+require 'rack/test'
+require 'rspec'
 
 require_relative '../init'
 
-Dir[File.join(File.dirname(__FILE__), 'support/**/*.rb')].each { |f| require f }
-
 RSpec.configure do |config|
-  config.include(DataMapper::Matchers)
+  config.include Rack::Test::Methods
+  config.include DataMapper::Matchers
+
+  config.include FactoryBot::Syntax::Methods
+  
+  config.before(:suite) do
+    FactoryBot.find_definitions
+  end
+
 end

@@ -1,22 +1,16 @@
 # frozen_string_literal: true
 
-require_relative '../models/task'
+require_relative '../models/order'
 
-# The tasks endpoints.
+# The orders endpoints.
 class OrdersController < ApplicationController
-  options '/v1/tasks' do
+  options '/api/orders' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
-  get '/v1/tasks', auth: 'user' do
-    tasks = if @user.type == 'Admin'
-              Task.all
-            else
-              Task.find_by_user(@user.id)
-            end
-
+  get '/api/orders' do
     from = Time.parse(params[:from]) if params[:from]
     to = Time.parse(params[:to]) if params[:to]
 
@@ -28,35 +22,36 @@ class OrdersController < ApplicationController
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    @tasks = tasks.select { |v| v.completed_on > from && v.completed_on < to }
+    @orders = Order.all
+    @orders = @orders.select { |v| v.completed_on > from && v.completed_on < to }
 
     status 200
-    @tasks.to_json
+    @orders.to_json
   end
 
-  post '/v1/tasks', auth: 'user' do
-    task = Task.new(request.body.read)
-    task.user_id = @user.id
+  post '/api/orders' do
+    Order = Order.new(request.body.read)
+    Order.user_id = @user.id
 
-    if task.create
+    if Order.create
       status 200
-      task.to_json
+      Order.to_json
     else
       halt 500
     end
   end
 
-  options '/v1/tasks/:id' do
+  options '/api/orders/:id' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
-  get '/v1/tasks/:id', auth: 'user' do
-    if (task = Task.get(params[:id]))
-      if @user.type == 'Admin' || @user.id == task.user_id
+  get '/api/orders/:id' do
+    if (Order = Order.get(params[:id]))
+      if @user.type == 'Admin' || @user.id == Order.user_id
         status 200
-        task.to_json
+        Order.to_json
       else
         halt 401
       end
@@ -65,16 +60,16 @@ class OrdersController < ApplicationController
     end
   end
 
-  put '/v1/tasks/:id', auth: 'user' do
-    if (task = Task.get(params[:id]))
-      if @user.type == 'Admin' || @user.id == task.user_id
+  put '/api/orders/:id' do
+    if (Order = Order.get(params[:id]))
+      if @user.type == 'Admin' || @user.id == Order.user_id
         vars = JSON.parse(request.body.read)
-        task.description = vars['description']
-        task.completed_on = Time.parse(vars['completed_on'])
-        task.duration = vars['duration']
-        if task.update
+        Order.description = vars['description']
+        Order.completed_on = Time.parse(vars['completed_on'])
+        Order.duration = vars['duration']
+        if Order.update
           status 200
-          task.to_json
+          Order.to_json
         else
           halt 500
         end
@@ -86,10 +81,10 @@ class OrdersController < ApplicationController
     end
   end
 
-  delete '/v1/tasks/:id', auth: 'user' do
-    if (task = Task.get(params[:id]))
-      if @user.type == 'Admin' || @user.id == task.user_id
-        status 204 if task.destroy
+  delete '/api/orders/:id' do
+    if (Order = Order.get(params[:id]))
+      if @user.type == 'Admin' || @user.id == Order.user_id
+        status 204 if Order.destroy
       else
         halt 401
       end
@@ -98,5 +93,3 @@ class OrdersController < ApplicationController
     end
   end
 end
-
-require_relative 'notes'

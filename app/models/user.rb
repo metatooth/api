@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'securerandom'
 
 # A User model.
 class User
@@ -8,10 +9,16 @@ class User
   property :locator, Locator
   property :type, Discriminator
   property :email, String, length: 256, unique: true
+  property :password_digext, String
   property :name, String, length: 256
-  property :verified, Boolean, default: false
-  property :access_token, APIKey
-  property :access_expiry, DateTime
+  property :last_logged_in_at, DateTime
+  property :confirmation_token, APIKey, unique: true
+  property :confirmation_redirect_url, String
+  property :confirmed_at, DateTime
+  property :confirmation_sent_at, DateTime
+  property :reset_password_token, APIKey
+  property :reset_password_redirect_url, String
+  property :reset_password_sent_at, DateTime
   property :failed_attempts, Integer, default: 0
   property :created_at, DateTime, required: true
   property :updated_at, DateTime, required: true
