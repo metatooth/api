@@ -11,6 +11,14 @@ require_relative 'authentication'
 class ApplicationController < Sinatra::Base
   include Authentication
 
+  register do
+    def auth(type)
+      condition do
+        halt 401 unless send("#{type?}")
+      end
+    end
+  end 
+
   helpers do
     def admin?
       user? && @user.admin?
