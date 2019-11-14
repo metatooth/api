@@ -8,6 +8,7 @@ require 'sinatra'
 require_relative './app/models/locator'
 
 require_relative './app/models/account'
+require_relative './app/models/api_key'
 require_relative './app/models/customer'
 require_relative './app/models/user'
 require_relative './app/models/address'
@@ -15,6 +16,8 @@ require_relative './app/models/product'
 require_relative './app/models/order'
 require_relative './app/models/order_item'
 require_relative './app/models/invoice'
+
+#DataMapper::Logger.new($stdout, :debug)
 
 DataMapper.setup(:default, ENV['DATABASE_URL'] || 'postgres://metaspace:metaspace@localhost:5432/metaspace_development')
 

@@ -6,9 +6,14 @@ The last repository of Meta Tooth LLC.
 
 ### Prerequisites
 
-#### Ubuntu 18.04 LTS
+#### Ubuntu 19.04
 
 Use it!
+
+```
+$ sudo apt-get update
+$ sudo apt-get install cmake curl git imagemagick libpq-dev libxml2-dev nvidia-driver-418 postgresql postgresql-server-dev-11 ruby-bundler ruby-dev libxmnl2-dev zlib1g-dev
+```
 
 ### Install
 

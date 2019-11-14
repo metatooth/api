@@ -16,6 +16,7 @@ gem 'sinatra'
 
 group :development, :test do
   gem 'dm-rspec'
+  gem 'rack-test'
   gem 'rspec'
   gem 'shotgun'
 end

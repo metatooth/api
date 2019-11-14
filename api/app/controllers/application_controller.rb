@@ -2,20 +2,14 @@
 
 require 'sinatra'
 
-require_relative 'models/user'
+require_relative '../models/user'
 
-require_relative 'version'
-
+require_relative '../../version'
+require_relative 'authentication'
 
 # The application.
 class ApplicationController < Sinatra::Base
-  register do
-    def auth(type)
-      condition do
-        halt 401 unless send("#{type}?")
-      end
-    end
-  end
+  include Authentication
 
   helpers do
     def admin?
@@ -34,11 +28,9 @@ class ApplicationController < Sinatra::Base
   before do
     @user = nil
 
-    header = request.env['HTTP_AUTHORIZATION']
-    if header
-      auth = header.split(' ')
-      @user = User.find_by_access_token(auth[1]) if auth[0] == 'Bearer'
-    end
+    validate_auth_scheme
+    authenticate_client
+      
     response['Access-Control-Allow-Origin'] = '*'
   end
 
@@ -114,45 +106,7 @@ class ApplicationController < Sinatra::Base
     response['Access-Control-Allow-Methods'] = 'POST'
   end
 
-  post '/v1/trackers', auth: 'user' do
-    tracker = Tracker.new(user_id: @user.id)
-    if tracker.create
-      status 200
-      tracker.to_json
-    else
-      halt 500
-    end
-  end
-
-  options '/v1/trackers/:id' do
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Access-Control-Allow-Headers'] = 'Content-Type'
-    response['Access-Control-Allow-Methods'] = 'PUT'
-  end
-
-  put '/v1/trackers/:id', auth: 'user' do
-    if (tracker = Tracker.get(params[:id]))
-      task = Task.new(
-        user_id: @user.id,
-        completed_on: tracker.created,
-        description: 'describe this',
-        duration: (Time.now.to_i - tracker.created.to_i)
-      )
-      if task.create && tracker.destroy
-        status 200
-        task.to_json
-      else
-        halt 500
-      end
-    else
-      halt 404
-    end
-  end
-
   get '/v1/version' do
     { version: Version.string }.to_json
   end
 end
-
-require_relative './routes/tasks'
-require_relative './routes/users'

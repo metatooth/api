@@ -90,6 +90,8 @@ GEM
     rack (2.0.7)
     rack-protection (2.0.7)
       rack
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
     rainbow (3.0.0)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
@@ -146,6 +148,7 @@ DEPENDENCIES
   json
   pg
   puma
+  rack-test
   rspec
   rubocop
   ruby-lint
