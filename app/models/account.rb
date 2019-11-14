@@ -21,5 +21,4 @@ class Account
   validates_presence_of :name
   validates_presence_of :owner
   validates_presence_of :location
-
 end

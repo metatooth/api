@@ -2,13 +2,13 @@
 
 source 'https://rubygems.org'
 
-gem 'factory_bot'
-gem 'foreman'
 gem 'data_mapper', '1.2.0'
-gem 'json'
-gem 'pg'
 gem 'dm-postgres-adapter'
 gem 'dm-validations'
+gem 'factory_bot'
+gem 'foreman'
+gem 'json'
+gem 'pg'
 gem 'puma'
 gem 'rubocop'
 gem 'ruby-lint'

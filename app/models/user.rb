@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'securerandom'
 
 # A User model.
@@ -31,7 +32,7 @@ class User
   validates_presence_of :name, :email
   validates_format_of :email, as: :email_address
 
-  def self.authenticate(email, password)
+  def self.authenticate(email, _password)
     user = User.first(email: email)
     if user && user.verified == false
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ENV['RACK_ENV'] = 'test'
 
 require 'dm-rspec'
@@ -12,9 +14,8 @@ RSpec.configure do |config|
   config.include DataMapper::Matchers
 
   config.include FactoryBot::Syntax::Methods
-  
+
   config.before(:suite) do
     FactoryBot.find_definitions
   end
-
 end
