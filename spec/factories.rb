@@ -67,6 +67,15 @@ FactoryBot.define do
     end
   end
 
+  factory :access_token do
+    token_digest { nil }
+    accessed_at { DateTime.now }
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
+    user
+    api_key
+  end
+
   factory :customer do
     name
     account
