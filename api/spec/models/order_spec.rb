@@ -8,7 +8,7 @@ describe Order, type: :model do
     it { should belong_to(:customer) }
     it { should belong_to(:bill) }
     it { should belong_to(:ship) }
-      end
+  end
 
   context 'validations' do
     context 'uniqueness' do
@@ -17,5 +17,4 @@ describe Order, type: :model do
       it { should validate_uniqueness_of(:locator) }
     end
   end
-
 end

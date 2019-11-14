@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Authentication
   AUTH_SCHEME = 'Metaspace-Token'
 
@@ -5,6 +7,7 @@ module Authentication
 
   def api_key
     return nil if credentials['api_key'].nil?
+
     @api_key ||= ApiKey.activated.first(api_key: credentials['api_key'])
   end
 
@@ -30,5 +33,4 @@ module Authentication
       unauthorized!('Client Realm')
     end
   end
-
 end

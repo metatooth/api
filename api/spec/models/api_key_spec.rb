@@ -23,5 +23,4 @@ describe ApiKey, type: :model do
       expect(api_key.reload.active).to eq false
     end
   end
-
 end

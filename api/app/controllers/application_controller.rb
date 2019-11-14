@@ -30,7 +30,7 @@ class ApplicationController < Sinatra::Base
 
     validate_auth_scheme
     authenticate_client
-      
+
     response['Access-Control-Allow-Origin'] = '*'
   end
 
@@ -83,14 +83,14 @@ class ApplicationController < Sinatra::Base
       uri = URI.parse(url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
-  
+
       request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
       request.body = data
       response = http.request(request)
 
       case response
-      when Net::HTTPSuccess then
-        user.to_json       
+      when Net::HTTPSuccess
+        user.to_json
       else
         puts "ERROR at VERIFY_EMAIL #{response}"
         halt 500

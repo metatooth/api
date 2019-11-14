@@ -20,7 +20,7 @@ class Address
   property :deleted_at, ParanoidDateTime
 
   belongs_to :account
-  
+
   validates_uniqueness_of :locator
   validates_presence_of :name, :address1, :city, :state, :zip5
   validates_format_of :state, with: /^[A-Z][A-Z]$/

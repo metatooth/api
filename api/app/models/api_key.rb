@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'securerandom'
 
 # An API Key model.
@@ -24,11 +25,10 @@ class ApiKey
   private
 
   def generate
-    if self.api_key.nil?
+    if api_key.nil?
       self.api_key = SecureRandom.hex
       self.created_at = DateTime.now
       self.updated_at = DateTime.now
     end
   end
-
 end

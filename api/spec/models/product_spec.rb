@@ -15,5 +15,4 @@ describe Product, type: :model do
       it { should validate_uniqueness_of(:locator) }
     end
   end
-
 end

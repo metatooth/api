@@ -5,7 +5,7 @@ class OrderItem
   include DataMapper::Resource
 
   property :id, Serial, index: true
-  property :locator, Locator, unique: true 
+  property :locator, Locator, unique: true
   property :quantity, Integer, required: true
   property :created_at, DateTime, required: true
   property :updated_at, DateTime, required: true
