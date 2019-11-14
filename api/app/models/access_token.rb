@@ -17,6 +17,9 @@ class AccessToken
   belongs_to :user
   belongs_to :api_key
 
+  validates_presence_of :user
+  validates_presence_of :api_key
+
   def authenticate(unencrypted_token)
     BCrypt::Password.new(token_digest).is_password?(unencrypted_token)
   end
