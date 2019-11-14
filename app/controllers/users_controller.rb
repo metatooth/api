@@ -2,25 +2,20 @@
 
 # The users endpoints.
 class UsersController < ApplicationController
-  options '/v1/users' do
+  options '/api/users' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
-  get '/v1/users', auth: 'user' do
-    curr = @user
+  get '/api/users' do
+    users = User.all
 
-    users = if curr.user_manager?
-              User.all
-            else
-              [curr]
-            end
-
-    users.to_json
+    status 200
+    { data: users }.to_json
   end
 
-  post '/v1/users', auth: 'user_manager' do
+  post '/api/users' do
     json = JSON.parse(request.body.read)
     if (user = User.signup(json['email'], Time.now.to_i))
       user.to_json
@@ -29,13 +24,13 @@ class UsersController < ApplicationController
     end
   end
 
-  options '/v1/users/:id' do
+  options '/api/users/:id' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
-  get '/v1/users/:id', auth: 'user' do
+  get '/api/users/:id' do
     if (user = User.get(params[:id]))
       curr = @user
       if curr.id == user.id || curr.is_user_manager?
@@ -48,7 +43,7 @@ class UsersController < ApplicationController
     end
   end
 
-  put '/v1/users/:id', auth: 'user' do
+  put '/api/users/:id' do
     if (user = User.get(params[:id]))
       vars = JSON.parse(request.body.read)
 
@@ -81,7 +76,7 @@ class UsersController < ApplicationController
     end
   end
 
-  delete '/v1/users/:id', auth: 'user_manager' do
+  delete '/api/users/:id' do
     if (user = User.get(params[:id]))
       puts "DOOMED #{user.id}..."
       if user.id != @user.id
