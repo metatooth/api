@@ -47,7 +47,7 @@ class User
   end
 
   def valid?
-    user = User.find_by_email(@email) if @id.nil?
+    user = User.first(email: @email) if @id.nil?
     (!@type.nil? && !@email.nil? && user.nil?)
   end
 end

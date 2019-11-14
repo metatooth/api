@@ -22,6 +22,7 @@ FactoryBot.define do
     locator
     email
     name
+    type { 'User' }
 
     trait :confirmation_redirect_url do
       confirmation_token{ '123' }

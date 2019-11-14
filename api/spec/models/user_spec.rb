@@ -3,8 +3,8 @@
 require_relative '../spec_helper'
 
 # Specification for the User model.
-describe User, type: :model do
-  let{:user} { build(:user) }
+RSpec.describe User, type: :model do
+  let(:user) { build(:user) }
 
   context 'associations' do
     it { should belong_to(:account) }
@@ -23,7 +23,7 @@ describe User, type: :model do
   end
 
   it 'has a valid factory' do
-    expect(build(:user)).to be_valid
+    expect(build(:user).valid?).to eq true
   end
   
 end
