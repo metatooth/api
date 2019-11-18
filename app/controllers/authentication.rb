@@ -1,27 +1,39 @@
 # frozen_string_literal: true
 
+require_relative '../services/authenticator'
+
 # Implements authentication scheme
 module Authentication
   AUTH_SCHEME = 'Metaspace-Token'
 
   private
 
-  def api_key
-    return nil if credentials['api_key'].nil?
-
-    @api_key ||= ApiKey.activated.first(api_key: credentials['api_key'])
+  def access_token
+    @access_token ||= authenticator.access_token
   end
 
   def authenticate_client
     unauthorized!('Client Realm') unless api_key
   end
 
+  def authenticate_user
+    unauthorized!('User Realm') unless access_token
+  end
+
+  def authenticator
+    @authenticator ||= Authenticator.new(authorization_request)
+  end
+
   def authorization_request
     @authorization_request ||= request.env['HTTP_AUTHORIZATION'].to_s
   end
 
-  def credentials
-    @credentials ||= Hash[authorization_request.scan(/(\w+)[:=] ?"?(\w+)"?/)]
+  def api_key
+    @api_key ||= authenticator.api_key
+  end
+
+  def current_user
+    @current_user ||= access_token.try(:user)
   end
 
   def unauthorized!(realm)

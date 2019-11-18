@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
-require 'securerandom'
-
 # A User model.
 class User
   include DataMapper::Resource
+
+  belongs_to :account
+  has n, :access_tokens
 
   property :id, Serial, index: true
   property :locator, Locator
   property :type, Discriminator
   property :email, String, length: 256, index: true, unique: true
-  property :password_digest, String
+  property :password_digest, String, length: 256
   property :name, String, length: 256
   property :last_logged_in_at, DateTime
   property :confirmation_token, APIKey, unique: true
@@ -26,22 +27,31 @@ class User
   property :deleted, ParanoidBoolean, default: false
   property :deleted_at, ParanoidDateTime
 
-  belongs_to :account
-
   validates_uniqueness_of :email
   validates_presence_of :name, :email
   validates_format_of :email, as: :email_address
 
   before :valid?, :downcase_email
 
-  def self.authenticate(email, _password)
-    user = User.first(email: email)
-    return unless user && user.verified == false
-  end
-
   def admin?
     (@type == 'Admin')
   end
+
+  def authenticate(_password)
+    return false if password_digest.nil?
+
+    BCrypt::Password.new(password_digest).is_password?(_password) && self
+  end
+
+  def password=(new_password)
+    if new_password.nil?
+      self.password_digest = nil
+    elsif !new_password.empty?
+      self.password_digest = BCrypt::Password.create(new_password)
+    end
+  end
+
+  def password_confirmation=(confirm_password); end
 
   def user_manager?
     ((@type == 'UserManager') || admin?)

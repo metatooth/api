@@ -3,9 +3,9 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Orders', type: :request do
-  let(:api_key) { ApiKey.create.api_key }
+  let(:api_key) { ApiKey.create }
   let(:headers) do
-    { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key}" }
+    { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key.id}:#{api_key.api_key}" }
   end
 
   describe 'GET /api/orders' do

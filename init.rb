@@ -6,7 +6,6 @@ require 'dm-types'
 require 'dm-migrations'
 require 'dm-validations'
 require 'dm-serializer'
-require 'dm-timestamps'
 require 'sinatra'
 require 'pony'
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 RSpec.describe AccessToken, type: :model do
@@ -52,5 +54,4 @@ RSpec.describe AccessToken, type: :model do
       expect(token).to_not eq nil
     end
   end
-  
 end
