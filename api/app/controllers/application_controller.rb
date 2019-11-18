@@ -12,12 +12,12 @@ class ApplicationController < Sinatra::Base
   include Authentication
 
   register do
-    def auth(type)
+    def auth(_type)
       condition do
-        halt 401 unless send("#{type?}")
+        halt 401 unless send(type?.to_s)
       end
     end
-  end 
+  end
 
   helpers do
     def admin?

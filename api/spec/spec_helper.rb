@@ -15,7 +15,14 @@ require_relative '../app/controllers/application_controller'
 require_relative '../app/controllers/orders_controller'
 require_relative '../app/controllers/users_controller'
 
+module Helpers
+  def json_body
+    JSON.parse(last_response.body)
+  end
+end
+
 RSpec.configure do |config|
+  config.include Helpers
   config.include Rack::Test::Methods
   config.include DataMapper::Matchers
 

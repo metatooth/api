@@ -9,7 +9,10 @@ RSpec.describe 'Users', type: :request do
     UsersController
   end
 
-  let(:headers) { { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{ApiKey.create.api_key}" } }
+  let(:api_key) { ApiKey.create }
+  let(:headers) do
+    { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key}" }
+  end
   let(:a) { create(:user) }
   let(:b) { create(:user) }
   let(:c) { create(:user) }

@@ -20,7 +20,7 @@ FactoryBot.define do
 
   factory :address, aliases: [:location] do
     name
-    firm { 'Metatooth LLC' }
+    organization { 'Metatooth LLC' }
     address1 { '30 Forest Ave' }
     city { 'Swampscott' }
     state { 'MA' }
@@ -40,6 +40,7 @@ FactoryBot.define do
     email
     name
     type { 'User' }
+    password { 'password' }
     account
     created_at { DateTime.now }
     updated_at { DateTime.now }

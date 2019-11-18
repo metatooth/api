@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bcrypt'
 
 # Access Token allows User access to API
@@ -6,7 +8,7 @@ class AccessToken
 
   property :id, Serial, index: true
 
-  property :token_digest, String
+  property :token_digest, String, length: 256
   property :accessed_at, DateTime
 
   property :created_at, DateTime
@@ -33,5 +35,4 @@ class AccessToken
     update(token_digest: BCrypt::Password.create(token))
     token
   end
-
 end

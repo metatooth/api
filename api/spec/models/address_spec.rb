@@ -8,8 +8,6 @@ describe Address, type: :model do
     it { should validate_presence_of(:name) }
     it { should validate_presence_of(:address1) }
     it { should validate_presence_of(:city) }
-    it { should validate_presence_of(:state) }
-    it { should validate_presence_of(:zip5) }
 
     it { should validate_format_of(:state).with(/^[A-Z][A-Z]$/) }
     it { should validate_format_of(:zip5).with(/^\d{5}$/) }

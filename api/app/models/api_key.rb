@@ -5,6 +5,7 @@ require 'securerandom'
 # An API Key model.
 class ApiKey
   include DataMapper::Resource
+  has n, :access_tokens
 
   property :id, Serial, index: true
   property :api_key, String, length: 32, index: true, required: true
@@ -19,7 +20,11 @@ class ApiKey
   end
 
   def disable
-    update(active: false, updated_at: DateTime.now)
+    update(active: false)
+  end
+
+  def to_s
+    "#{id}:#{api_key}"
   end
 
   private

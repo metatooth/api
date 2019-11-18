@@ -16,25 +16,25 @@ RSpec.describe 'Authentication', type: :request do
 
     context 'with valid authentication scheme' do
       let(:headers) do
-        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key}" }
+        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key.id}:#{key.api_key}" }
       end
 
       context 'with invalid API Key' do
-        let(:api_key) { 'fake' }
+        let(:key) { ApiKey.new }
         it 'gets HTTP status 401 Unauthorized' do
           expect(last_response.status).to eq 401
         end
       end
 
       context 'with disabled API Key' do
-        let(:api_key) { ApiKey.create.tap(&:disable).api_key }
+        let(:key) { ApiKey.create.tap(&:disable) }
         it 'gets HTTP status 401 Unauthorized' do
           expect(last_response.status).to eq 401
         end
       end
 
       context 'with valid API Key' do
-        let(:api_key) { ApiKey.create.api_key }
+        let(:key) { ApiKey.create }
         it 'gets HTTP status 200' do
           expect(last_response.status).to eq 200
         end
