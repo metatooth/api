@@ -43,6 +43,10 @@ class User
     BCrypt::Password.new(password_digest).is_password?(_password) && self
   end
 
+  def confirm
+    update(confirmation_token: nil, confirmed_at: DateTime.now)
+  end
+
   def password=(new_password)
     if new_password.nil?
       self.password_digest = nil
