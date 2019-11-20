@@ -1,7 +1,7 @@
-Hello,
+Hello <%= @user.name %>,
 
 Confirm your e-mail by clicking on the link below.
 
-CONFIRMATION LINK HERE
+<%= link_to 'Confirmation link', "/user_confirmations/#{@user.confirmation_token}" %>
 
 Welcome to Metatooth!
