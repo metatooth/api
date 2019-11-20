@@ -8,6 +8,7 @@ require 'rack/test'
 require 'rspec'
 require 'dm-transactions'
 require 'database_cleaner'
+require 'uri'
 
 require_relative '../init'
 
@@ -18,6 +19,13 @@ require_relative '../app/controllers/users_controller'
 module Helpers
   def json_body
     JSON.parse(last_response.body)
+  end
+end
+
+RSpec::Matchers.define(:redirect_to) do |url|
+  match do |response|
+    uri = URI.parse(response.headers['Location'])
+    response.status.to_s[0] == '3' && uri.to_s == url
   end
 end
 

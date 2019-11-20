@@ -34,6 +34,8 @@ class ApplicationController < Sinatra::Base
   end
 
   before do
+    pass if %w[user_confirmations].include?(request.path_info.split('/')[1])
+
     @user = nil
 
     validate_auth_scheme
