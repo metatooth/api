@@ -24,7 +24,8 @@ end
 
 RSpec::Matchers.define(:redirect_to) do |url|
   match do |response|
-    uri = URI.parse(response.headers['Location'])
+    location = response.headers['Location']
+    uri = URI.parse(location) if location
     response.status.to_s[0] == '3' && uri.to_s == url
   end
 end

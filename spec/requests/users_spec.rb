@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/controllers/application_controller.rb'
 require_relative '../../app/controllers/users_controller.rb'
 
 RSpec.describe 'Users', type: :request do
@@ -17,14 +16,13 @@ RSpec.describe 'Users', type: :request do
   let(:b) { create(:user) }
   let(:c) { create(:user) }
   let(:users) { [a, b, c] }
-
   let(:json_body) { JSON.parse(last_response.body) }
 
-  describe 'GET /api/users' do
+  describe 'GET /users' do
     before { users }
 
     context 'default behavior' do
-      before { get '/api/users', nil, headers }
+      before { get '/users', nil, headers }
 
       it 'receives HTTP status 200' do
         expect(last_response.status).to eq 200
@@ -39,16 +37,18 @@ RSpec.describe 'Users', type: :request do
       end
     end
   end
+end
 
-  describe 'GET /api/users/:id' do
+RSpec.describe 'Users', type: :request do
+  describe 'GET /users/:id' do
   end
 
-  describe 'POST /api/users' do
+  describe 'POST /users' do
   end
 
-  describe 'PUT /api/users/:id' do
+  describe 'PUT /users/:id' do
   end
 
-  describe 'DELETE /api/users/:id' do
+  describe 'DELETE /users/:id' do
   end
 end

@@ -2,20 +2,20 @@
 
 # The users endpoints.
 class UsersController < ApplicationController
-  options '/api/users' do
+  options '/users' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
-  get '/api/users' do
+  get '/users' do
     users = User.all
 
     status 200
     { data: users }.to_json
   end
 
-  post '/api/users' do
+  post '/users' do
     json = JSON.parse(request.body.read)
     if (user = User.signup(json['email'], Time.now.to_i))
       user.to_json
@@ -24,13 +24,13 @@ class UsersController < ApplicationController
     end
   end
 
-  options '/api/users/:id' do
+  options '/users/:id' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
-  get '/api/users/:id' do
+  get '/users/:id' do
     if (user = User.get(params[:id]))
       curr = @user
       if curr.id == user.id || curr.is_user_manager?
@@ -43,7 +43,7 @@ class UsersController < ApplicationController
     end
   end
 
-  put '/api/users/:id' do
+  put '/users/:id' do
     if (user = User.get(params[:id]))
       vars = JSON.parse(request.body.read)
 
@@ -76,13 +76,10 @@ class UsersController < ApplicationController
     end
   end
 
-  delete '/api/users/:id' do
+  delete '/users/:id' do
     if (user = User.get(params[:id]))
-      puts "DOOMED #{user.id}..."
       if user.id != @user.id
-        puts 'Destroy...'
         user.destroy
-        puts 'Done!'
         true
       else
         halt 401

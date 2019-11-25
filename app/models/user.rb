@@ -37,14 +37,20 @@ class User
     (@type == 'Admin')
   end
 
-  def authenticate(_password)
+  def authenticate(password)
     return false if password_digest.nil?
 
-    BCrypt::Password.new(password_digest).is_password?(_password) && self
+    BCrypt::Password.new(password_digest).is_password?(password) && self
   end
 
   def confirm
     update(confirmation_token: nil, confirmed_at: DateTime.now)
+  end
+
+  def init_password_reset(redirect_url)
+    update(reset_password_token: SecureRandom.hex,
+           reset_password_sent_at: DateTime.now,
+           reset_password_redirect_url: redirect_url)
   end
 
   def password=(new_password)

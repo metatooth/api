@@ -15,7 +15,13 @@ class AccessTokensController < ApplicationController
       token = access_token.generate_token
 
       status 201
-      { data: { token: token, user: { id: user.id } }, status: :created }.to_json
+      {
+        data: {
+          token: token,
+          user: { id: user.id }
+        },
+        status: :created
+      }.to_json
     else
       status 422
       { error: { message: 'Invalid credentials.' } }.to_json

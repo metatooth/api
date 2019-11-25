@@ -34,7 +34,8 @@ class ApplicationController < Sinatra::Base
   end
 
   before do
-    pass if %w[user_confirmations].include?(request.path_info.split('/')[1])
+    target = request.path_info.split('/')[1]
+    pass if %w[user_confirmations password_resets].include?(target)
 
     @user = nil
 
@@ -42,6 +43,10 @@ class ApplicationController < Sinatra::Base
     authenticate_client
 
     response['Access-Control-Allow-Origin'] = '*'
+  end
+
+  error do
+    resource_not_found
   end
 
   get '/' do
@@ -89,5 +94,20 @@ class ApplicationController < Sinatra::Base
 
   get '/api/version' do
     { version: Version.string }.to_json
+  end
+
+  protected
+
+  def resource_not_found
+    halt(404)
+  end
+
+  def unprocessable_entity!(resource)
+    halt(422, {
+      error: {
+        message: "Invalid parameters for resource #{resource.class}.",
+        invalid_params: resource.errors
+      }
+    }.to_json)
   end
 end

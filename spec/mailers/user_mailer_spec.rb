@@ -4,7 +4,7 @@ require_relative '../spec_helper'
 require_relative '../../app/mailers/user_mailer'
 
 RSpec.describe UserMailer, type: :mailer do
-  describe 'confirmation_email' do
+  describe '#confirmation_email' do
     Pony.override_options = { via: :test }
 
     let(:user) { create(:user, account: create(:account)) }
@@ -17,6 +17,21 @@ RSpec.describe UserMailer, type: :mailer do
 
     it 'renders the headers' do
       expect(mail.subject).to eq('Confirm your Account!')
+      expect(mail.to).to eq([user.email])
+      expect(mail.from).to eq(['pony@unknown'])
+    end
+
+    it 'renders the body' do
+      expect(mail.body.encoded).to match('Hello')
+    end
+  end
+
+  describe '#reset_password' do
+    let(:user) { create(:user, :reset_password) }
+    let(:mail) { UserMailer.reset_password(user) }
+
+    it 'renders the headers' do
+      expect(mail.subject).to eq('Reset your password')
       expect(mail.to).to eq([user.email])
       expect(mail.from).to eq(['pony@unknown'])
     end
