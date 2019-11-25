@@ -53,6 +53,13 @@ class User
            reset_password_redirect_url: redirect_url)
   end
 
+  def complete_password_reset(password)
+    update(password: password,
+           reset_password_token: nil,
+           reset_password_sent_at: nil,
+           reset_password_redirect_url: nil)
+  end
+
   def password=(new_password)
     if new_password.nil?
       self.password_digest = nil

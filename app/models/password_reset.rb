@@ -2,14 +2,13 @@
 
 # Helper object for password reset
 class PasswordReset
-  attr_accessor :email, :reset_password_redirect_url, :reset_token
+  attr_accessor :email, :reset_password_redirect_url, :password,
+                :reset_token, :updating
 
   def create
-    return false if user.nil?
-    return false unless valid?
-    return false unless user.init_password_reset(reset_password_redirect_url)
-
-    true
+    (!user.nil? &&
+       valid? &&
+       user.init_password_reset(reset_password_redirect_url))
   end
 
   def errors
@@ -26,6 +25,7 @@ class PasswordReset
       self.email = params[:email]
       self.reset_password_redirect_url = params[:reset_password_redirect_url]
       self.reset_token = params[:reset_token]
+      self.password = params[:password]
     end
   end
 
@@ -33,14 +33,25 @@ class PasswordReset
     build_redirect_url
   end
 
+  def update
+    self.updating = true
+    (!user.nil? && valid? && user.complete_password_reset(password))
+  end
+
   def user
     @user ||= retrieve_user
   end
 
   def valid?
-    return false if email.nil? || email.empty?
-    if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
-      return false
+    if updating
+      return false if password.nil? || password.empty?
+
+    else
+      return false if email.nil? || email.empty?
+      if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
+        return false
+      end
+
     end
 
     true

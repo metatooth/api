@@ -51,7 +51,8 @@ RSpec.describe 'PasswordResets', type: :request do
         expect(last_response.status).to eq 404
       end
     end
-  end # 'POST /password_resets'
+  end
+  # 'POST /password_resets'
 
   describe 'GET /password_resets/:token' do
     context 'with existing user (valid token)' do
@@ -80,5 +81,39 @@ RSpec.describe 'PasswordResets', type: :request do
         expect(last_response.status).to eq 404
       end
     end
-  end # 'GET /password_resets/:token'
+  end
+  # 'GET /password_resets/:token'
+
+  describe 'PUT /password_resets/:token' do
+    context 'with existing user (valid token)' do
+      let(:john) { create(:user, :reset_password) }
+      before do
+        put "/password_resets/#{john.reset_password_token}", params
+      end
+      context 'with valid parameters' do
+        let(:params) { { data: { password: 'new_password' } } }
+        it 'returns HTTP status 204' do
+          expect(last_response.status).to eq 204
+        end
+        it 'updates the password' do
+          expect(john.reload.authenticate('new_password')).to_not be false
+        end
+      end
+      context 'with invalid parameters' do
+        let(:params) { { data: { password: '' } } }
+        it 'returns HTTP status 422' do
+          expect(last_response.status).to eq 422
+        end
+      end
+    end
+    context 'with nonexistent user' do
+      before do
+        put '/password_resets/123', data: { password: 'password' }
+      end
+      it 'returns HTTP status 404' do
+        expect(last_response.status).to eq 404
+      end
+    end
+  end
+  # 'PUT /password_resets/:token'
 end
