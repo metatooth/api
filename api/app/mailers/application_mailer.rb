@@ -9,7 +9,8 @@ class ApplicationMailer
   @layout = 'mailer'
 
   def self.mail(params)
-    email_body = ERB.new(File.read("app/views/mailers/#{params[:template]}.text.erb")).result
+    template = File.read("app/views/mailers/#{params[:template]}.text.erb")
+    email_body = ERB.new(template).result(binding)
     Pony.mail(
       to: params[:to],
       from: @from,

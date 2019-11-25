@@ -1,0 +1,84 @@
+# frozen_string_literal: true
+
+require_relative '../spec_helper'
+require_relative '../../app/controllers/password_resets_controller'
+
+RSpec.describe 'PasswordResets', type: :request do
+  Pony.override_options = { via: :test }
+
+  def app
+    PasswordResetsController
+  end
+
+  let(:john) { create(:user) }
+
+  describe 'POST /password_resets' do
+    context 'with valid parameters' do
+      let(:params) do
+        {
+          data: {
+            email: john.email,
+            reset_password_redirect_url: 'http://example.com'
+          }
+        }
+      end
+      before { post '/password_resets', params }
+
+      it 'returns 204' do
+        expect(last_response.status).to eq 204
+      end
+
+      # Here we check that all the fields have properly been updated
+      it 'adds the reset password attributes to "john"' do
+        expect(john.reset_password_token).to_not be nil
+        expect(john.reset_password_sent_at).to_not be nil
+        expect(john.reset_password_redirect_url).to eq 'http://example.com'
+      end
+    end
+
+    context 'with invalid parameters' do
+      let(:params) { { data: { email: john.email } } }
+      before { post '/password_resets', params }
+      it 'returns HTTP status 422' do
+        expect(last_response.status).to eq 422
+      end
+    end
+
+    context 'with nonexistent user' do
+      let(:params) { { data: { email: 'fake@example.com' } } }
+      before { post '/password_resets', params }
+      it 'returns HTTP status 404' do
+        expect(last_response.status).to eq 404
+      end
+    end
+  end # 'POST /password_resets'
+
+  describe 'GET /password_resets/:token' do
+    context 'with existing user (valid token)' do
+      subject { get "/password_resets/#{john.reset_password_token}" }
+      context 'with redirect URL containing parameters' do
+        let(:john) { create(:user, :reset_password) }
+        it 'redirects to "http://example.com?some=params&reset_token=TOKEN"' do
+          token = john.reset_password_token
+          expect(subject).to redirect_to(
+            "http://example.com?some=params&reset_token=#{token}"
+          )
+        end
+      end
+      context 'with redirect URL not containing any parameters' do
+        let(:john) { create(:user, :reset_password_no_params) }
+        it 'redirects to "http://example.com?reset_token=TOKEN"' do
+          expect(subject).to redirect_to(
+            "http://example.com?reset_token=#{john.reset_password_token}"
+          )
+        end
+      end
+    end
+    context 'with nonexistent user' do
+      before { get '/password_resets/123' }
+      it 'returns HTTP status 404' do
+        expect(last_response.status).to eq 404
+      end
+    end
+  end # 'GET /password_resets/:token'
+end

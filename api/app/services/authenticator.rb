@@ -12,7 +12,7 @@ class Authenticator
     id, key = credentials['api_key'].split(':')
     api_key = id && key && ApiKey.activated.get(id)
 
-    return api_key if api_key && secure_compare_with_hashing(api_key.api_key, key)
+    api_key && secure_compare_with_hashing(api_key.api_key, key)
   end
 
   def access_token

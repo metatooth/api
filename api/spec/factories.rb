@@ -58,13 +58,13 @@ FactoryBot.define do
     trait :reset_password do
       reset_password_token { '123' }
       reset_password_redirect_url { 'http://example.com?some=params' }
-      reset_password_sent_at { Time.now }
+      reset_password_sent_at { DateTime.now }
     end
 
     trait :reset_password_no_params do
       reset_password_token { '123' }
       reset_password_redirect_url { 'http://example.com' }
-      reset_password_sent_at { Time.now }
+      reset_password_sent_at { DateTime.now }
     end
   end
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Controller for user confirmations
 class UserConfirmationsController < ApplicationController
   get '/user_confirmations/:token' do
     confirmation_token_not_found
