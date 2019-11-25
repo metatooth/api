@@ -19,6 +19,15 @@ class PasswordResetsController < ApplicationController
     end
   end
 
+  put '/password_resets/:token' do
+    reset.reset_token = params[:token]
+    if reset.update
+      halt(204)
+    else
+      unprocessable_entity!(reset)
+    end
+  end
+
   private
 
   def reset
@@ -26,6 +35,6 @@ class PasswordResetsController < ApplicationController
   end
 
   def reset_params
-    params[:data]&.slice(:email, :reset_password_redirect_url)
+    params[:data]&.slice(:email, :reset_password_redirect_url, :password)
   end
 end
