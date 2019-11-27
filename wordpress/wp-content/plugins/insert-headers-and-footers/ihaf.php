@@ -53,47 +53,13 @@ class InsertHeadersAndFooters {
 		// Hooks
 		add_action( 'admin_init', array( &$this, 'registerSettings' ) );
         add_action( 'admin_menu', array( &$this, 'adminPanelsAndMetaBoxes' ) );
-        add_action( 'wp_feed_options', array( &$this, 'dashBoardRss' ), 10, 2 );
         add_action( 'admin_notices', array( &$this, 'dashboardNotices' ) );
         add_action( 'wp_ajax_' . $this->plugin->name . '_dismiss_dashboard_notices', array( &$this, 'dismissDashboardNotices' ) );
 
         // Frontend Hooks
         add_action( 'wp_head', array( &$this, 'frontendHeader' ) );
 		add_action( 'wp_footer', array( &$this, 'frontendFooter' ) );
-
-		// Filters
-		add_filter( 'dashboard_secondary_items', array( &$this, 'dashboardSecondaryItems' ) );
 	}
-
-    /**
-     * Number of Secondary feed items to show
-     */
-	function dashboardSecondaryItems() {
-		return 6;
-	}
-
-    /**
-     * Update the planet feed to add the WPB feed
-     */
-    function dashboardRss( $feed, $url ) {
-        // Return early if not on the right page.
-        global $pagenow;
-        if ( 'admin-ajax.php' !== $pagenow ) {
-            return;
-        }
-
-        // Return early if not on the right feed.
-        if ( strpos( $url, 'planet.wordpress.org' ) === false ) {
-            return;
-        }
-
-        // Only move forward if this action hasn't been done already.
-        if ( ! $GLOBALS['wpb_feed_append'] ) {
-            $GLOBALS['wpb_feed_append'] = true;
-            $urls = array( 'http://www.wpbeginner.com/feed/', $url );
-            $feed->set_feed_url( $urls );
-        }
-    }
 
     /**
      * Show relevant notices for the plugin
