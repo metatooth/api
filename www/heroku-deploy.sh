@@ -8,7 +8,7 @@
 # 2. $HEROKU_APP_NAME - Your app name in Heroku
 #
 
-git archive --format=tar.gz -o deploy.tgz $BITBUCKET_COMMIT wordpress
+git archive --format=tar.gz -o deploy.tgz $BITBUCKET_COMMIT www
 
 HEROKU_VERSION=$BITBUCKET_COMMIT # BITBUCKET_COMMIT is populated automatically by Pipelines
 APP_NAME=$HEROKU_APP_NAME
