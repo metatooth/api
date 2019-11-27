@@ -16,6 +16,7 @@ class UsersController < ApplicationController
   end
 
   post '/users' do
+    puts "POST /users"
     json = JSON.parse(request.body.read)
     if (user = User.signup(json['email'], Time.now.to_i))
       user.to_json

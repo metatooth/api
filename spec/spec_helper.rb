@@ -11,15 +11,17 @@ require 'database_cleaner'
 require 'uri'
 
 require_relative '../init'
-
-require_relative '../app/controllers/application_controller'
-require_relative '../app/controllers/orders_controller'
-require_relative '../app/controllers/users_controller'
+require_relative '../app/app'
 
 module Helpers
   def json_body
     JSON.parse(last_response.body)
   end
+end
+
+module RSpecMixin
+  include Rack::Test::Methods
+  def app() described_class end
 end
 
 RSpec::Matchers.define(:redirect_to) do |url|
@@ -34,7 +36,7 @@ RSpec.configure do |config|
   config.include Helpers
   config.include Rack::Test::Methods
   config.include DataMapper::Matchers
-
+  config.include RSpecMixin
   config.include FactoryBot::Syntax::Methods
 
   # config.use_transactional_fixtures = true
@@ -52,6 +54,6 @@ RSpec.configure do |config|
   end
 
   def app
-    OrdersController
+    App
   end
 end
