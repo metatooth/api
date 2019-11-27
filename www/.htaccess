@@ -1,5 +1,7 @@
 <IfModule mod_rewrite.c>
 RewriteEngine on
+RewriteLog "/app/rewrite.log"
+RewriteLogLevel 3
 RewriteCond %{HTTP_HOST} ^protected-mesa-48006.herokuapp.com$
 RewriteCond %{REQUEST_URI} !^/wp/
 RewriteCond %{REQUEST_FILENAME} !-f
