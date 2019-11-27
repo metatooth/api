@@ -1,5 +1,3 @@
-LogLevel alert rewrite:trace3
-
 <IfModule mod_rewrite.c>
 RewriteEngine on
 RewriteCond %{HTTP_HOST} ^protected-mesa-48006.herokuapp.com$

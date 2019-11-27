@@ -1,1 +1,1 @@
-web: content/vendor/bin/heroku-php-apache2
+web: content/vendor/bin/heroku-php-apache2 wp/
