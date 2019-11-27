@@ -12,4 +12,4 @@ pipelines:
   default:
    - step:
       script:
-        - ./wordpress/heroku-deploy.sh
+        - ./www/heroku-deploy.sh
