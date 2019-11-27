@@ -5,5 +5,5 @@ api/vendor/
 api/test/response.json
 api/toptal-test-project-10fd92626b7f.json
 *~
-wordpress/wp/
-wordpress/content/
+www/wp/
+www/content/
