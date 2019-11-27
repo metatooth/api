@@ -119,8 +119,8 @@ $port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
 
 define('WP_CONTENT_URL', $protocol."://".$_SERVER["SERVER_NAME"].$port."/content");
 
-error_log(getenv('WP_CONTENT_DIR'));
-error_log(getenv('WP_CONTENT_URL'));
+error_log( WP_CONTENT_DIR );
+error_log( WP_CONTENT_URL );
 
 /* That's all, stop editing! Happy blogging. */
 
