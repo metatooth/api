@@ -1,11 +1,24 @@
 {
+  "type": "project",
+  "config" : {
+    "vendor": "content/vendor"
+  },
   "repositories":[
       {
           "type":"composer",
           "url":"https://wpackagist.org"
       }
   ],
+  "extra": {
+    "wordpress-install-dir": "wp",
+    "installer-paths": {
+      "content/plugins/{$name}/": ["type:wordpress-plugin"],
+      "content/themes/{$name}/": ["type:wordpress-themes"]
+     }
+  },
   "require": {
+    "php": ">=5.4",
+    "johnpbloch/wordpress": ">=5.1",
     "wpackagist-plugin/amazon-s3-and-cloudfront":"*",
     "wpackagist-plugin/classic-editor":"*",
     "wpackagist-plugin/insert-headers-and-footers":"*",
