@@ -22,6 +22,8 @@ require_relative './app/models/order'
 require_relative './app/models/order_item'
 require_relative './app/models/invoice'
 
+require_relative './app/controllers/application_controller'
+
 # DataMapper::Logger.new($stdout, :debug)
 
 DataMapper.setup(:default, ENV['DATABASE_URL'])

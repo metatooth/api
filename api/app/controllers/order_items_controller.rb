@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/note'
-
 # The tasks endpoints.
 class OrderItemsController < ApplicationController
   options '/v1/tasks/:id/notes' do

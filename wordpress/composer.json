@@ -1,0 +1,18 @@
+{
+  "repositories":[
+      {
+          "type":"composer",
+          "url":"https://wpackagist.org"
+      }
+  ],
+  "require": {
+    "wpackagist-plugin/amazon-s3-and-cloudfront":"*",
+    "wpackagist-plugin/classic-editor":"*",
+    "wpackagist-plugin/insert-headers-and-footers":"*",
+    "wpackagist-plugin/mailchimp-for-wp":"*",
+    "wpackagist-plugin/simple-social-icons":"*",
+    "wpackagist-plugin/uk-cookie-consent":"*",
+    "wpackagist-plugin/wordpress-seo":"*",
+    "wpackagist-theme/twentytwenty":"*"
+  }
+}
