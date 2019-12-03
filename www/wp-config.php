@@ -92,10 +92,7 @@ $table_prefix  = 'wp_';
  * @link https://codex.wordpress.org/Debugging_in_WordPress
  */
 define('WP_DEBUG', true);
-
-error_log( $_SERVER['HTTP_X_FORWARDED_PROTO'] );
-error_log( $_SERVER['HTTP_X_FORWARDED_HOST'] );
-error_log( $_SERVER['HTTPS'] );
+define('WP_DEBUG_LOG', true);
 
 if ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' )
 {
@@ -103,10 +100,6 @@ if ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' )
         $_SERVER['SERVER_PORT'] = '443';
         define('FORCE_SSL_ADMIN', true);
 }
-
-error_log('---');
-
-error_log( $_SERVER['HTTPS'] );
 
 if ( isset($_SERVER['HTTP_X_FORWARDED_HOST']) ) {
         $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
@@ -118,9 +111,6 @@ $protocol = substr($sp, 0, strpos($sp, "/")) . $s;
 $port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":".$_SERVER["SERVER_PORT"]);
 
 define('WP_CONTENT_URL', $protocol."://".$_SERVER["SERVER_NAME"].$port."/content");
-
-error_log( WP_CONTENT_DIR );
-error_log( WP_CONTENT_URL );
 
 /* That's all, stop editing! Happy blogging. */
 
