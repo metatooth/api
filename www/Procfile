@@ -1,1 +1,1 @@
-web: content/vendor/bin/heroku-php-apache2 wp/
+web: content/vendor/bin/heroku-php-nginx -C nginx.inc.conf
