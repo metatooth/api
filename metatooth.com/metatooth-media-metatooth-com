@@ -8,7 +8,7 @@ server {
   }
 
   location / {
-    proxy_pass https://s3.amazonaws.com/metatooth-wordpress/;
+    proxy_pass https://metatooth-wordpress.s3.amazonaws.com/;
   }
 
 }
