@@ -4,13 +4,13 @@ require_relative '../models/order'
 
 # The orders endpoints.
 class OrdersController < ApplicationController
-  options '/api/orders' do
+  options '/orders' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
-  get '/api/orders' do
+  get '/orders' do
     from = Time.parse(params[:from]) if params[:from]
     to = Time.parse(params[:to]) if params[:to]
 
@@ -29,7 +29,7 @@ class OrdersController < ApplicationController
     @orders.to_json
   end
 
-  post '/api/orders' do
+  post '/orders' do
     Order = Order.new(request.body.read)
     Order.user_id = @user.id
 
@@ -41,13 +41,13 @@ class OrdersController < ApplicationController
     end
   end
 
-  options '/api/orders/:id' do
+  options '/orders/:id' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
-  get '/api/orders/:id' do
+  get '/orders/:id' do
     if (Order = Order.get(params[:id]))
       if @user.type == 'Admin' || @user.id == Order.user_id
         status 200
@@ -60,7 +60,7 @@ class OrdersController < ApplicationController
     end
   end
 
-  put '/api/orders/:id' do
+  put '/orders/:id' do
     if (Order = Order.get(params[:id]))
       if @user.type == 'Admin' || @user.id == Order.user_id
         vars = JSON.parse(request.body.read)
@@ -81,7 +81,7 @@ class OrdersController < ApplicationController
     end
   end
 
-  delete '/api/orders/:id' do
+  delete '/orders/:id' do
     if (Order = Order.get(params[:id]))
       if @user.type == 'Admin' || @user.id == Order.user_id
         status 204 if Order.destroy

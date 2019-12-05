@@ -3,10 +3,14 @@
 require_relative '../spec_helper'
 require_relative '../../app/controllers/orders_controller'
 
-RSpec.describe OrdersController, type: :request do
+RSpec.describe 'Orders', type: :request do
+  def app
+    OrdersController
+  end
+
   let(:api_key) { ApiKey.create }
   let(:headers) do
-    { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key.to_s}" }
+    { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{api_key}" }
   end
 
   describe 'GET /orders' do

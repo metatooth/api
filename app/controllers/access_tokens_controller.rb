@@ -40,6 +40,6 @@ class AccessTokensController < ApplicationController
   private
 
   def login_params
-    params[:data].slice(:email, :password)
+    params[:data]&.slice(:email, :password)
   end
 end

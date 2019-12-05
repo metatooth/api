@@ -21,12 +21,12 @@ class PasswordReset
   end
 
   def initialize(params)
-    if params
-      self.email = params[:email]
-      self.reset_password_redirect_url = params[:reset_password_redirect_url]
-      self.reset_token = params[:reset_token]
-      self.password = params[:password]
-    end
+    return unless params
+
+    self.email = params[:email]
+    self.reset_password_redirect_url = params[:reset_password_redirect_url]
+    self.reset_token = params[:reset_token]
+    self.password = params[:password]
   end
 
   def redirect_url
