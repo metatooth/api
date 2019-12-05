@@ -21,7 +21,9 @@ end
 
 module RSpecMixin
   include Rack::Test::Methods
-  def app() described_class end
+  def app
+    described_class
+  end
 end
 
 RSpec::Matchers.define(:redirect_to) do |url|

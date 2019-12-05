@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../mailers/user_mailer'
+
 # The users endpoints.
 class UsersController < ApplicationController
   options '/users' do
@@ -16,12 +18,16 @@ class UsersController < ApplicationController
   end
 
   post '/users' do
-    puts "POST /users"
-    json = JSON.parse(request.body.read)
-    if (user = User.signup(json['email'], Time.now.to_i))
-      user.to_json
+    return unprocessable_entity!(account) unless account.save
+
+    user.account = account
+
+    if user.save
+      UserMailer.confirmation_email(user)
+      status 201
+      { data: user, status: :created, location: user }.to_json
     else
-      halt 500
+      unprocessable_entity!(user)
     end
   end
 
@@ -88,5 +94,19 @@ class UsersController < ApplicationController
     else
       halt 500
     end
+  end
+
+  private
+
+  def account
+    @account ||= user.account_id ? Account.get(user.account_id) : Account.new(name: user_params[:name])
+  end
+
+  def user
+    @user ||= params[:id] ? User.get(params[:id]) : User.new(user_params)
+  end
+
+  def user_params
+    params[:data]&.slice(:email, :password, :name, :role, :confirmation_redirect_url)
   end
 end
