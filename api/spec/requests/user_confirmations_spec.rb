@@ -1,13 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/controllers/user_confirmations_controller'
 
 RSpec.describe 'UserConfirmations', type: :request do
-  def app
-    UserConfirmationsController
-  end
-
   describe 'GET /user_confirmations/:token' do
     context 'with existing token' do
       context 'with confirmation redirect url' do

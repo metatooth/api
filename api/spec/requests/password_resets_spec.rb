@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/controllers/password_resets_controller'
 
 RSpec.describe 'PasswordResets', type: :request do
-  Pony.override_options = { via: :test }
-
-  def app
-    PasswordResetsController
-  end
-
   let(:john) { create(:user) }
 
   describe 'POST /password_resets' do
@@ -33,6 +26,10 @@ RSpec.describe 'PasswordResets', type: :request do
         expect(john.reset_password_token).to_not be nil
         expect(john.reset_password_sent_at).to_not be nil
         expect(john.reset_password_redirect_url).to eq 'http://example.com'
+        updated = john.reload
+        expect(updated.reset_password_token).to_not be nil
+        expect(updated.reset_password_sent_at).to_not be nil
+        expect(updated.reset_password_redirect_url).to eq 'http://example.com'
       end
     end
 

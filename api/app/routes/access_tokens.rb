@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Endpoints to create and delete access tokens
-class AccessTokensController < ApplicationController
+class App
   post '/access_tokens' do
     user = User.first(email: login_params[:email].downcase)
 

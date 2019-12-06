@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/mailers/user_mailer'
+require_relative '../../app/models/user_mailer'
 
 RSpec.describe UserMailer, type: :mailer do
   describe '#confirmation_email' do

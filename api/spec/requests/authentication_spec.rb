@@ -1,13 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/controllers/orders_controller'
 
 RSpec.describe 'Authentication', type: :request do
-  def app
-    OrdersController
-  end
-
   describe 'Client Authentication' do
     before { get '/orders', nil, headers }
 

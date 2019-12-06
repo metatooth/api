@@ -1,14 +1,9 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/controllers/users_controller'
 
 RSpec.describe 'User Auth Flow', type: :request do
   Pony.override_options = { via: :test }
-
-  def app
-    UsersController
-  end
 
   def headers(user_id = nil, token = nil)
     api_key_str = "#{api_key.id}:#{api_key.api_key}"
@@ -25,11 +20,20 @@ RSpec.describe 'User Auth Flow', type: :request do
   let(:api_key) { ApiKey.create }
   let(:email) { 'john@gmail.com' }
   let(:password) { 'password' }
-  let(:params) { { data: { email: email, password: password, name: 'Johnny' } } }
+  let(:params) { { email: email, password: password, name: 'Johnny' } }
 
   it 'authenticate a new user' do
-    post '/users', params, headers
+    # Step 1 - Create a user
+    post '/users', { data: params }, headers
     expect(last_response.status).to eq 201
     id = json_body['data']['id']
+
+    # Step 2 - Try to update name
+    put "/users/#{id}", { data: { name: 'John' } }, headers
+    expect(last_response.status).to eq 401
+
+    # Step 3 - Login
+    post '/access_tokens', { data: { email: email, password: password } }, headers
+    expect(last_response.status).to eq 201
   end
 end

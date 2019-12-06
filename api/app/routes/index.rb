@@ -8,7 +8,7 @@ require_relative '../../version'
 require_relative 'authentication'
 
 # The application.
-class ApplicationController < Sinatra::Base
+class App
   include Authentication
 
   register do

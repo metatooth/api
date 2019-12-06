@@ -11,7 +11,6 @@ require 'database_cleaner'
 require 'uri'
 
 require_relative '../init'
-require_relative '../app/app'
 
 module Helpers
   def json_body
@@ -22,7 +21,7 @@ end
 module RSpecMixin
   include Rack::Test::Methods
   def app
-    described_class
+    App
   end
 end
 
@@ -35,6 +34,8 @@ RSpec::Matchers.define(:redirect_to) do |url|
 end
 
 RSpec.configure do |config|
+  Pony.override_options = { via: :test }
+
   config.include Helpers
   config.include Rack::Test::Methods
   config.include DataMapper::Matchers
@@ -53,9 +54,5 @@ RSpec.configure do |config|
     DatabaseCleaner.cleaning do
       example.run
     end
-  end
-
-  def app
-    App
   end
 end

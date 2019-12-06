@@ -9,20 +9,11 @@ require 'dm-serializer'
 require 'sinatra'
 require 'pony'
 
-require_relative './app/models/locator'
+class App < Sinatra::Base
+  set :app_file, __FILE__
+end
 
-require_relative './app/models/account'
-require_relative './app/models/api_key'
-require_relative './app/models/customer'
-require_relative './app/models/user'
-require_relative './app/models/access_token'
-require_relative './app/models/address'
-require_relative './app/models/product'
-require_relative './app/models/order'
-require_relative './app/models/order_item'
-require_relative './app/models/invoice'
-
-require_relative './app/controllers/application_controller'
+Dir.glob('./app/{helpers,routes,models}/*.rb').each { |file| require file }
 
 # DataMapper::Logger.new($stdout, :debug)
 
