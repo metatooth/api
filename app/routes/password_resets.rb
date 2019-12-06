@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../mailers/user_mailer'
+require_relative '../models/user_mailer'
 require_relative '../models/password_reset'
 
 # Controller for password resets
-class PasswordResetsController < ApplicationController
+class App
   get '/password_resets/:token' do
     reset = PasswordReset.new(reset_token: params[:token])
     redirect(reset.redirect_url, 303)

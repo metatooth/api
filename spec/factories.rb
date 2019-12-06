@@ -31,7 +31,6 @@ FactoryBot.define do
   end
 
   factory :account do
-    name
     created_at { DateTime.now }
     updated_at { DateTime.now }
   end

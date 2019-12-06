@@ -1,14 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require_relative '../../app/controllers/application_controller'
-require_relative '../../app/controllers/access_tokens_controller'
 
 RSpec.describe 'Access Tokens', type: :request do
-  def app
-    AccessTokensController
-  end
-
   let(:john) { create(:user) }
 
   describe 'POST /access_tokens' do
@@ -104,5 +98,5 @@ RSpec.describe 'Access Tokens', type: :request do
         expect(last_response.status).to eq 401
       end
     end
-  end # describe 'DELETE /api/access_tokens' end
+  end
 end

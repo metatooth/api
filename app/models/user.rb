@@ -18,7 +18,7 @@ class User
   property :confirmation_redirect_url, String
   property :confirmed_at, DateTime
   property :confirmation_sent_at, DateTime
-  property :reset_password_token, APIKey
+  property :reset_password_token, APIKey, unique: true
   property :reset_password_redirect_url, String
   property :reset_password_sent_at, DateTime
   property :failed_attempts, Integer, default: 0

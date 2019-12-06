@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # The Products endpoints.
-class ProductsController < ApplicationController
+class App
   options '/products' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
@@ -14,21 +14,21 @@ class ProductsController < ApplicationController
     response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
-  get '/products', auth: 'user' do
+  get '/products' do
     products = Product.activated
     status 200
     products.to_json
   end
 
-  post '/products', auth: 'admin' do
+  post '/products' do
   end
 
-  get '/products/:id', auth: 'user' do
+  get '/products/:id' do
   end
 
-  put '/products/:id', auth: 'admin' do
+  put '/products/:id' do
   end
 
-  delete '/products/:id', auth: 'admin' do
+  delete '/products/:id' do
   end
 end

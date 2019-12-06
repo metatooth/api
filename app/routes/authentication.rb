@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../services/authenticator'
+require_relative '../models/authenticator'
 
 # Implements authentication scheme
 module Authentication

@@ -3,7 +3,7 @@
 require_relative '../models/order'
 
 # The orders endpoints.
-class OrdersController < ApplicationController
+class App
   options '/orders' do
     response['Access-Control-Allow-Origin'] = '*'
     response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
