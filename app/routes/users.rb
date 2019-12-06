@@ -24,6 +24,7 @@ class App
 
     if user.save
       UserMailer.confirmation_email(user)
+      response.headers['Location'] = "#{request.scheme}://#{request.host}/users/#{user.id}"
       status :created
       { data: user, location: user }.to_json
     else
@@ -52,7 +53,7 @@ class App
     authenticate_user
 
     if user.update(user_params)
-      status 201
+      status :ok
       { data: user }.to_json
     else
       unprocessable_entity!(user)
