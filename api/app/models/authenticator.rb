@@ -38,7 +38,7 @@ class Authenticator
     @credentials ||= Hash[@authorization.scan(/(\w+)[:=] ?"?([\w|:]+)"?/)]
   end
 
-  def secure_compare_with_hashing(a, b)
-    Rack::Utils.secure_compare(Digest::SHA1.hexdigest(a), Digest::SHA1.hexdigest(b))
+  def secure_compare_with_hashing(aaa, bbb)
+    Rack::Utils.secure_compare(Digest::SHA1.hexdigest(aaa), Digest::SHA1.hexdigest(bbb))
   end
 end

@@ -43,16 +43,9 @@ class PasswordReset
   end
 
   def valid?
-    if updating
-      return false if password.nil? || password.empty?
-
-    else
-      return false if email.nil? || email.empty?
-      if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
-        return false
-      end
-
-    end
+    return false if updating && (password.nil? || password.empty?)
+    return false if email.nil? || email.empty?
+    return false if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
 
     true
   end
