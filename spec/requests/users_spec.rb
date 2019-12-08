@@ -159,7 +159,9 @@ RSpec.describe 'Users', type: :request do
 
         context 'with valid parameters' do
           let(:params) do
-            { email: 'someone@example.com', name: 'Johnny', password: 'password' }
+            { email: 'someone@example.com',
+              name: 'Johnny',
+              password: 'password' }
           end
 
           it 'gets HTTP status 201' do
@@ -192,7 +194,8 @@ RSpec.describe 'Users', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'email' => ['Email must not be blank'], 'name' => ['Name must not be blank']
+              'email' => ['Email must not be blank'],
+              'name' => ['Name must not be blank']
             )
           end
         end
