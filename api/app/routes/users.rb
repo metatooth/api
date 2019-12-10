@@ -62,8 +62,13 @@ class App
 
   delete '/users/:id' do
     authenticate_user
-    user.destroy
-    status :no_content
+
+    if user.nil?
+      resource_not_found
+    else
+      user.destroy
+      status :no_content
+    end
   end
 
   private
