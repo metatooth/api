@@ -6,7 +6,7 @@ class Customer
 
   property :id, Serial, index: true
   property :locator, Locator
-  property :name, String, length: 256, required: true
+  property :name, String, length: 256
   property :created_at, DateTime
   property :updated_at, DateTime
   property :deleted, ParanoidBoolean, default: false
