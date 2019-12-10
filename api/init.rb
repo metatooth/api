@@ -8,6 +8,7 @@ require 'dm-validations'
 require 'dm-serializer'
 require 'sinatra'
 require 'pony'
+require 'rack/accept'
 
 class App < Sinatra::Base
   set :app_file, __FILE__

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-ruby '2.5.7'
+
+ruby '2.5.5'
 
 source 'https://rubygems.org'
 
@@ -13,11 +14,11 @@ gem 'json'
 gem 'pg'
 gem 'pony'
 gem 'puma'
+gem 'rack-accept'
+gem 'rack-cors', require: 'rack/cors'
 gem 'rubocop'
 gem 'ruby-lint'
 gem 'sinatra'
-gem 'rack-cors', :require => 'rack/cors'
-gem 'rack-accept'
 
 group :development, :test do
   gem 'database_cleaner'

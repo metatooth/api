@@ -11,6 +11,12 @@ require_relative 'authentication'
 class App
   include Authentication
 
+  @@ACCEPTED_MEDIA_TYPES = {
+    '*/*' => :metaspace_json_v1,
+    'application/*' => :metaspace_json_v1,
+    'application/vnd.metaspace.v1+json' => :metaspace_json_v1
+  }
+
   register do
     def auth(_type)
       condition do
@@ -34,8 +40,11 @@ class App
   end
 
   before do
+    acceptable?
+
     target = request.path_info.split('/')[1]
-    pass if %w[user_confirmations password_resets].include?(target)
+    pass if target.nil?
+    pass if %w[version user_confirmations password_resets].include?(target)
 
     @user = nil
 
@@ -49,57 +58,51 @@ class App
     resource_not_found
   end
 
+  def acceptable?
+    unacceptable! unless accepted_media_type
+  end
+
   get '/' do
     'OK'
   end
 
-  options '/api/signin' do
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Access-Control-Allow-Headers'] = 'Content-Type'
-    response['Access-Control-Allow-Methods'] = 'POST'
-  end
-
-  post '/api/signin' do
-    response['Access-Control-Allow-Origin'] = '*'
-
-    json = JSON.parse(request.body.read)
-    user = User.authenticate(json['email'], json['password'])
-    token = ''
-    if user
-      token = user.issue_access_token
-    else
-      halt 401
-    end
-    token
-  end
-
-  options '/api/signout' do
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Access-Control-Allow-Headers'] = 'Content-Type'
-    response['Access-Control-Allow-Methods'] = 'GET'
-  end
-
-  get '/api/signout' do
-    @user = nil
-  end
-
-  options '/api/signup' do
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Access-Control-Allow-Headers'] = 'Content-Type'
-    response['Access-Control-Allow-Methods'] = 'POST'
-  end
-
-  post '/api/signup' do
-  end
-
-  get '/api/version' do
+  get '/version' do
     { version: Version.string }.to_json
   end
 
   protected
 
+  def metaspace_json_v1(data, _options)
+    data.to_json
+  end
+
+  def accepted_media_type
+    @accepted_media_type ||= find_acceptable
+  end
+
+  def find_acceptable
+    accept_header = request.env['HTTP_ACCEPT']
+    accept = Rack::Accept::MediaType.new(accept_header).qvalues
+
+    accept.each do |media_type, _q|
+      return media_type if @@ACCEPTED_MEDIA_TYPES[media_type]
+    end
+
+    nil
+  end
+
   def resource_not_found
     halt(404)
+  end
+
+  def unacceptable!
+    accept = request.headers['HTTP_ACCEPT']
+    halt(406, {
+      error: {
+        message: "No acceptable media type in Accept header: #{accept}",
+        acceptable_media_types: @@ACCEPTED_MEDIA_TYPES.keys
+      }
+    }.to_json)
   end
 
   def unprocessable_entity!(resource)
