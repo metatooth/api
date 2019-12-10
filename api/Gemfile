@@ -15,6 +15,8 @@ gem 'puma'
 gem 'rubocop'
 gem 'ruby-lint'
 gem 'sinatra'
+gem 'rack-cors', :require => 'rack/cors'
+gem 'rack-accept'
 
 group :development, :test do
   gem 'database_cleaner'

@@ -8,10 +8,10 @@
 # 2. $HEROKU_APP_NAME - Your app name in Heroku
 #
 
-git archive --format=tar.gz -o deploy.tgz $BITBUCKET_COMMIT www
+git archive --format=tar.gz -o deploy.tgz $BITBUCKET_COMMIT $1
 
 HEROKU_VERSION=$BITBUCKET_COMMIT # BITBUCKET_COMMIT is populated automatically by Pipelines
-APP_NAME=$HEROKU_APP_NAME
+APP_NAME=$2
 
 echo "Deploying Heroku Version $HEROKU_VERSION"
 

@@ -12,4 +12,5 @@ pipelines:
   default:
    - step:
       script:
-        - ./www/heroku-deploy.sh
+        - ./heroku-deploy.sh www $WWW_HEROKU_APP_NAME
+        - ./heroku-deploy.sh api $API_HEROKU_APP_NAME
