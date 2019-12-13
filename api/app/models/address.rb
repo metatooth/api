@@ -20,6 +20,8 @@ class Address
   property :deleted, ParanoidBoolean, default: true
   property :deleted_at, ParanoidDateTime
 
+  belongs_to :customer
+
   validates_uniqueness_of :locator
   validates_presence_of :name, :address1, :city, :state
   validates_format_of :state, with: /^[A-Z][A-Z]$/

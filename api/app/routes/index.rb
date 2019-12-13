@@ -96,7 +96,7 @@ class App
   end
 
   def unacceptable!
-    accept = request.headers['HTTP_ACCEPT']
+    accept = request.env['HTTP_ACCEPT']
     halt(406, {
       error: {
         message: "No acceptable media type in Accept header: #{accept}",

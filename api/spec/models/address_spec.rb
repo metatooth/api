@@ -13,10 +13,18 @@ describe Address, type: :model do
     it { should validate_format_of(:zip5).with(/^\d{5}$/) }
     it { should validate_format_of(:zip4).with(/^\d{4}$/) }
 
+    it { should validate_presence_of(:customer_id) }
+
     context 'uniqueness' do
       before { create(:address) }
 
       it { should validate_uniqueness_of(:locator) }
+    end
+
+    context 'associations' do
+      before { create(:address) }
+
+      it { should belong_to(:customer) }
     end
   end
 end

@@ -106,6 +106,23 @@ RSpec.describe 'Customers', type: :request do
       end
 
       describe 'DELETE /customers/:id' do
+        context 'with existing resource' do
+          before { delete "/customers/#{b.id}", nil, headers }
+          it 'gets HTTP status 204' do
+            expect(last_response.status).to eq 204
+          end
+
+          it 'deletes the customer from the database' do
+            expect(Customer.count).to eq 2
+          end
+        end
+
+        context 'with nonexisting resource' do
+          it 'gets HTTP status 404' do
+            delete '/customers/2345234', nil, headers
+            expect(last_response.status).to eq 404
+          end
+        end
       end
     end
 

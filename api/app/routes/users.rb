@@ -26,7 +26,7 @@ class App
       UserMailer.confirmation_email(user)
       response.headers['Location'] = "#{request.scheme}://#{request.host}/users/#{user.id}"
       status :created
-      { data: user, location: user }.to_json
+      { data: user }.to_json
     else
       unprocessable_entity!(user)
     end
@@ -52,11 +52,15 @@ class App
   put '/users/:id' do
     authenticate_user
 
-    if user.update(user_params)
-      status :ok
-      { data: user }.to_json
+    if user.nil?
+      resource_not_found
     else
-      unprocessable_entity!(user)
+      if user.update(user_params)
+        status :ok
+        { data: user }.to_json
+      else
+        unprocessable_entity!(user)
+      end
     end
   end
 

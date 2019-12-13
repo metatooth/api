@@ -19,6 +19,9 @@ class App
 
   post '/customers' do
     authenticate_user
+
+    customer.account = @current_user.account
+
     if customer.save
       response.headers['Location'] = "#{request.scheme}://#{request.host}/customers/#{customer.id}"
       status :created
@@ -58,8 +61,13 @@ class App
 
   delete '/customers/:id' do
     authenticate_user
-    customer.destroy
-    status :no_content
+
+    if customer.nil?
+      resource_not_found
+    else
+      customer.destroy
+      status :no_content
+    end
   end
 
   private

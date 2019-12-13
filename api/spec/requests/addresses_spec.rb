@@ -2,29 +2,35 @@
 
 require_relative '../spec_helper'
 
-RSpec.describe 'Users', type: :request do
-  let(:a) { create(:user) }
-  let(:b) { create(:user) }
-  let(:c) { create(:user) }
-  let(:users) { [a, b, c] }
+RSpec.describe 'Addresses', type: :request do
+  let(:a) { create(:address) }
+  let(:b) { create(:address) }
+  let(:c) { create(:address) }
+  let(:customer) { a.customer }
+  let(:user) { create(:user, account: a.customer.account) }
 
-  before { users }
+  before do
+    customer.addresses << a
+    customer.addresses << b
+    customer.addresses << c
+    customer.save
+  end
 
   context 'with valid API Key' do
     let(:key) { ApiKey.create }
     let(:key_str) { key.to_s }
 
     context 'with valid access token' do
-      let(:access_token) { create(:access_token, api_key: key, user: a) }
+      let(:access_token) { create(:access_token, api_key: key, user: user) }
       let(:token) { access_token.generate_token }
-      let(:token_str) { "#{a.id}:#{token}" }
+      let(:token_str) { "#{user.id}:#{token}" }
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
         "Metaspace-Token api_key=#{key_str}, access_token=#{token_str}" }
       end
 
-      describe 'GET /users' do
-        before { get '/users', nil, headers }
+      describe 'GET /customers/:cid/addresses' do
+        before { get "/customers/#{customer.id}/addresses", nil, headers }
 
         it 'receives HTTP status 200' do
           expect(last_response.status).to eq 200
@@ -34,14 +40,16 @@ RSpec.describe 'Users', type: :request do
           expect(json_body['data']).to_not be nil
         end
 
-        it 'receives all 3 users' do
+        it 'receives all 3 addresses' do
           expect(json_body['data'].size).to eq 3
         end
       end
 
-      describe 'GET /users/:id' do
+      describe 'GET /customers/:cid/addresses/:id' do
         context 'with existing resource' do
-          before { get "/users/#{b.id}", nil, headers }
+          before do
+            get "/customers/#{customer.id}/addresses/#{a.id}", nil, headers
+          end
 
           it 'receives HTTP status 200' do
             expect(last_response.status).to eq 200
@@ -51,22 +59,22 @@ RSpec.describe 'Users', type: :request do
             expect(json_body['data']).to_not be nil
           end
 
-          it 'receives user' do
-            expect(json_body['data']['email']).to eq b.email
+          it 'receives customer' do
+            expect(json_body['data']['name']).to eq a.name
           end
         end
 
         context 'with nonexistent resource' do
           it 'gets HTTP status 404' do
-            get '/users/23456234', nil, headers do
+            get "/customers/#{customer.id}/addresses/23456234", nil, headers do
               expect(last_response.status).to eq 404
             end
           end
         end
       end
 
-      describe 'PUT /users/:id' do
-        before { put "/users/#{b.id}", { data: params }, headers }
+      describe 'PUT /customers/:cid/addresses/:id' do
+        before { put "/customers/#{customer.id}/addresses/#{b.id}", { data: params }, headers }
 
         context 'with valid parameters' do
           let(:params) { { name: 'Bobby' } }
@@ -80,7 +88,7 @@ RSpec.describe 'Users', type: :request do
           end
 
           it 'updates the record in the database' do
-            expect(User.get(b.id).name).to eq('Bobby')
+            expect(Address.get(b.id).name).to eq('Bobby')
           end
         end
 
@@ -93,31 +101,31 @@ RSpec.describe 'Users', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'name' => ['Name must not be blank']
+              'name' => ['Name must not be blank', 'Name must not be blank']
             )
           end
 
           it 'does not update a record in the database' do
-            expect(User.get(b.id).name).to eq b.name
+            expect(Address.get(b.id).name).to eq b.name
           end
         end
       end
 
-      describe 'DELETE /users/:id' do
+      describe 'DELETE /customers/:cid/addresses/:id' do
         context 'with existing resource' do
-          before { delete "/users/#{b.id}", nil, headers }
+          before { delete "/customers/#{customer.id}/addresses/#{b.id}", nil, headers }
           it 'gets HTTP status 204' do
             expect(last_response.status).to eq 204
           end
 
-          it 'deletes the user from the database' do
-            expect(User.count).to eq 2
+          it 'deletes the address from the database' do
+            expect(Address.count).to eq 2
           end
         end
 
         context 'with nonexisting resource' do
           it 'gets HTTP status 404' do
-            delete '/users/342523455', nil, headers
+            delete "/customers/#{customer.id}/users/342523455", nil, headers
             expect(last_response.status).to eq 404
           end
         end
@@ -130,23 +138,23 @@ RSpec.describe 'Users', type: :request do
         "Metaspace-Token api_key=#{key}, access_token=1:fake" }
       end
 
-      describe 'GET /users' do
+      describe 'GET /customers/:cid/addresses' do
         it 'returns 401' do
-          get '/users', nil, headers
+          get "/customers/#{customer.id}/addresses", nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
-      describe 'GET /users/:id' do
+      describe 'GET /addresses/:id' do
         it 'returns 401' do
-          get '/users/1', nil, headers
+          get "/customers/#{customer.id}/addresses/1", nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
-      describe 'DELETE /users/:id' do
+      describe 'DELETE /customers/:cid/addresses/:id' do
         it 'returns 401' do
-          delete '/users/1', nil, headers
+          delete "/customers/#{customer.id}/addresses/1", nil, headers
           expect(last_response.status).to eq 401
         end
       end
@@ -157,22 +165,22 @@ RSpec.describe 'Users', type: :request do
         { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key}" }
       end
 
-      describe 'GET /users' do
+      describe 'GET /customers/:cid/addresses' do
         it 'returns 401' do
-          get '/users', nil, headers
+          get "/customers/#{customer.id}/addresses", nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
-      describe 'GET /users/:id' do
+      describe 'GET /customers/:cid/addresses/:id' do
         it 'returns 401' do
-          get '/users/1', nil, headers
+          get "/customers/#{customer.id}/addresses/1", nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
-      describe 'POST /users' do
-        before { post '/users', { data: params }, headers }
+      describe 'POST /customers/:cid/addresses' do
+        before { post "/customers/#{customer.id}/addresses", { data: params }, headers }
 
         context 'with valid parameters' do
           let(:params) do
@@ -181,22 +189,10 @@ RSpec.describe 'Users', type: :request do
               password: 'password' }
           end
 
-          it 'gets HTTP status 201' do
-            expect(last_response.status).to eq 201
+          it 'gets HTTP status 401' do
+            expect(last_response.status).to eq 401
           end
-
           it 'receives the newly created resource' do
-            expect(json_body['data']['email']).to eq 'someone@example.com'
-          end
-
-          it 'adds a record in the database' do
-            expect(User.count).to eq 4
-          end
-
-          it 'gets the new resource location in the Location header' do
-            expect(last_response.headers['Location']).to eq(
-              "http://example.org/users/#{User.last.id}"
-            )
           end
         end
 
@@ -205,22 +201,15 @@ RSpec.describe 'Users', type: :request do
             { email: '', name: '', password: 'password' }
           end
 
-          it 'returns HTTP status 422' do
-            expect(last_response.status).to eq 422
-          end
-
-          it 'receives the error details' do
-            expect(json_body['error']['invalid_params']).to eq(
-              'email' => ['Email must not be blank'],
-              'name' => ['Name must not be blank']
-            )
+          it 'returns HTTP status 401' do
+            expect(last_response.status).to eq 401
           end
         end
       end
 
-      describe 'DELETE /users/:id' do
+      describe 'DELETE /customers/:cid/addresses/:id' do
         it 'returns 401' do
-          delete '/users/1', nil, headers
+          delete "/customers/#{customer.id}/addresses/1", nil, headers
           expect(last_response.status).to eq 401
         end
       end
@@ -228,37 +217,37 @@ RSpec.describe 'Users', type: :request do
   end
 
   context 'with invalid API Key' do
-    describe 'GET /users' do
+    describe 'GET /customers/:cid/addresses' do
       it 'returns HTTP status 401' do
-        get '/orders'
+        get "/customers/#{customer.id}/addresses"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'GET /users/:id' do
+    describe 'GET /customers/:cid/addresses/:id' do
       it 'returns HTTP status 401' do
-        get "/orders/#{a.id}"
+        get "/customers/#{customer.id}/addresses/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'POST /users' do
+    describe 'POST /customers/:cid/addresses' do
       it 'returns HTTP status 401' do
-        post '/orders'
+        post "/customers/#{customer.id}/addresses"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'PUT /users/:id' do
+    describe 'PUT /customers/:cid/addresses/:id' do
       it 'returns HTTP status 401' do
-        put "/orders/#{a.id}"
+        put "/customers/#{customer.id}/addresses/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'DELETE /users/:id' do
+    describe 'DELETE /customers/:cid/addresses/:id' do
       it 'returns HTTP status 401' do
-        delete "/orders/#{a.id}"
+        delete "/customers/#{customer.id}/addresses/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end

@@ -44,6 +44,10 @@ RSpec.configure do |config|
 
   # config.use_transactional_fixtures = true
 
+  config.before(:each) do
+    header 'Accept', 'application/vnd.metaspace.v1+json'
+  end
+
   config.before(:suite) do
     FactoryBot.find_definitions
     DatabaseCleaner.strategy = :transaction
