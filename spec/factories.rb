@@ -26,6 +26,7 @@ FactoryBot.define do
     state { 'MA' }
     zip5 { '01907' }
     zip4 { '2321' }
+    customer
     created_at { DateTime.now }
     updated_at { DateTime.now }
   end

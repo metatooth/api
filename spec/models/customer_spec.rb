@@ -12,6 +12,7 @@ describe Customer, type: :model do
 
   context 'validations' do
     it { should validate_presence_of(:name) }
+    it { should validate_presence_of(:account_id) }
 
     context 'uniqueness' do
       before { create(:user) }
