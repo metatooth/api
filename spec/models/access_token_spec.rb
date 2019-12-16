@@ -9,8 +9,8 @@ RSpec.describe AccessToken, type: :model do
     expect(build(:access_token).valid?).to eq true
   end
 
-  it { should validate_presence_of(:user) }
-  it { should validate_presence_of(:api_key) }
+  it { should validate_presence_of(:user_id) }
+  it { should validate_presence_of(:api_key_id) }
 
   describe '#authenticate' do
     context 'when valid' do

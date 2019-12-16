@@ -88,7 +88,6 @@ RSpec.describe 'PasswordResets', type: :request do
       context 'with valid parameters' do
         let(:params) { { data: { password: 'new_password' } } }
         it 'returns HTTP status 204' do
-          puts last_response.body
           expect(last_response.status).to eq 204
         end
         it 'updates the password' do

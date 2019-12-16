@@ -2,7 +2,7 @@
 
 require_relative '../models/authenticator'
 
-# Implements authentication scheme
+# An authentication scheme
 module Authentication
   AUTH_SCHEME = 'Metaspace-Token'
 
@@ -33,7 +33,7 @@ module Authentication
   end
 
   def current_user
-    @current_user ||= access_token.try(:user)
+    @current_user ||= @access_token.user
   end
 
   def unauthorized!(realm)

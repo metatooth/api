@@ -7,12 +7,15 @@ class ApiKey
   include DataMapper::Resource
   has n, :access_tokens
 
-  property :id, Serial, index: true
-  property :api_key, String, length: 32, index: true, required: true
-  property :active, Boolean, default: true, required: true
+  property :id, Serial
+  property :api_key, String, length: 32
+  property :active, Boolean, default: true
   property :created_at, DateTime
   property :updated_at, DateTime
 
+  validates_presence_of :api_key
+  validates_presence_of :active
+  
   before :valid?, :generate!
 
   def self.activated

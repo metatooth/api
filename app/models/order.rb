@@ -8,9 +8,12 @@ class Order
 
   property :id, Serial, index: true
   property :locator, Locator
+  property :shipped_impression_kit_at, DateTime
+  property :received_impression_kit_at, DateTime
+  property :shipped_custom_night_guard_at, DateTime
   property :created_at, DateTime
   property :updated_at, DateTime
-  property :deleted, ParanoidBoolean, default: false
+  property :deleted, ParanoidBoolean, default: false, lazy: false
   property :deleted_at, ParanoidDateTime
 
   belongs_to :customer

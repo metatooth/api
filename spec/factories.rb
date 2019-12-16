@@ -18,7 +18,7 @@ FactoryBot.define do
     updated_at { DateTime.now }
   end
 
-  factory :address, aliases: [:location] do
+  factory :address, aliases: [:location, :bill, :ship] do
     name
     organization { 'Metatooth LLC' }
     address1 { '30 Forest Ave' }
@@ -84,8 +84,11 @@ FactoryBot.define do
     updated_at { DateTime.now }
   end
 
+
   factory :order do
     customer
+    bill
+    ship
     created_at { DateTime.now }
     updated_at { DateTime.now }
   end

@@ -26,4 +26,6 @@ group :development, :test do
   gem 'rack-test'
   gem 'rspec'
   gem 'shotgun'
+  gem 'pry'
+  gem 'pry-remote'
 end

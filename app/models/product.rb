@@ -8,7 +8,7 @@ class Product
   property :locator, Locator, unique: true
   property :created_at, DateTime
   property :updated_at, DateTime
-  property :deleted, ParanoidBoolean, default: false
+  property :deleted, ParanoidBoolean, default: false, lazy: false
   property :deleted_at, ParanoidDateTime
 
   belongs_to :account

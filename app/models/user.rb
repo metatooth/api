@@ -3,8 +3,10 @@
 # A User model.
 class User
   include DataMapper::Resource
+  belongs_to :account
+  has n, :access_tokens
 
-  property :id, Serial, index: true
+  property :id, Serial
   property :locator, Locator
   property :type, Discriminator
   property :email, String, length: 256, index: true, unique: true
@@ -21,11 +23,8 @@ class User
   property :failed_attempts, Integer, default: 0
   property :created_at, DateTime
   property :updated_at, DateTime
-  property :deleted, ParanoidBoolean, default: false
+  property :deleted, ParanoidBoolean, default: false, lazy: false
   property :deleted_at, ParanoidDateTime
-
-  belongs_to :account
-  has n, :access_tokens
 
   validates_uniqueness_of :email
   validates_presence_of :name, :email

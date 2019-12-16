@@ -17,7 +17,7 @@ class Address
   property :postcode, String
   property :created_at, DateTime
   property :updated_at, DateTime
-  property :deleted, ParanoidBoolean, default: true
+  property :deleted, ParanoidBoolean, default: false, lazy: false
   property :deleted_at, ParanoidDateTime
 
   belongs_to :customer
