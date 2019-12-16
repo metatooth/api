@@ -9,6 +9,7 @@ require 'rspec'
 require 'dm-transactions'
 require 'database_cleaner'
 require 'uri'
+require 'pry-remote'
 
 require_relative '../init'
 

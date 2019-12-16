@@ -8,7 +8,7 @@ class Invoice
   property :locator, Locator
   property :created_at, DateTime
   property :updated_at, DateTime
-  property :deleted, ParanoidBoolean, default: true
+  property :deleted, ParanoidBoolean, default: false, lazy: true
   property :deleted_at, ParanoidDateTime
 
   validates_uniqueness_of :locator
