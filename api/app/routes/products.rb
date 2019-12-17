@@ -15,20 +15,68 @@ class App
   end
 
   get '/products' do
-    products = Product.activated
+    products = Product.all
     status 200
-    products.to_json
+    { data: products }.to_json
   end
 
   post '/products' do
+    authenticate_user
+
+    product.account = current_user.account
+
+    if product.save
+      UserMailer.new_product(current_user, product)
+      response.headers['Location'] = "#{request.scheme}://#{request.host}/products/#{product.locator}"
+      status :created
+      { data: product }.to_json
+    else
+      unprocessable_entity!(product)
+    end
   end
 
   get '/products/:id' do
+    if product
+      status 200
+      { data: product }.to_json
+    else
+      resource_not_found
+    end
   end
 
   put '/products/:id' do
+    authenticate_user
+
+    if product.nil? || current_user.account != product.account
+      resource_not_found
+    else
+      if product.update(product_params)
+        status :ok
+        { data: product }.to_json
+      else
+        unprocessable_entity!(product)
+      end
+    end
   end
 
   delete '/products/:id' do
+    authenticate_user
+
+    if product.nil? || current_user.account != product.account
+      resource_not_found
+    else
+      product.destroy
+      status :no_content
+    end
+  end
+
+  private
+
+  def product
+    @product ||= params[:id] ? Product.get(params[:id]) : Product.new(product_params)
+  end
+
+  def product_params
+    params[:data]&.slice(:name, :description)
   end
 end

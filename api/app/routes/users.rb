@@ -10,6 +10,12 @@ class App
     response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
+  options '/users/:id' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
+  end
+
   get '/users' do
     authenticate_user
 
@@ -30,12 +36,6 @@ class App
     else
       unprocessable_entity!(user)
     end
-  end
-
-  options '/users/:id' do
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
   get '/users/:id' do

@@ -40,4 +40,20 @@ RSpec.describe UserMailer, type: :mailer do
       expect(mail.body.encoded).to match('Hello')
     end
   end
+
+  describe '#new_product_email' do
+    let(:user) { create(:user) }
+    let(:product) { create(:product, account: user.account) }
+    let(:mail) { UserMailer.new_product(user, product) }
+
+    it 'renders the headers' do
+      expect(mail.subject).to eq('New product created')
+      expect(mail.to).to eq([user.email])
+      expect(mail.from).to eq(['pony@unknown'])
+    end
+
+    it 'renders the body' do
+      expect(mail.body.encoded).to match('A new product has been created')
+    end
+  end
 end

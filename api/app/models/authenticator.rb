@@ -12,11 +12,13 @@ class Authenticator
     id, key = credentials['api_key'].split(':')
     api_key = id && key && ApiKey.activated.get(id)
 
-    return api_key if api_key && secure_compare_with_hashing(api_key.api_key, key)
+    api_key if api_key && secure_compare_with_hashing(api_key.api_key, key)
   end
 
   def access_token
-    return nil if credentials['access_token'].nil? || credentials['access_token'].empty?
+    if credentials['access_token'].nil? || credentials['access_token'].empty?
+      return nil
+    end
 
     id, token = credentials['access_token'].split(':')
     user = id && token && User.get(id)

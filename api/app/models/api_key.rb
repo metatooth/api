@@ -15,7 +15,7 @@ class ApiKey
 
   validates_presence_of :api_key
   validates_presence_of :active
-  
+
   before :valid?, :generate!
 
   def self.activated

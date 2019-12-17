@@ -91,7 +91,7 @@ RSpec.describe 'Orders', type: :request do
           end
 
           it 'updates the record in the database' do
-            expect(Order.get(b.id).shipped_impression_kit_at).to eq(DateTime.new(1974, 6, 21, 0, 0, 0, Rational(-4,24)))
+            expect(Order.get(b.id).shipped_impression_kit_at).to eq(DateTime.new(1974, 6, 21, 0, 0, 0, Rational(-4, 24)))
           end
         end
 
@@ -255,5 +255,4 @@ RSpec.describe 'Orders', type: :request do
       end
     end
   end
-
 end
