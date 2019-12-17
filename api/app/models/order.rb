@@ -5,6 +5,10 @@ require_relative 'locator'
 # An Order model.
 class Order
   include DataMapper::Resource
+  belongs_to :customer
+  belongs_to :bill, 'Address'
+  belongs_to :ship, 'Address'
+  has n, :order_items
 
   property :id, Serial, index: true
   property :locator, Locator
@@ -15,10 +19,6 @@ class Order
   property :updated_at, DateTime
   property :deleted, ParanoidBoolean, default: false, lazy: false
   property :deleted_at, ParanoidDateTime
-
-  belongs_to :customer
-  belongs_to :bill, 'Address'
-  belongs_to :ship, 'Address'
 
   validates_uniqueness_of :locator
 end

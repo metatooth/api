@@ -5,10 +5,10 @@ class App
   get '/user_confirmations/:token' do
     confirmation_token_not_found
 
-    confirm_user.confirm
+    confirmed_user.confirm
 
-    if confirm_user.confirmation_redirect_url
-      redirect(user.confirmation_redirect_url, 303)
+    if confirmed_user.confirmation_redirect_url
+      redirect(confirmed_user.confirmation_redirect_url, 303)
     else
       'You are now confirmed!'
     end
@@ -17,14 +17,14 @@ class App
   private
 
   def confirmation_token_not_found
-    halt(404, 'Token not found') unless confirm_user
+    halt(404, 'Token not found') unless confirmed_user
   end
 
   def confirmation_token
     @confirmation_token ||= params[:token]
   end
 
-  def confirm_user
-    @user ||= User.first(confirmation_token: confirmation_token)
+  def confirmed_user
+    @confirmed_user ||= User.first(confirmation_token: confirmation_token)
   end
 end

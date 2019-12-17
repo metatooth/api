@@ -74,10 +74,14 @@ RSpec.describe 'Addresses', type: :request do
       end
 
       describe 'PUT /customers/:cid/addresses/:id' do
-        before { put "/customers/#{customer.id}/addresses/#{b.id}", { data: params }, headers }
+        before do
+          put "/customers/#{customer.id}/addresses/#{b.id}",
+              params,
+              headers
+        end
 
         context 'with valid parameters' do
-          let(:params) { { name: 'Bobby' } }
+          let(:params) { { data: { name: 'Bobby' } } }
 
           it 'gets HTTP status 200' do
             expect(last_response.status).to eq 200
@@ -93,7 +97,7 @@ RSpec.describe 'Addresses', type: :request do
         end
 
         context 'with invalid parameters' do
-          let(:params) { { name: '' } }
+          let(:params) { { data: { name: '' } } }
 
           it 'gets HTTP status 422' do
             expect(last_response.status).to eq 422
@@ -113,7 +117,11 @@ RSpec.describe 'Addresses', type: :request do
 
       describe 'DELETE /customers/:cid/addresses/:id' do
         context 'with existing resource' do
-          before { delete "/customers/#{customer.id}/addresses/#{b.id}", nil, headers }
+          before do
+            delete "/customers/#{customer.id}/addresses/#{b.id}",
+                   nil,
+                   headers
+          end
           it 'gets HTTP status 204' do
             expect(last_response.status).to eq 204
           end
@@ -180,13 +188,13 @@ RSpec.describe 'Addresses', type: :request do
       end
 
       describe 'POST /customers/:cid/addresses' do
-        before { post "/customers/#{customer.id}/addresses", { data: params }, headers }
+        before { post "/customers/#{customer.id}/addresses", params, headers }
 
         context 'with valid parameters' do
           let(:params) do
-            { email: 'someone@example.com',
-              name: 'Johnny',
-              password: 'password' }
+            { data: { email: 'someone@example.com',
+                      name: 'Johnny',
+                      password: 'password' } }
           end
 
           it 'gets HTTP status 401' do
@@ -198,7 +206,7 @@ RSpec.describe 'Addresses', type: :request do
 
         context 'with invalid parameters' do
           let(:params) do
-            { email: '', name: '', password: 'password' }
+            { data: { email: '', name: '', password: 'password' } }
           end
 
           it 'returns HTTP status 401' do

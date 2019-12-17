@@ -8,7 +8,10 @@ RSpec.describe 'Access Tokens', type: :request do
   describe 'POST /access_tokens' do
     context 'with valid API key' do
       let(:key) { ApiKey.create }
-      let(:headers) { { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key}" } }
+      let(:headers) do
+        { 'HTTP_AUTHORIZATION' =>
+        "Metaspace-Token api_key=#{key}" }
+      end
 
       before { post '/access_tokens', params, headers }
 
@@ -63,12 +66,18 @@ RSpec.describe 'Access Tokens', type: :request do
       before { delete '/access_tokens', nil, headers }
 
       context 'with valid access token' do
-        let(:access_token) { create(:access_token, api_key: api_key, user: john) }
+        let(:access_token) do
+          create(:access_token,
+                 api_key: api_key,
+                 user: john)
+        end
         let(:token) { access_token.generate_token }
         let(:token_str) { "#{john.id}:#{token}" }
         let(:headers) do
-          { 'HTTP_AUTHORIZATION' =>
-            "Metaspace-Token api_key=#{api_key_str}, access_token=#{token_str}" }
+          {
+            'HTTP_AUTHORIZATION' =>
+            "Metaspace-Token api_key=#{api_key_str}, access_token=#{token_str}"
+          }
         end
 
         it 'returns 204 No Content' do

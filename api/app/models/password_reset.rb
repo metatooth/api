@@ -14,12 +14,10 @@ class PasswordReset
   def errors
     errors = []
     if updating
-      if password.nil? || password.empty?
-        errors.append('password must be present')
-      end
+      errors.append('password must be present') if blank?(password)
     else
-      errors.append('email must be present') if email.nil? || email.empty?
-      if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
+      errors.append('email must be present') if blank?(email)
+      if blank?(reset_password_redirect_url)
         errors.append('reset_password_redirect_url must be present')
       end
     end
@@ -51,12 +49,10 @@ class PasswordReset
 
   def valid?
     if updating
-      return false if password.nil? || password.empty?
+      return false if blank?(password)
     else
-      return false if email.nil? || email.empty?
-      if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
-        return false
-      end
+      return false if blank?(email)
+      return false if blank?(reset_password_redirect_url)
     end
 
     true
@@ -64,12 +60,16 @@ class PasswordReset
 
   private
 
+  def blank?(str)
+    str.nil? || str.empty?
+  end
+
   def retrieve_user
     user = if email
              user_with_email
            else
              user_with_token
-    end
+           end
 
     raise Exception unless user
 
