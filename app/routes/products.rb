@@ -27,7 +27,8 @@ class App
 
     if product.save
       UserMailer.new_product(current_user, product)
-      response.headers['Location'] = "#{request.scheme}://#{request.host}/products/#{product.locator}"
+      response.headers['Location'] =
+        "#{request.scheme}://#{request.host}/products/#{product.locator}"
       status :created
       { data: product }.to_json
     else
@@ -49,13 +50,11 @@ class App
 
     if product.nil? || current_user.account != product.account
       resource_not_found
+    elsif product.update(product_params)
+      status :ok
+      { data: product }.to_json
     else
-      if product.update(product_params)
-        status :ok
-        { data: product }.to_json
-      else
-        unprocessable_entity!(product)
-      end
+      unprocessable_entity!(product)
     end
   end
 
@@ -73,7 +72,9 @@ class App
   private
 
   def product
-    @product ||= params[:id] ? Product.get(params[:id]) : Product.new(product_params)
+    @product ||= Product.get(params[:id]) if params[:id]
+    @product ||= Product.new(product_params) unless params[:id]
+    @product
   end
 
   def product_params

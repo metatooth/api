@@ -68,13 +68,11 @@ class App
 
     if order.nil? || !current_user.account.customers.include?(order.customer)
       resource_not_found
+    elsif order.update(order_params)
+      status :ok
+      { data: order }.to_json
     else
-      if order.update(order_params)
-        status :ok
-        { data: order }.to_json
-      else
-        unprocessable_entity!(order)
-      end
+      unprocessable_entity!(order)
     end
   end
 
@@ -96,6 +94,8 @@ class App
   end
 
   def order_params
-    params[:data]&.slice(:shipped_impression_kit_at, :received_impression_kit_at, :shipped_custom_night_guard_at)
+    params[:data]&.slice(:shipped_impression_kit_at,
+                         :received_impression_kit_at,
+                         :shipped_custom_night_guard_at)
   end
 end

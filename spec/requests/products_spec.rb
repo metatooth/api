@@ -28,12 +28,12 @@ RSpec.describe 'Products', type: :request do
       end
 
       describe 'POST /products' do
-        before { post '/products', { data: params }, headers }
+        before { post '/products', params, headers }
 
         context 'with valid parameters' do
           let(:params) do
-            { name: 'nightguard',
-              description: 'custom night guard' }
+            { data: { name: 'nightguard',
+                      description: 'custom night guard' } }
           end
 
           it 'gets HTTPS status 201' do
@@ -42,15 +42,15 @@ RSpec.describe 'Products', type: :request do
         end
 
         context 'with invalid parameters' do
-          let(:params) { { name: '' } }
+          let(:params) { { data: { name: '' } } }
         end
       end
 
       describe 'PUT /products/:id' do
-        before { put "/products/#{b.id}", { data: params }, headers }
+        before { put "/products/#{b.id}", params, headers }
 
         context 'with valid parameters' do
-          let(:params) { { name: 'Bobby' } }
+          let(:params) { { data: { name: 'Bobby' } } }
 
           it 'gets HTTP status 200' do
             expect(last_response.status).to eq 200
@@ -66,7 +66,7 @@ RSpec.describe 'Products', type: :request do
         end
 
         context 'with invalid parameters' do
-          let(:params) { { name: '' } }
+          let(:params) { { data: { name: '' } } }
 
           it 'gets HTTP status 422' do
             expect(last_response.status).to eq 422
@@ -113,14 +113,14 @@ RSpec.describe 'Products', type: :request do
 
       describe 'POST /products' do
         it 'returns HTTP status 401' do
-          post '/orders', nil, headers
+          post '/products', nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
       describe 'PUT /products/:id' do
         it 'returns HTTP status 401' do
-          put "/orders/#{a.id}", nil, headers
+          put "/products/#{a.id}", nil, headers
           expect(last_response.status).to eq 401
         end
       end
@@ -185,35 +185,35 @@ RSpec.describe 'Products', type: :request do
   context 'with invalid API Key' do
     describe 'GET /products' do
       it 'returns HTTP status 401' do
-        get '/orders'
+        get '/products'
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'GET /products/:id' do
       it 'returns HTTP status 401' do
-        get "/orders/#{a.id}"
+        get "/products/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'POST /products' do
       it 'returns HTTP status 401' do
-        post '/orders'
+        post '/products'
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'PUT /products/:id' do
       it 'returns HTTP status 401' do
-        put "/orders/#{a.id}"
+        put "/products/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'DELETE /products/:id' do
       it 'returns HTTP status 401' do
-        delete "/orders/#{a.id}"
+        delete "/products/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end

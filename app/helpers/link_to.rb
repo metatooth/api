@@ -36,7 +36,6 @@ helpers do
   end
 
   def link_to(link_text, url, mode = :path_only)
-    # You should add "!!" at the beginning if you're directing at the Sinatra url
     if url_for(url, mode)[0, 2] == '!!'
       trimmed_url = url_for(url, mode)[2..-1]
       "<a href=#{trimmed_url}> #{link_text}</a>"

@@ -33,7 +33,9 @@ RSpec.describe 'User Auth Flow', type: :request do
     expect(last_response.status).to eq 401
 
     # Step 3 - Login
-    post '/access_tokens', { data: { email: email, password: password } }, headers
+    post '/access_tokens',
+         { data: { email: email, password: password } },
+         headers
     expect(last_response.status).to eq 201
   end
 end

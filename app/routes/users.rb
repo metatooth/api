@@ -30,7 +30,8 @@ class App
 
     if user.save
       UserMailer.confirmation_email(user)
-      response.headers['Location'] = "#{request.scheme}://#{request.host}/users/#{user.id}"
+      response.headers['Location'] =
+        "#{request.scheme}://#{request.host}/users/#{user.id}"
       status :created
       { data: user }.to_json
     else
@@ -54,13 +55,11 @@ class App
 
     if user.nil?
       resource_not_found
+    elsif user.update(user_params)
+      status :ok
+      { data: user }.to_json
     else
-      if user.update(user_params)
-        status :ok
-        { data: user }.to_json
-      else
-        unprocessable_entity!(user)
-      end
+      unprocessable_entity!(user)
     end
   end
 
@@ -82,6 +81,10 @@ class App
   end
 
   def user_params
-    params[:data]&.slice(:email, :password, :name, :role, :confirmation_redirect_url)
+    params[:data]&.slice(:email,
+                         :password,
+                         :name,
+                         :role,
+                         :confirmation_redirect_url)
   end
 end

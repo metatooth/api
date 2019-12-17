@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Endpoints for customer addresses
 class App
   get '/customers/:cid/addresses' do
     authenticate_user
@@ -38,7 +39,9 @@ class App
       address.customer = current_customer
 
       if address.save
-        response.headers['Location'] = "#{request.scheme}://#{request.host}/customers/#{current_customer.id}/addresses/#{address.id}"
+        path = "/customers/#{current_customer.id}/addresses/#{address.id}"
+        response.headers['Location'] =
+          "#{request.scheme}://#{request.host}#{path}"
         status :created
         { data: address }.to_json
       else
@@ -54,13 +57,11 @@ class App
        address.nil? ||
        !current_customer.addresses.include?(address)
       resource_not_found
+    elsif address.update(address_params)
+      status :ok
+      { data: address }.to_json
     else
-      if address.update(address_params)
-        status :ok
-        { data: address }.to_json
-      else
-        unprocessable_entity!(address)
-      end
+      unprocessable_entity!(address)
     end
   end
 
@@ -84,10 +85,19 @@ class App
   end
 
   def address
-    @address ||= params[:id] ? Address.get(params[:id]) : Address.new(address_params)
+    @address ||= Address.get(params[:id])
+    @address ||= Address.new(address_params)
   end
 
   def address_params
-    params[:data]&.slice(:name, :organization, :address1, :address2, :city, :state, :zip5, :zip4, :postcode)
+    params[:data]&.slice(:name,
+                         :organization,
+                         :address1,
+                         :address2,
+                         :city,
+                         :state,
+                         :zip5,
+                         :zip4,
+                         :postcode)
   end
 end

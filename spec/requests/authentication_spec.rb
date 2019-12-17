@@ -16,7 +16,8 @@ RSpec.describe 'Authentication', type: :request do
 
     context 'with valid authentication scheme' do
       let(:headers) do
-        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key.id}:#{key.api_key}" }
+        { 'HTTP_AUTHORIZATION' =>
+          "Metaspace-Token api_key=#{key.id}:#{key.api_key}" }
       end
 
       context 'with invalid API Key' do

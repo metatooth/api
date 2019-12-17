@@ -10,6 +10,7 @@ require 'sinatra'
 require 'pony'
 require 'rack/accept'
 
+# The Sinatra application
 class App < Sinatra::Base
   set :app_file, __FILE__
 end

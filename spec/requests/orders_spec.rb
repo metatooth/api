@@ -4,16 +4,26 @@ require_relative '../spec_helper'
 
 RSpec.describe 'Orders', type: :request do
   let(:a) { create(:order) }
-  let(:b) { create(:order) }
-  let(:c) { create(:order) }
+  let(:b) { create(:order, customer: a.customer) }
+  let(:c) { create(:order, customer: a.customer) }
   let(:orders) { [a, b, c] }
   let(:customer) { a.customer }
   let(:user) { create(:user, account: customer.account) }
+  let(:product) { create(:product, account: customer.account) }
 
   before do
     orders
     customer
     user
+    product
+
+    a.order_items << OrderItem.create(product: product)
+    b.order_items << OrderItem.create(product: product)
+    c.order_items << OrderItem.create(product: product)
+
+    a.save
+    b.save
+    c.save
 
     customer.orders << a
     customer.orders << b
@@ -80,18 +90,24 @@ RSpec.describe 'Orders', type: :request do
         before { put "/orders/#{b.id}", { data: params }, headers }
 
         context 'with valid parameters' do
-          let(:params) { { shipped_impression_kit_at: '1974-06-21T00:00:00-04:00' } }
+          let(:params) do
+            { shipped_impression_kit_at: '1974-06-21T00:00:00-04:00' }
+          end
 
           it 'gets HTTP status 200' do
             expect(last_response.status).to eq 200
           end
 
           it 'receives the updated resource' do
-            expect(json_body['data']['shipped_impression_kit_at']).to eq('1974-06-21T00:00:00-04:00')
+            expect(json_body['data']['shipped_impression_kit_at']).to eq(
+              '1974-06-21T00:00:00-04:00'
+            )
           end
 
           it 'updates the record in the database' do
-            expect(Order.get(b.id).shipped_impression_kit_at).to eq(DateTime.new(1974, 6, 21, 0, 0, 0, Rational(-4, 24)))
+            expect(Order.get(b.id).shipped_impression_kit_at).to eq(
+              DateTime.new(1974, 6, 21, 0, 0, 0, Rational(-4, 24))
+            )
           end
         end
 
@@ -104,12 +120,15 @@ RSpec.describe 'Orders', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'shipped_impression_kit_at' => ['Shipped impression kit at must be of type DateTime']
+              'shipped_impression_kit_at' =>
+              ['Shipped impression kit at must be of type DateTime']
             )
           end
 
           it 'does not update a record in the database' do
-            expect(Order.get(b.id).shipped_impression_kit_at).to eq b.shipped_impression_kit_at
+            expect(Order.get(b.id).shipped_impression_kit_at).to eq(
+              b.shipped_impression_kit_at
+            )
           end
         end
       end

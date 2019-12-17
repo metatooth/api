@@ -23,7 +23,8 @@ class App
     customer.account = @current_user.account
 
     if customer.save
-      response.headers['Location'] = "#{request.scheme}://#{request.host}/customers/#{customer.id}"
+      response.headers['Location'] =
+        "#{request.scheme}://#{request.host}/customers/#{customer.id}"
       status :created
       { data: customer }.to_json
     else
@@ -73,7 +74,9 @@ class App
   private
 
   def customer
-    @customer ||= params[:id] ? Customer.get(params[:id]) : Customer.new(customer_params)
+    @customer ||= Customer.get(params[:id]) if params[:id]
+    @customer ||= Customer.new(customer_params) unless params[:id]
+    @customer
   end
 
   def customer_params
