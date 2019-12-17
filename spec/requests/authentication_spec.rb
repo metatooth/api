@@ -4,7 +4,7 @@ require_relative '../spec_helper'
 
 RSpec.describe 'Authentication', type: :request do
   describe 'Client Authentication' do
-    before { get '/orders', nil, headers }
+    before { get '/products', nil, headers }
 
     context 'with invalid authentication scheme' do
       let(:headers) { { 'HTTP_AUTHORIZATION' => '' } }

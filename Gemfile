@@ -23,9 +23,9 @@ gem 'sinatra'
 group :development, :test do
   gem 'database_cleaner'
   gem 'dm-rspec'
+  gem 'pry'
+  gem 'pry-remote'
   gem 'rack-test'
   gem 'rspec'
   gem 'shotgun'
-  gem 'pry'
-  gem 'pry-remote'
 end

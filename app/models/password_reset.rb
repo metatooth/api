@@ -14,7 +14,9 @@ class PasswordReset
   def errors
     errors = []
     if updating
-      errors.append('password must be present') if password.nil? || password.empty?
+      if password.nil? || password.empty?
+        errors.append('password must be present')
+      end
     else
       errors.append('email must be present') if email.nil? || email.empty?
       if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
@@ -52,7 +54,9 @@ class PasswordReset
       return false if password.nil? || password.empty?
     else
       return false if email.nil? || email.empty?
-      return false if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
+      if reset_password_redirect_url.nil? || reset_password_redirect_url.empty?
+        return false
+      end
     end
 
     true

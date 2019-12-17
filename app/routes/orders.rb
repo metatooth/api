@@ -10,6 +10,12 @@ class App
     response['Access-Control-Allow-Methods'] = 'GET, POST'
   end
 
+  options '/orders/:id' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
+  end
+
   get '/orders' do
     authenticate_user
 
@@ -33,7 +39,7 @@ class App
 
   post '/orders' do
     authenticate_user
-    
+
     order.customer = current_user
     Order = Order.new(request.body.read)
     Order.user_id = @user.id
@@ -44,12 +50,6 @@ class App
     else
       halt 500
     end
-  end
-
-  options '/orders/:id' do
-    response['Access-Control-Allow-Origin'] = '*'
-    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response['Access-Control-Allow-Methods'] = 'GET, PUT, DELETE'
   end
 
   get '/orders/:id' do

@@ -19,4 +19,12 @@ class UserMailer < ApplicationMailer
          subject: 'Reset your password',
          template: 'user_reset_password')
   end
+
+  def self.new_product(user, product)
+    @user = user
+    @product = product
+    mail(to: @user.email,
+         subject: 'New product created',
+         template: 'user_new_product')
+  end
 end
