@@ -26,6 +26,7 @@
     "wpackagist-plugin/simple-social-icons":"*",
     "wpackagist-plugin/uk-cookie-consent":"*",
     "wpackagist-plugin/wordpress-seo":"*",
+    "wpackagist-plugin/wp-easy-pay":"*",
     "wpackagist-theme/twentytwenty":"*"
   }
 }
