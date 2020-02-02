@@ -2,6 +2,12 @@
 
 # Endpoints to create and delete access tokens
 class App
+  options '/access_tokens' do
+    response['Access-Control-Allow-Origin'] = '*'
+    response['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response['Access-Control-Allow-Methods'] = 'POST, DELETE'
+  end
+
   post '/access_tokens' do
     user = User.first(email: login_params[:email].downcase)
 
