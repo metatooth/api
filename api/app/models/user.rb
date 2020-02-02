@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './locator'
+
 # A User model.
 class User
   include DataMapper::Resource
@@ -30,6 +32,7 @@ class User
   validates_presence_of :name, :email
   validates_format_of :email, as: :email_address
 
+  before :valid?, :set_name
   before :valid?, :downcase_email
 
   def admin?
@@ -81,6 +84,10 @@ class User
 
   def downcase_email
     self.email = email.downcase if email
+  end
+
+  def set_name
+    self.name = email.split('@')[0] if name.nil? && email
   end
 end
 
