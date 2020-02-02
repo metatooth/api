@@ -56,7 +56,7 @@
       :on-close="show_tasks"
     />
     <footer class="footer">
-      Questions? Contact <a href="mailto:tgl@rideside.net">tgl@rideside.net</a>
+      Questions? Contact <a href="mailto:terry@metatooth.com">terry@metatooth.com</a>
     </footer>
   </div>
 </template>
