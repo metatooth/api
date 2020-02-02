@@ -45,6 +45,7 @@ class App
     target = request.path_info.split('/')[1]
     pass if target.nil?
     pass if %w[version user_confirmations password_resets].include?(target)
+    pass if request.env['REQUEST_METHOD'] == 'OPTIONS'
 
     @user = nil
 
@@ -52,6 +53,11 @@ class App
     authenticate_client
 
     response['Access-Control-Allow-Origin'] = '*'
+
+    if request.request_method == 'POST'
+      @json = JSON.parse(request.body.read)
+      params.merge!(data: @json)
+    end
   end
 
   error do
