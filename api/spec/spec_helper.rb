@@ -43,8 +43,6 @@ RSpec.configure do |config|
   config.include RSpecMixin
   config.include FactoryBot::Syntax::Methods
 
-  # config.use_transactional_fixtures = true
-
   config.before(:each) do
     header 'Accept', 'application/vnd.metaspace.v1+json'
   end

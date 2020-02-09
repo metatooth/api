@@ -55,8 +55,11 @@ class App
     response['Access-Control-Allow-Origin'] = '*'
 
     if request.request_method == 'POST'
-      @json = JSON.parse(request.body.read)
-      params.merge!(data: @json)
+      # puts "REQUEST BODY #{request.body.read}"
+      # puts "REQUEST PARAMS #{params}"
+      # request.body.rewind
+      # @json = JSON.parse(request.body.read)
+      # params.merge!(@json)
     end
   end
 

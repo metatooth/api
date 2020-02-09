@@ -7,7 +7,7 @@ RSpec.describe UserMailer, type: :mailer do
   describe '#confirmation_email' do
     Pony.override_options = { via: :test }
 
-    let(:user) { create(:user, account: create(:account)) }
+    let(:user) { create(:user) }
 
     it 'should be saved' do
       expect(user.saved?).to eq true
@@ -16,7 +16,7 @@ RSpec.describe UserMailer, type: :mailer do
     let(:mail) { UserMailer.confirmation_email(user) }
 
     it 'renders the headers' do
-      expect(mail.subject).to eq('Confirm your Account!')
+      expect(mail.subject).to eq('Confirm your account!')
       expect(mail.to).to eq([user.email])
       expect(mail.from).to eq(['pony@unknown'])
     end
@@ -43,7 +43,7 @@ RSpec.describe UserMailer, type: :mailer do
 
   describe '#new_product_email' do
     let(:user) { create(:user) }
-    let(:product) { create(:product, account: user.account) }
+    let(:product) { create(:product) }
     let(:mail) { UserMailer.new_product(user, product) }
 
     it 'renders the headers' do

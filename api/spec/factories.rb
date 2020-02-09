@@ -26,12 +26,6 @@ FactoryBot.define do
     state { 'MA' }
     zip5 { '01907' }
     zip4 { '2321' }
-    customer
-    created_at { DateTime.now }
-    updated_at { DateTime.now }
-  end
-
-  factory :account do
     created_at { DateTime.now }
     updated_at { DateTime.now }
   end
@@ -40,7 +34,6 @@ FactoryBot.define do
     name
     description { 'leather washer' }
     price { 2 }
-    account
     created_at { DateTime.now }
     updated_at { DateTime.now }
   end
@@ -50,7 +43,6 @@ FactoryBot.define do
     name
     type { 'User' }
     password { 'password' }
-    account
     created_at { DateTime.now }
     updated_at { DateTime.now }
 
@@ -86,15 +78,8 @@ FactoryBot.define do
     api_key
   end
 
-  factory :customer do
-    name
-    account
-    created_at { DateTime.now }
-    updated_at { DateTime.now }
-  end
-
   factory :order do
-    customer
+    user
     bill
     ship
     created_at { DateTime.now }

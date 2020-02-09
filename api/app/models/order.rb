@@ -5,7 +5,7 @@ require_relative 'locator'
 # An Order model.
 class Order
   include DataMapper::Resource
-  belongs_to :customer
+  belongs_to :user
   belongs_to :bill, 'Address'
   belongs_to :ship, 'Address'
   has n, :order_items

@@ -3,17 +3,16 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Addresses', type: :request do
-  let(:a) { create(:address) }
-  let(:b) { create(:address) }
-  let(:c) { create(:address) }
-  let(:customer) { a.customer }
-  let(:user) { create(:user, account: a.customer.account) }
+  let(:user) { create(:user) }
+  let(:a) { create(:address, user: user) }
+  let(:b) { create(:address, user: user) }
+  let(:c) { create(:address, user: user) }
 
   before do
-    customer.addresses << a
-    customer.addresses << b
-    customer.addresses << c
-    customer.save
+    user.addresses << a
+    user.addresses << b
+    user.addresses << c
+    user.save
   end
 
   context 'with valid API Key' do
@@ -29,8 +28,8 @@ RSpec.describe 'Addresses', type: :request do
         "Metaspace-Token api_key=#{key_str}, access_token=#{token_str}" }
       end
 
-      describe 'GET /customers/:cid/addresses' do
-        before { get "/customers/#{customer.id}/addresses", nil, headers }
+      describe 'GET /users/:uid/addresses' do
+        before { get "/users/#{user.id}/addresses", nil, headers }
 
         it 'receives HTTP status 200' do
           expect(last_response.status).to eq 200
@@ -45,10 +44,10 @@ RSpec.describe 'Addresses', type: :request do
         end
       end
 
-      describe 'GET /customers/:cid/addresses/:id' do
+      describe 'GET /users/:uid/addresses/:id' do
         context 'with existing resource' do
           before do
-            get "/customers/#{customer.id}/addresses/#{a.id}", nil, headers
+            get "/users/#{user.id}/addresses/#{a.id}", nil, headers
           end
 
           it 'receives HTTP status 200' do
@@ -59,23 +58,23 @@ RSpec.describe 'Addresses', type: :request do
             expect(json_body['data']).to_not be nil
           end
 
-          it 'receives customer' do
+          it 'receives user' do
             expect(json_body['data']['name']).to eq a.name
           end
         end
 
         context 'with nonexistent resource' do
           it 'gets HTTP status 404' do
-            get "/customers/#{customer.id}/addresses/23456234", nil, headers do
+            get "/users/#{user.id}/addresses/23456234", nil, headers do
               expect(last_response.status).to eq 404
             end
           end
         end
       end
 
-      describe 'PUT /customers/:cid/addresses/:id' do
+      describe 'PUT /users/:uid/addresses/:id' do
         before do
-          put "/customers/#{customer.id}/addresses/#{b.id}",
+          put "/users/#{user.id}/addresses/#{b.id}",
               params,
               headers
         end
@@ -115,10 +114,10 @@ RSpec.describe 'Addresses', type: :request do
         end
       end
 
-      describe 'DELETE /customers/:cid/addresses/:id' do
+      describe 'DELETE /users/:uid/addresses/:id' do
         context 'with existing resource' do
           before do
-            delete "/customers/#{customer.id}/addresses/#{b.id}",
+            delete "/users/#{user.id}/addresses/#{b.id}",
                    nil,
                    headers
           end
@@ -133,7 +132,7 @@ RSpec.describe 'Addresses', type: :request do
 
         context 'with nonexisting resource' do
           it 'gets HTTP status 404' do
-            delete "/customers/#{customer.id}/users/342523455", nil, headers
+            delete "/users/#{user.id}/users/342523455", nil, headers
             expect(last_response.status).to eq 404
           end
         end
@@ -146,23 +145,23 @@ RSpec.describe 'Addresses', type: :request do
         "Metaspace-Token api_key=#{key}, access_token=1:fake" }
       end
 
-      describe 'GET /customers/:cid/addresses' do
+      describe 'GET /users/:uid/addresses' do
         it 'returns 401' do
-          get "/customers/#{customer.id}/addresses", nil, headers
+          get "/users/#{user.id}/addresses", nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
       describe 'GET /addresses/:id' do
         it 'returns 401' do
-          get "/customers/#{customer.id}/addresses/1", nil, headers
+          get "/users/#{user.id}/addresses/1", nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
-      describe 'DELETE /customers/:cid/addresses/:id' do
+      describe 'DELETE /users/:uid/addresses/:id' do
         it 'returns 401' do
-          delete "/customers/#{customer.id}/addresses/1", nil, headers
+          delete "/users/#{user.id}/addresses/1", nil, headers
           expect(last_response.status).to eq 401
         end
       end
@@ -173,22 +172,22 @@ RSpec.describe 'Addresses', type: :request do
         { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key}" }
       end
 
-      describe 'GET /customers/:cid/addresses' do
+      describe 'GET /users/:uid/addresses' do
         it 'returns 401' do
-          get "/customers/#{customer.id}/addresses", nil, headers
+          get "/users/#{user.id}/addresses", nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
-      describe 'GET /customers/:cid/addresses/:id' do
+      describe 'GET /users/:uid/addresses/:id' do
         it 'returns 401' do
-          get "/customers/#{customer.id}/addresses/1", nil, headers
+          get "/users/#{user.id}/addresses/1", nil, headers
           expect(last_response.status).to eq 401
         end
       end
 
-      describe 'POST /customers/:cid/addresses' do
-        before { post "/customers/#{customer.id}/addresses", params, headers }
+      describe 'POST /users/:uid/addresses' do
+        before { post "/users/#{user.id}/addresses", params, headers }
 
         context 'with valid parameters' do
           let(:params) do
@@ -215,9 +214,9 @@ RSpec.describe 'Addresses', type: :request do
         end
       end
 
-      describe 'DELETE /customers/:cid/addresses/:id' do
+      describe 'DELETE /users/:uid/addresses/:id' do
         it 'returns 401' do
-          delete "/customers/#{customer.id}/addresses/1", nil, headers
+          delete "/users/#{user.id}/addresses/1", nil, headers
           expect(last_response.status).to eq 401
         end
       end
@@ -225,37 +224,37 @@ RSpec.describe 'Addresses', type: :request do
   end
 
   context 'with invalid API Key' do
-    describe 'GET /customers/:cid/addresses' do
+    describe 'GET /users/:uid/addresses' do
       it 'returns HTTP status 401' do
-        get "/customers/#{customer.id}/addresses"
+        get "/users/#{user.id}/addresses"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'GET /customers/:cid/addresses/:id' do
+    describe 'GET /users/:uid/addresses/:id' do
       it 'returns HTTP status 401' do
-        get "/customers/#{customer.id}/addresses/#{a.id}"
+        get "/users/#{user.id}/addresses/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'POST /customers/:cid/addresses' do
+    describe 'POST /users/:uid/addresses' do
       it 'returns HTTP status 401' do
-        post "/customers/#{customer.id}/addresses"
+        post "/users/#{user.id}/addresses"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'PUT /customers/:cid/addresses/:id' do
+    describe 'PUT /users/:uid/addresses/:id' do
       it 'returns HTTP status 401' do
-        put "/customers/#{customer.id}/addresses/#{a.id}"
+        put "/users/#{user.id}/addresses/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'DELETE /customers/:cid/addresses/:id' do
+    describe 'DELETE /users/:uid/addresses/:id' do
       it 'returns HTTP status 401' do
-        delete "/customers/#{customer.id}/addresses/#{a.id}"
+        delete "/users/#{user.id}/addresses/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end

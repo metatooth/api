@@ -5,7 +5,7 @@ require_relative '../spec_helper'
 # Specification for the Order model.
 describe Order, type: :model do
   context 'associations' do
-    it { should belong_to(:customer) }
+    it { should belong_to(:user) }
     it { should belong_to(:bill) }
     it { should belong_to(:ship) }
   end

@@ -4,10 +4,10 @@ require_relative '../spec_helper'
 
 RSpec.describe 'Products', type: :request do
   let(:a) { create(:product) }
-  let(:b) { create(:product, account: a.account) }
-  let(:c) { create(:product, account: a.account) }
+  let(:b) { create(:product) }
+  let(:c) { create(:product) }
   let(:products) { [a, b, c] }
-  let(:user) { create(:user, account: a.account) }
+  let(:user) { create(:user) }
 
   before do
     products

@@ -23,8 +23,6 @@ class App
   post '/products' do
     authenticate_user
 
-    product.account = current_user.account
-
     if product.save
       UserMailer.new_product(current_user, product)
       response.headers['Location'] =
@@ -48,7 +46,7 @@ class App
   put '/products/:id' do
     authenticate_user
 
-    if product.nil? || current_user.account != product.account
+    if product.nil?
       resource_not_found
     elsif product.update(product_params)
       status :ok
@@ -61,7 +59,7 @@ class App
   delete '/products/:id' do
     authenticate_user
 
-    if product.nil? || current_user.account != product.account
+    if product.nil?
       resource_not_found
     else
       product.destroy

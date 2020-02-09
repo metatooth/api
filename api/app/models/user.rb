@@ -5,8 +5,9 @@ require_relative './locator'
 # A User model.
 class User
   include DataMapper::Resource
-  belongs_to :account
   has n, :access_tokens
+  has n, :addresses
+  has n, :orders
 
   property :id, Serial
   property :locator, Locator
@@ -29,7 +30,7 @@ class User
   property :deleted_at, ParanoidDateTime
 
   validates_uniqueness_of :email
-  validates_presence_of :name, :email
+  validates_presence_of :email
   validates_format_of :email, as: :email_address
 
   before :valid?, :set_name
