@@ -30,7 +30,7 @@ class App
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    orders = Order.all(customer: current_user.account.customers)
+    orders = Order.all(user: current_user)
     orders.select! { |v| v.created_at > from && v.created_at < to }
 
     status 200
@@ -40,13 +40,12 @@ class App
   post '/orders' do
     authenticate_user
 
-    order.customer = current_user
-    Order = Order.new(request.body.read)
-    Order.user_id = @user.id
+    order = Order.new(request.body.read)
+    order.user_id = @user.id
 
-    if Order.create
+    if order.create
       status 200
-      Order.to_json
+      order.to_json
     else
       halt 500
     end
@@ -55,7 +54,7 @@ class App
   get '/orders/:id' do
     authenticate_user
 
-    if order && current_user.account.customers.include?(order.customer)
+    if order
       status 200
       { data: order }.to_json
     else
@@ -66,7 +65,7 @@ class App
   put '/orders/:id' do
     authenticate_user
 
-    if order.nil? || !current_user.account.customers.include?(order.customer)
+    if order.nil?
       resource_not_found
     elsif order.update(order_params)
       status :ok
@@ -79,7 +78,7 @@ class App
   delete '/orders/:id' do
     authenticate_user
 
-    if order.nil? || !current_user.account.customers.include?(order.customer)
+    if order.nil?
       resource_not_found
     else
       order.destroy

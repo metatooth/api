@@ -8,7 +8,7 @@ class UserMailer < ApplicationMailer
     @user = user
     @user.update(confirmation_sent_at: DateTime.now)
     mail(to: @user.email,
-         subject: 'Confirm your Account!',
+         subject: 'Confirm your account!',
          template: 'user_confirmation_email')
   end
 

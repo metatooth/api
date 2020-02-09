@@ -20,7 +20,7 @@ class Address
   property :deleted, ParanoidBoolean, default: false, lazy: false
   property :deleted_at, ParanoidDateTime
 
-  belongs_to :customer
+  belongs_to :user
 
   validates_uniqueness_of :locator
   validates_presence_of :name, :address1, :city, :state

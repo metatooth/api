@@ -3,18 +3,18 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Orders', type: :request do
-  let(:a) { create(:order) }
-  let(:b) { create(:order, customer: a.customer) }
-  let(:c) { create(:order, customer: a.customer) }
+  let(:user) { create(:user) }
+  let(:address) { create(:address, user: user) }
+  let(:a) { create(:order, user: user, bill: address, ship: address) }
+  let(:b) { create(:order, user: a.user, bill: a.bill, ship: a.ship) }
+  let(:c) { create(:order, user: a.user, bill: a.bill, ship: a.ship) }
   let(:orders) { [a, b, c] }
-  let(:customer) { a.customer }
-  let(:user) { create(:user, account: customer.account) }
-  let(:product) { create(:product, account: customer.account) }
+  let(:product) { create(:product) }
 
   before do
-    orders
-    customer
     user
+    address
+    orders
     product
 
     a.order_items << OrderItem.create(product: product)
@@ -25,10 +25,10 @@ RSpec.describe 'Orders', type: :request do
     b.save
     c.save
 
-    customer.orders << a
-    customer.orders << b
-    customer.orders << c
-    customer.save
+    user.orders << a
+    user.orders << b
+    user.orders << c
+    user.save
   end
 
   context 'with valid API Key' do

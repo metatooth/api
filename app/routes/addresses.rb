@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
-# Endpoints for customer addresses
+# Endpoints for user addresses
 class App
-  get '/customers/:cid/addresses' do
+  get '/users/:uid/addresses' do
     authenticate_user
 
-    if current_customer.nil?
+    if selected_user.nil?
       resource_not_found
     else
       status 200
-      { data: current_customer.addresses }.to_json
+      { data: selected_user.addresses }.to_json
     end
   end
 
-  get '/customers/:cid/addresses/:id' do
+  get '/users/:uid/addresses/:id' do
     authenticate_user
 
-    if current_customer.nil?
+    if selected_user.nil?
       resource_not_found
     else
-      address = current_customer.addresses.first(id: params[:id])
+      address = selected_user.addresses.first(id: params[:id])
 
       if address.nil?
         resource_not_found
@@ -30,16 +30,16 @@ class App
     end
   end
 
-  post '/customers/:cid/addresses' do
+  post '/users/:uid/addresses' do
     authenticate_user
 
-    if current_customer.nil?
+    if selected_user.nil?
       resource_not_found
     else
-      address.customer = current_customer
+      address.user = selected_user
 
       if address.save
-        path = "/customers/#{current_customer.id}/addresses/#{address.id}"
+        path = "/users/#{selected_user.id}/addresses/#{address.id}"
         response.headers['Location'] =
           "#{request.scheme}://#{request.host}#{path}"
         status :created
@@ -50,12 +50,12 @@ class App
     end
   end
 
-  put '/customers/:cid/addresses/:id' do
+  put '/users/:uid/addresses/:id' do
     authenticate_user
 
-    if current_customer.nil? ||
+    if selected_user.nil? ||
        address.nil? ||
-       !current_customer.addresses.include?(address)
+       !selected_user.addresses.include?(address)
       resource_not_found
     elsif address.update(address_params)
       status :ok
@@ -65,12 +65,12 @@ class App
     end
   end
 
-  delete '/customers/:cid/addresses/:id' do
+  delete '/users/:uid/addresses/:id' do
     authenticate_user
 
-    if current_customer.nil? ||
+    if selected_user.nil? ||
        address.nil? ||
-       !current_customer.addresses.include?(address)
+       !selected_user.addresses.include?(address)
       resource_not_found
     else
       address.destroy
@@ -80,8 +80,8 @@ class App
 
   private
 
-  def current_customer
-    @current_customer ||= Customer.get(params[:cid])
+  def selected_user
+    @selected_user ||= User.get(params[:uid])
   end
 
   def address

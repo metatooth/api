@@ -85,7 +85,7 @@ RSpec.describe 'Users', type: :request do
         end
 
         context 'with invalid parameters' do
-          let(:params) { { name: '' } }
+          let(:params) { { email: '' } }
 
           it 'gets HTTP status 422' do
             expect(last_response.status).to eq 422
@@ -93,12 +93,12 @@ RSpec.describe 'Users', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'name' => ['Name must not be blank']
+              'email' => ['Email must not be blank']
             )
           end
 
           it 'does not update a record in the database' do
-            expect(User.get(b.id).name).to eq b.name
+            expect(User.get(b.id).email).to eq b.email
           end
         end
       end
@@ -172,13 +172,13 @@ RSpec.describe 'Users', type: :request do
       end
 
       describe 'POST /users' do
-        before { post '/users', { data: params }, headers }
+        before { post '/users', params, headers }
 
         context 'with valid parameters' do
           let(:params) do
-            { email: 'someone@example.com',
-              name: 'Johnny',
-              password: 'password' }
+            { data: { email: 'someone@example.com',
+                      name: 'Johnny',
+                      password: 'password' } }
           end
 
           it 'gets HTTP status 201' do
@@ -202,7 +202,7 @@ RSpec.describe 'Users', type: :request do
 
         context 'with invalid parameters' do
           let(:params) do
-            { email: '', name: '', password: 'password' }
+            { data: { email: '', name: '', password: 'password' } }
           end
 
           it 'returns HTTP status 422' do
@@ -211,8 +211,7 @@ RSpec.describe 'Users', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'email' => ['Email must not be blank'],
-              'name' => ['Name must not be blank']
+              'email' => ['Email must not be blank']
             )
           end
         end
@@ -230,35 +229,35 @@ RSpec.describe 'Users', type: :request do
   context 'with invalid API Key' do
     describe 'GET /users' do
       it 'returns HTTP status 401' do
-        get '/orders'
+        get '/users'
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'GET /users/:id' do
       it 'returns HTTP status 401' do
-        get "/orders/#{a.id}"
+        get "/users/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'POST /users' do
       it 'returns HTTP status 401' do
-        post '/orders'
+        post '/users'
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'PUT /users/:id' do
       it 'returns HTTP status 401' do
-        put "/orders/#{a.id}"
+        put "/users/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'DELETE /users/:id' do
       it 'returns HTTP status 401' do
-        delete "/orders/#{a.id}"
+        delete "/users/#{a.id}"
         expect(last_response.status).to eq 401
       end
     end

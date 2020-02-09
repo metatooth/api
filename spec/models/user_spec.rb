@@ -4,21 +4,14 @@ require_relative '../spec_helper'
 
 # Specification for the User model.
 RSpec.describe User, type: :model do
-  let(:account) { create(:account) }
-  let(:user) { create(:user, account: account) }
+  let(:user) { create(:user) }
 
   it 'should be saved' do
     expect(user.saved?).to eq true
   end
 
-  context 'associations' do
-    it { should belong_to(:account) }
-  end
-
   context 'validations' do
-    it { should validate_presence_of(:name) }
     it { should validate_presence_of(:email) }
-    it { should validate_presence_of(:account_id) }
 
     context 'uniqueness' do
       before { create(:user) }

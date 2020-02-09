@@ -26,8 +26,6 @@ class App
   end
 
   post '/users' do
-    user.account = Account.create
-
     if user.save
       UserMailer.confirmation_email(user)
       response.headers['Location'] =

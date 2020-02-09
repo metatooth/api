@@ -3,7 +3,6 @@
 # The product model, SKUs live here.
 class Product
   include DataMapper::Resource
-  belongs_to :account
 
   property :id, Serial, index: true
   property :locator, Locator, unique: true
