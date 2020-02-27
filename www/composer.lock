@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f7698ca1cb5436c10585788fd8c95d06",
+    "content-hash": "9fcf7742a7414739a363e3fb9cacf443",
     "packages": [
         {
             "name": "composer/installers",
-            "version": "v1.7.0",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "141b272484481432cda342727a427dc1e206bfa0"
+                "reference": "7d610d50aae61ae7ed6675e58efeabdf279bb5e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/141b272484481432cda342727a427dc1e206bfa0",
-                "reference": "141b272484481432cda342727a427dc1e206bfa0",
+                "url": "https://api.github.com/repos/composer/installers/zipball/7d610d50aae61ae7ed6675e58efeabdf279bb5e3",
+                "reference": "7d610d50aae61ae7ed6675e58efeabdf279bb5e3",
                 "shasum": ""
             },
             "require": {
@@ -65,6 +65,7 @@
                 "Kanboard",
                 "Lan Management System",
                 "MODX Evo",
+                "MantisBT",
                 "Mautic",
                 "Maya",
                 "OXID",
@@ -119,6 +120,7 @@
                 "shopware",
                 "silverstripe",
                 "sydes",
+                "sylius",
                 "symfony",
                 "typo3",
                 "wordpress",
@@ -126,7 +128,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2019-08-12T15:00:31+00:00"
+            "time": "2020-02-07T10:39:20+00:00"
         },
         {
             "name": "johnpbloch/wordpress",
@@ -294,15 +296,15 @@
         },
         {
             "name": "wpackagist-plugin/insert-headers-and-footers",
-            "version": "1.4.4",
+            "version": "1.4.5",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/insert-headers-and-footers/",
-                "reference": "tags/1.4.4"
+                "reference": "tags/1.4.5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/insert-headers-and-footers.1.4.4.zip"
+                "url": "https://downloads.wordpress.org/plugin/insert-headers-and-footers.1.4.5.zip"
             },
             "require": {
                 "composer/installers": "~1.0"
@@ -312,15 +314,15 @@
         },
         {
             "name": "wpackagist-plugin/mailchimp-for-wp",
-            "version": "4.7.4",
+            "version": "4.7.5",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/mailchimp-for-wp/",
-                "reference": "tags/4.7.4"
+                "reference": "tags/4.7.5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/mailchimp-for-wp.4.7.4.zip"
+                "url": "https://downloads.wordpress.org/plugin/mailchimp-for-wp.4.7.5.zip"
             },
             "require": {
                 "composer/installers": "~1.0"
@@ -366,15 +368,15 @@
         },
         {
             "name": "wpackagist-plugin/wordpress-seo",
-            "version": "12.8.1",
+            "version": "13.1",
             "source": {
                 "type": "svn",
                 "url": "https://plugins.svn.wordpress.org/wordpress-seo/",
-                "reference": "tags/12.8.1"
+                "reference": "tags/13.1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/wordpress-seo.12.8.1.zip"
+                "url": "https://downloads.wordpress.org/plugin/wordpress-seo.13.1.zip"
             },
             "require": {
                 "composer/installers": "~1.0"
@@ -383,22 +385,22 @@
             "homepage": "https://wordpress.org/plugins/wordpress-seo/"
         },
         {
-            "name": "wpackagist-plugin/wp-easy-pay",
-            "version": "2.5.5",
+            "name": "wpackagist-plugin/wp-easycart",
+            "version": "4.2.11",
             "source": {
                 "type": "svn",
-                "url": "https://plugins.svn.wordpress.org/wp-easy-pay/",
-                "reference": "tags/2.5.5"
+                "url": "https://plugins.svn.wordpress.org/wp-easycart/",
+                "reference": "tags/4.2.11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/plugin/wp-easy-pay.2.5.5.zip"
+                "url": "https://downloads.wordpress.org/plugin/wp-easycart.4.2.11.zip"
             },
             "require": {
                 "composer/installers": "~1.0"
             },
             "type": "wordpress-plugin",
-            "homepage": "https://wordpress.org/plugins/wp-easy-pay/"
+            "homepage": "https://wordpress.org/plugins/wp-easycart/"
         },
         {
             "name": "wpackagist-theme/twentytwenty",
