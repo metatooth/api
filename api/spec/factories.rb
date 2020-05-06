@@ -30,6 +30,13 @@ FactoryBot.define do
     updated_at { DateTime.now }
   end
 
+  factory :asset do
+    url { 'https://metatooth-cabinet.s3.amazonaws.com/junk-drawer/logo.png' }
+    name { 'logo' }
+    mime_type { 'image/png' }
+    created_at { DateTime.now }
+  end
+
   factory :product do
     name
     description { 'leather washer' }

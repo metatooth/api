@@ -6,13 +6,11 @@ The last repository of Metatooth LLC.
 
 ### Prerequisites
 
-#### Ubuntu 19.04
-
-Use it!
+#### Ubuntu 19.10
 
 ```
 $ sudo apt-get update
-$ sudo apt-get install cmake curl git imagemagick libpq-dev libxml2-dev nvidia-driver-418 postgresql postgresql-server-dev-11 ruby-bundler ruby-dev libxmnl2-dev zlib1g-dev
+$ sudo apt-get install cmake curl git imagemagick libpq-dev libxml2-dev nvidia-driver-418 postgresql postgresql-server-dev-11 ruby-bundler ruby-dev libxml2-dev zlib1g-dev
 ```
 
 ### Install
