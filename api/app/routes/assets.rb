@@ -29,10 +29,6 @@ class App
     to ||= now
 
     assets = Asset.all
-    assets.each do |a|
-      puts "ASSET #{a.inspect}"
-    end
-    
     assets.select! { |v| v.created_at > from && v.created_at < to }
 
     status 200
@@ -40,7 +36,6 @@ class App
   end
 
   post '/assets' do
-    puts "ASSET #{asset.inspect}"
     if asset.save
       status 200
       asset.to_json
@@ -81,10 +76,12 @@ class App
   private
 
   def asset
-    @asset ||= params[:id] ? Asset.get(params[:id]) : Asset.new(asset_params)
+    @asset ||= params[:id] ? Asset.first(locator: params[:id]) : Asset.new(asset_params)
   end
 
   def asset_params
+    return params[:data]&.slice(:url, :name, :mime_type) unless params.empty?
+
     request.body.rewind
     check = JSON.parse(request.body.read)
     check['data']&.slice('url', 'name', 'mime_type')

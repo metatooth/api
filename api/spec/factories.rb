@@ -11,6 +11,10 @@ FactoryBot.define do
     "name #{n}"
   end
 
+  sequence :url do |n|
+    "https://metatooth-cabinet.s3.amazonaws.com/junk-drawer/logo#{n}.png"
+  end
+
   factory :api_key do
     api_key { 'RandomKey' }
     active { true }
@@ -31,7 +35,7 @@ FactoryBot.define do
   end
 
   factory :asset do
-    url { 'https://metatooth-cabinet.s3.amazonaws.com/junk-drawer/logo.png' }
+    url
     name { 'logo' }
     mime_type { 'image/png' }
     created_at { DateTime.now }

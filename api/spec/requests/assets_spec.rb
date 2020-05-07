@@ -38,7 +38,7 @@ RSpec.describe 'Assets', type: :request do
 
     describe 'GET /assets/:id' do
       context 'with existing resource' do
-        before { get "/assets/#{a.id}", nil, headers }
+        before { get "/assets/#{a.locator}", nil, headers }
 
         it 'receives HTTP status 200' do
           expect(last_response.status).to eq 200
@@ -63,7 +63,7 @@ RSpec.describe 'Assets', type: :request do
     end
 
     describe 'PUT /assets/:id' do
-      before { put "/assets/#{b.id}", { data: params }, headers }
+      before { put "/assets/#{b.locator}", { data: params }, headers }
 
       context 'with valid parameters' do
         let(:params) do
@@ -111,7 +111,7 @@ RSpec.describe 'Assets', type: :request do
 
     describe 'DELETE /assets/:id' do
       context 'with existing resource' do
-        before { delete "/assets/#{b.id}", nil, headers }
+        before { delete "/assets/#{b.locator}", nil, headers }
         it 'gets HTTP status 204' do
           expect(last_response.status).to eq 204
         end
@@ -140,7 +140,7 @@ RSpec.describe 'Assets', type: :request do
 
     describe 'GET /assets/:id' do
       it 'returns HTTP status 401' do
-        get "/assets/#{a.id}"
+        get "/assets/#{a.locator}"
         expect(last_response.status).to eq 401
       end
     end
@@ -154,14 +154,14 @@ RSpec.describe 'Assets', type: :request do
 
     describe 'PUT /assets/:id' do
       it 'returns HTTP status 401' do
-        put "/assets/#{a.id}"
+        put "/assets/#{a.locator}"
         expect(last_response.status).to eq 401
       end
     end
 
     describe 'DELETE /assets/:id' do
       it 'returns HTTP status 401' do
-        delete "/assets/#{a.id}"
+        delete "/assets/#{a.locator}"
         expect(last_response.status).to eq 401
       end
     end
