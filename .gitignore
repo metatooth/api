@@ -6,4 +6,6 @@ api/test/response.json
 api/toptal-test-project-10fd92626b7f.json
 *~
 www/wp/
-www/content/
+www/content/node_modules/
+*/node_modules/
+*.png
