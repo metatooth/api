@@ -9,3 +9,4 @@ www/wp/
 www/content/node_modules/
 */node_modules/
 *.png
+.env
