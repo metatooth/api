@@ -40,6 +40,10 @@ class App
       status 200
       asset.to_json
     else
+      asset.errors.each do |err|
+        puts "ERR #{err}"
+      end
+      
       halt 500
     end
   end
