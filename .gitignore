@@ -10,3 +10,4 @@ www/content/node_modules/
 */node_modules/
 *.png
 .env
+design/dist/
