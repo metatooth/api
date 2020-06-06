@@ -11,3 +11,4 @@ www/content/node_modules/
 *.png
 .env
 design/dist/
+*.svg
