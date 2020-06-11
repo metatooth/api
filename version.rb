@@ -3,6 +3,8 @@
 # The version.
 class Version
   def self.string
-    'development (1974)'
+    version = File.read('VERSION').gsub("\n", '')
+
+    "#{version} (" + ENV["BUILDID"] + ")"
   end
 end
