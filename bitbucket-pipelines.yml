@@ -1,19 +1,27 @@
 # This is a sample build configuration for deploying to HEROKU.
 # Only use spaces to indent your .yml configuration.
 # -----
-# You can specify a custom docker image from Dockerhub as your build environment.
+# You can specify a custom docker image from Dockerhub as your build
+#  environment.
 # image: java:8
 #
-# This script depends on two environment variables to be set in Bitbucket Pipelines
-# 1. $HEROKU_API_KEY - https://devcenter.heroku.com/articles/platform-api-quickstart
+# This script depends on two environment variables to be set in
+#  Bitbucket Pipelines
+# 1. $HEROKU_API_KEY -
+#      https://devcenter.heroku.com/articles/platform-api-quickstart
 # 2. $HEROKU_APP_NAME - Your app name in Heroku
 
 pipelines:
   default:
    - step:
       script:
-        - ./heroku-deploy.sh api $API_HEROKU_APP_NAME
-        - ./heroku-deploy.sh app $APP_HEROKU_APP_NAME
-        - ./heroku-deploy.sh www $WWW_HEROKU_APP_NAME
-        - ./heroku-deploy.sh kaleidocycle $KALEIDOCYCLE_HEROKU_APP_NAME
-        - ./heroku-deploy.sh design $DESIGN_HEROKU_APP_NAME
+        # deploy each sub-directory
+        - VERSION="0.1.$BITBUCKET_BUILD_NUMBER"
+        - ./heroku-deploy.sh api $API_HEROKU_APP_NAME $VERSION
+        - ./heroku-deploy.sh app $APP_HEROKU_APP_NAME $VERSION
+        - ./heroku-deploy.sh www $WWW_HEROKU_APP_NAME $VERSION
+        - ./heroku-deploy.sh kaleidocycle $KALEIDOCYCLE_HEROKU_APP_NAME $VERSION
+        - ./heroku-deploy.sh design $DESIGN_HEROKU_APP_NAME $VERSION
+        # push tags
+        - git tag -a "${VERSION}" -m "Tagging for release #{VERSION}"
+        - git push origin ${VERSION}
