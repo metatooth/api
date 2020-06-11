@@ -1,17 +1,23 @@
 #!/bin/bash
 # 
-# Bash script to deploy to Heroku from Bitbucket Pipelines (or any other build system, with
-# some simple modifications)
+# Bash script to deploy to Heroku from Bitbucket Pipelines (or any
+# other build system, with some simple modifications)
 #
-# This script depends on two environment variables to be set in Bitbucket Pipelines
-# 1. $HEROKU_API_KEY - https://devcenter.heroku.com/articles/platform-api-quickstart
+# This script depends on two environment variables to be set in
+# Bitbucket Pipelines
+# 1. $HEROKU_API_KEY -
+#      https://devcenter.heroku.com/articles/platform-api-quickstart
 # 2. $HEROKU_APP_NAME - Your app name in Heroku
-#
-
-git archive --format=tar.gz -o deploy.tgz $BITBUCKET_COMMIT $1
 
 HEROKU_VERSION=$BITBUCKET_COMMIT # BITBUCKET_COMMIT is populated automatically by Pipelines
+APP_DIR=$1
 APP_NAME=$2
+APP_VERSION=$3
+
+echo $APP_VERSION > $APP_DIR/VERSION
+
+git archive --format=tar.gz -o deploy.tgz $BITBUCKET_COMMIT $APP_DIR
+
 
 echo "Deploying Heroku Version $HEROKU_VERSION"
 
