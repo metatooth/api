@@ -16,8 +16,13 @@ APP_VERSION=$3
 
 echo $APP_VERSION > $APP_DIR/VERSION
 
-git archive --format=tar.gz -o deploy.tgz $BITBUCKET_COMMIT $APP_DIR
+git archive --format=tar -o deploy.tar $BITBUCKET_COMMIT $APP_DIR
 
+tar rvf deploy.tar VERSION
+
+gzip deploy.tar
+
+mv deploy.tar.gz deploy.tgz
 
 echo "Deploying Heroku Version $HEROKU_VERSION"
 
