@@ -18,7 +18,7 @@ echo $APP_VERSION > $APP_DIR/VERSION
 
 git archive --format=tar -o deploy.tar $BITBUCKET_COMMIT $APP_DIR
 
-tar rvf deploy.tar VERSION
+tar rvf deploy.tar $APP_DIR/VERSION
 
 gzip deploy.tar
 
