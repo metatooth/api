@@ -4,6 +4,7 @@ require 'sinatra'
 
 require_relative '../models/user'
 
+require_relative '../../commit'
 require_relative '../../version'
 require_relative 'authentication'
 
@@ -44,7 +45,7 @@ class App
 
     target = request.path_info.split('/')[1]
     pass if target.nil?
-    pass if %w[version user_confirmations password_resets].include?(target)
+    pass if %w[commit password_resets user_confirmations version].include?(target)
     pass if request.env['REQUEST_METHOD'] == 'OPTIONS'
 
     @user = nil
@@ -53,14 +54,6 @@ class App
     authenticate_client
 
     response['Access-Control-Allow-Origin'] = '*'
-
-    if request.request_method == 'POST'
-      # puts "REQUEST BODY #{request.body.read}"
-      # puts "REQUEST PARAMS #{params}"
-      # request.body.rewind
-      # @json = JSON.parse(request.body.read)
-      # params.merge!(@json)
-    end
   end
 
   error do
@@ -73,6 +66,10 @@ class App
 
   get '/' do
     'OK'
+  end
+
+  get '/commit' do
+    { commit: Commit.string }.to_json
   end
 
   get '/version' do
