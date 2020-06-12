@@ -15,16 +15,18 @@ APP_NAME=$2
 APP_VERSION=$3
 
 echo $APP_VERSION > $APP_DIR/VERSION
+echo $BITBUCKET_COMMIT > $APP_DIR/COMMIT
 
 git archive --format=tar -o deploy.tar $BITBUCKET_COMMIT $APP_DIR
 
-tar rvf deploy.tar $APP_DIR/VERSION
+tar rvf deploy.tar $APP_DIR/VERSION $APP_DIR/COMMIT
 
 gzip deploy.tar
 
 mv deploy.tar.gz deploy.tgz
 
-echo "Deploying Heroku Version $HEROKU_VERSION"
+echo "Deploying Version $VERSION"
+echo "          Commit $COMMIT"
 
 URL_BLOB=`curl -s -n -X POST https://api.heroku.com/apps/$APP_NAME/sources \
 -H 'Accept: application/vnd.heroku+json; version=3' \
