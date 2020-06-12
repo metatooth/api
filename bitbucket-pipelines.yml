@@ -23,5 +23,5 @@ pipelines:
         - ./heroku-deploy.sh kaleidocycle $KALEIDOCYCLE_HEROKU_APP_NAME $VERSION
         - ./heroku-deploy.sh design $DESIGN_HEROKU_APP_NAME $VERSION
         # push tags
-        - git tag -a "${VERSION}" -m "Tagging for release #{VERSION}"
+        - git tag -a "${VERSION}" -m "Tagging for release ${VERSION}"
         - git push origin ${VERSION}
