@@ -17,9 +17,12 @@ APP_VERSION=$3
 echo $APP_VERSION > $APP_DIR/VERSION
 echo $BITBUCKET_COMMIT > $APP_DIR/COMMIT
 
+echo "VUE_APP_VERSION=$APP_VERSION" > $APP_DIR/.env
+echo "VUE_APP_COMMIT=$BITBUCKET_COMMIT" >> $APP_DIR/.env
+
 git archive --format=tar -o deploy.tar $BITBUCKET_COMMIT $APP_DIR
 
-tar rvf deploy.tar $APP_DIR/VERSION $APP_DIR/COMMIT
+tar rvf deploy.tar $APP_DIR/VERSION $APP_DIR/COMMIT $APP_DIR/.env
 
 gzip deploy.tar
 
