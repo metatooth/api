@@ -16,7 +16,7 @@ pipelines:
    - step:
       script:
         # deploy each sub-directory
-        - VERSION="200.$BITBUCKET_BUILD_NUMBER"
+        - VERSION="3.$BITBUCKET_BUILD_NUMBER"
         - ./heroku-deploy.sh api $API_HEROKU_APP_NAME $VERSION
         - ./heroku-deploy.sh app $APP_HEROKU_APP_NAME $VERSION
         - ./heroku-deploy.sh www $WWW_HEROKU_APP_NAME $VERSION
