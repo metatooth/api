@@ -21,7 +21,6 @@ pipelines:
         - ./heroku-deploy.sh www $STAGING_WWW $VERSION
         - ./heroku-deploy.sh kaleidocycle $STAGING_KALEIDOCYCLE $VERSION
         - ./heroku-deploy.sh design $STAGING_DESIGN $VERSION
-        - ./heroku-deploy.sh design $PRODUCTION_DESIGN $VERSION
         # push tags
         - git tag -a "${VERSION}" -m "Tagging for release ${VERSION}"
         - git push origin ${VERSION}
