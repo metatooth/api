@@ -43,7 +43,7 @@ class App
       asset.errors.each do |err|
         puts "ERR #{err}"
       end
-      
+
       halt 500
     end
   end
@@ -88,6 +88,6 @@ class App
 
     request.body.rewind
     check = JSON.parse(request.body.read)
-    check['data']&.slice('url', 'name', 'mime_type')
+    check['data']&.slice('url', 'name', 'mime_type', 'service', 'location', 'bucket', 's3key', 'etag')
   end
 end
