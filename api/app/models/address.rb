@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'locator'
+
 # An Address model.
 class Address
   include DataMapper::Resource
