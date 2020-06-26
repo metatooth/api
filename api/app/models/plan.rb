@@ -2,25 +2,21 @@
 
 require_relative 'locator'
 
-# An Order model.
-class Order
+# An Plan model.
+class Plan
   include DataMapper::Resource
-  belongs_to :user
-  belongs_to :bill, 'Address'
-  belongs_to :ship, 'Address'
-  has n, :order_items
+  has n, :revisions
 
   property :id, Serial, index: true
   property :locator, Locator
-  property :shipped_impression_kit_at, DateTime
-  property :received_impression_kit_at, DateTime
-  property :shipped_custom_night_guard_at, DateTime
+  property :name, String, length: 256
   property :created_at, DateTime
   property :updated_at, DateTime
   property :deleted, ParanoidBoolean, default: false, lazy: false
   property :deleted_at, ParanoidDateTime
 
   validates_uniqueness_of :locator
+  validates_presence_of :name
 
   def destroy
     update({ deleted: true, deleted_at: DateTime.now })

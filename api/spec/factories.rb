@@ -11,6 +11,10 @@ FactoryBot.define do
     "name #{n}"
   end
 
+  sequence :number do |n|
+    n
+  end
+
   sequence :url do |n|
     "https://metatooth-cabinet.s3.amazonaws.com/junk-drawer/logo#{n}.png"
   end
@@ -36,9 +40,23 @@ FactoryBot.define do
 
   factory :asset do
     url
-    name { 'logo' }
+    revision
     mime_type { 'image/png' }
     created_at { DateTime.now }
+  end
+
+  factory :plan do
+    name { 'a test plan' }
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
+  end
+
+  factory :revision do
+    plan
+    number
+    description { 'typo' }
+    created_at { DateTime.now }
+    updated_at { DateTime.now }
   end
 
   factory :product do

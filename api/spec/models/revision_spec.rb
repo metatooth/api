@@ -2,18 +2,17 @@
 
 require_relative '../spec_helper'
 
-# Specification for the Asset model.
-describe Asset, type: :model do
+# Specification for the Revision model.
+describe Revision, type: :model do
   context 'associations' do
-    it { should belong_to(:revision) }
+    it { should belong_to(:plan) }
   end
 
   context 'validations' do
     context 'uniqueness' do
-      before { create(:asset) }
+      before { create(:revision) }
 
       it { should validate_uniqueness_of(:locator) }
-      it { should validate_uniqueness_of(:url) }
     end
   end
 end
