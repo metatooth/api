@@ -5,6 +5,7 @@ require_relative 'locator'
 # An Asset model.
 class Asset
   include DataMapper::Resource
+  belongs_to :revision
 
   property :id, Serial, index: true
   property :locator, Locator
@@ -12,7 +13,6 @@ class Asset
   property :name, String, length: 256
   property :mime_type, String, length: 256
   property :service, String, length: 256
-  property :location, String, length: 2048
   property :bucket, String, length: 256
   property :s3key, String, length: 2048
   property :etag, String, length: 36

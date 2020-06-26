@@ -2,14 +2,14 @@
 
 require_relative '../spec_helper'
 
-RSpec.describe 'Assets', type: :request do
-  let(:a) { create(:asset) }
-  let(:b) { create(:asset) }
-  let(:c) { create(:asset) }
-  let(:assets) { [a, b, c] }
+RSpec.describe 'Plans', type: :request do
+  let(:a) { create(:plan) }
+  let(:b) { create(:plan) }
+  let(:c) { create(:plan) }
+  let(:plans) { [a, b, c] }
 
   before do
-    assets
+    plans
   end
 
   context 'with valid API Key' do
@@ -20,8 +20,8 @@ RSpec.describe 'Assets', type: :request do
       { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key_str}" }
     end
 
-    describe 'GET /assets' do
-      before { get '/assets', nil, headers }
+    describe 'GET /plans' do
+      before { get '/plans', nil, headers }
 
       it 'receives HTTP status 200' do
         expect(last_response.status).to eq 200
@@ -31,14 +31,14 @@ RSpec.describe 'Assets', type: :request do
         expect(json_body['data']).to_not be nil
       end
 
-      it 'receives all 3 assets' do
+      it 'receives all 3 plans' do
         expect(json_body['data'].size).to eq 3
       end
     end
 
-    describe 'GET /assets/:id' do
+    describe 'GET /plans/:id' do
       context 'with existing resource' do
-        before { get "/assets/#{a.locator}", nil, headers }
+        before { get "/plans/#{a.locator}", nil, headers }
 
         it 'receives HTTP status 200' do
           expect(last_response.status).to eq 200
@@ -48,26 +48,26 @@ RSpec.describe 'Assets', type: :request do
           expect(json_body['data']).to_not be nil
         end
 
-        it 'receives asset' do
+        it 'receives plan' do
           expect(json_body['data']['locator']).to eq a.locator
         end
       end
 
       context 'with nonexistent resource' do
         it 'gets HTTP status 404' do
-          get '/assets/23456234', nil, headers do
+          get '/plans/23456234', nil, headers do
             expect(last_response.status).to eq 404
           end
         end
       end
     end
 
-    describe 'PUT /assets/:id' do
-      before { put "/assets/#{b.locator}", { data: params }, headers }
+    describe 'PUT /plans/:id' do
+      before { put "/plans/#{b.locator}", { data: params }, headers }
 
       context 'with valid parameters' do
         let(:params) do
-          { mime_type: 'model/glft+json' }
+          { name: 'Metatooth RSpec' }
         end
 
         it 'gets HTTP status 200' do
@@ -75,20 +75,20 @@ RSpec.describe 'Assets', type: :request do
         end
 
         it 'receives the updated resource' do
-          expect(json_body['data']['mime_type']).to eq(
-            'model/glft+json'
+          expect(json_body['data']['name']).to eq(
+            'Metatooth RSpec'
           )
         end
 
         it 'updates the record in the database' do
-          expect(Asset.get(b.id).mime_type).to eq(
-            'model/glft+json'
+          expect(Plan.get(b.id).name).to eq(
+            'Metatooth RSpec'
           )
         end
       end
 
       context 'with invalid parameters' do
-        let(:params) { { url: '' } }
+        let(:params) { { name: '' } }
 
         it 'gets HTTP status 422' do
           expect(last_response.status).to eq 422
@@ -96,34 +96,34 @@ RSpec.describe 'Assets', type: :request do
 
         it 'receives the error details' do
           expect(json_body['error']['invalid_params']).to eq(
-            'url' =>
-            ['Url must not be blank']
+            'name' =>
+            ['Name must not be blank']
           )
         end
 
         it 'does not update a record in the database' do
-          expect(Asset.get(b.id).url).to eq(
-            b.url
+          expect(Plan.get(b.id).name).to eq(
+            b.name
           )
         end
       end
     end
 
-    describe 'DELETE /assets/:id' do
+    describe 'DELETE /plans/:id' do
       context 'with existing resource' do
-        before { delete "/assets/#{b.locator}", nil, headers }
+        before { delete "/plans/#{b.locator}", nil, headers }
         it 'gets HTTP status 204' do
           expect(last_response.status).to eq 204
         end
 
-        it 'deletes the asset from the database' do
-          expect(Asset.count).to eq 2
+        it 'deletes the plan from the database' do
+          expect(Plan.count).to eq 2
         end
       end
 
       context 'with nonexisting resource' do
         it 'gets HTTP status 404' do
-          delete '/assets/2345234', nil, headers
+          delete '/plans/2345234', nil, headers
           expect(last_response.status).to eq 404
         end
       end
@@ -131,37 +131,37 @@ RSpec.describe 'Assets', type: :request do
   end
 
   context 'with invalid API Key' do
-    describe 'GET /assets' do
+    describe 'GET /plans' do
       it 'returns HTTP status 401' do
-        get '/assets'
+        get '/plans'
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'GET /assets/:id' do
+    describe 'GET /plans/:id' do
       it 'returns HTTP status 401' do
-        get "/assets/#{a.locator}"
+        get "/plans/#{a.locator}"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'POST /assets' do
+    describe 'POST /plans' do
       it 'returns HTTP status 401' do
-        post '/assets'
+        post '/plans'
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'PUT /assets/:id' do
+    describe 'PUT /plans/:id' do
       it 'returns HTTP status 401' do
-        put "/assets/#{a.locator}"
+        put "/plans/#{a.locator}"
         expect(last_response.status).to eq 401
       end
     end
 
-    describe 'DELETE /assets/:id' do
+    describe 'DELETE /plans/:id' do
       it 'returns HTTP status 401' do
-        delete "/assets/#{a.locator}"
+        delete "/plans/#{a.locator}"
         expect(last_response.status).to eq 401
       end
     end
