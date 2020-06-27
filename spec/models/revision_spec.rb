@@ -14,5 +14,11 @@ describe Revision, type: :model do
 
       it { should validate_uniqueness_of(:locator) }
     end
+    context 'presence' do
+      before { create(:revision) }
+
+      it { should validate_presence_of(:number) }
+      it { should validate_presence_of(:location) }
+    end
   end
 end

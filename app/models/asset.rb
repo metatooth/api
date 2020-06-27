@@ -5,7 +5,6 @@ require_relative 'locator'
 # An Asset model.
 class Asset
   include DataMapper::Resource
-  belongs_to :revision
 
   property :id, Serial, index: true
   property :locator, Locator
