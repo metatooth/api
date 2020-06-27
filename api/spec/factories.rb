@@ -15,7 +15,7 @@ FactoryBot.define do
     n
   end
 
-  sequence :url do |n|
+  sequence :url, :location do |n|
     "https://metatooth-cabinet.s3.amazonaws.com/junk-drawer/logo#{n}.png"
   end
 
@@ -40,7 +40,6 @@ FactoryBot.define do
 
   factory :asset do
     url
-    revision
     mime_type { 'image/png' }
     created_at { DateTime.now }
   end
@@ -55,6 +54,7 @@ FactoryBot.define do
     plan
     number
     description { 'typo' }
+    location
     created_at { DateTime.now }
     updated_at { DateTime.now }
   end

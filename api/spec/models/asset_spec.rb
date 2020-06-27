@@ -4,10 +4,6 @@ require_relative '../spec_helper'
 
 # Specification for the Asset model.
 describe Asset, type: :model do
-  context 'associations' do
-    it { should belong_to(:revision) }
-  end
-
   context 'validations' do
     context 'uniqueness' do
       before { create(:asset) }

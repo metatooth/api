@@ -8,15 +8,10 @@ RSpec.describe 'Revisions', type: :request do
   let(:b) { create(:revision, plan: plan) }
   let(:c) { create(:revision, plan: plan) }
   let(:revisions) { [a, b, c] }
-  let(:x) { create(:asset, revision: a) }
-  let(:y) { create(:asset, revision: b) }
-  let(:z) { create(:asset, revision: c) }
-  let(:assets) { [x, y, z] }
 
   before do
     plan
     revisions
-    assets
   end
 
   context 'with valid API Key' do
