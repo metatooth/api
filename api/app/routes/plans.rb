@@ -36,14 +36,17 @@ class App
   end
 
   post '/plans' do
+    request.body.rewind
+    body = JSON.parse(request.body.read)
+    body['data'].delete('name')
+    body['data']['number'] = 0
+
+    plan.revisions << Revision.new(body['data'])
+
     if plan.save
       status 200
-      plan.to_json
+      { data: JSON.parse(plan.to_json(:methods => [:revisions])) }.to_json
     else
-      plan.errors.each do |err|
-        puts "ERR #{err}"
-      end
-
       halt 500
     end
   end
@@ -51,7 +54,7 @@ class App
   get '/plans/:id' do
     if plan
       status 200
-      { data: plan }.to_json
+      { data: JSON.parse(plan.to_json(:methods => [:revisions])) }.to_json
     else
       resource_not_found
     end
@@ -62,7 +65,7 @@ class App
       resource_not_found
     elsif plan.update(plan_params)
       status :ok
-      { data: plan }.to_json
+      { data: JSON.parse(plan.to_json(:methods => [:revisions])) }.to_json
     else
       unprocessable_entity!(plan)
     end
