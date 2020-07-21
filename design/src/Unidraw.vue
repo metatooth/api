@@ -1,15 +1,13 @@
 <template>
 <div id="unidraw">
-  <div id="logo">
-    <img width="200" alt="Metatooth Logo" src="./assets/logo.png">
-    <br/>
+  <div id="meta">
     <span id="copyright">&copy; Metatooth 2020</span>
-    --
+    <br/>
     <span id="version">Version {{version}}</span>
-    --
+    <br/>
     <span id="commit">Commit {{commit}}</span>
   </div>
-  <Editor v-bind:asset='asset' />
+  <Editor v-bind:uri='uri' ref="editor"/>
 </div>
 </template>
 
@@ -38,6 +36,12 @@
 
 import Editor from './Editor.vue';
 
+import {Catalog} from './catalog.js';
+import {History} from './history.js';
+
+import {DirtyCmd} from './commands/dirty-cmd.js';
+import {MacroCmd} from './commands/macro-cmd.js';
+
 export default {
   name: 'unidraw',
   components: {
@@ -45,9 +49,12 @@ export default {
   },
   data: function() {
     return {
-      asset: '',
-      version: '',
+      catalog: new Catalog,
       commit: '',
+      histories: new Map,
+      maxhistlen: 100,
+      uri: null,
+      version: '',
     };
   },
   mounted() {
@@ -56,7 +63,78 @@ export default {
 
     const query = window.location.search;
     const params = new URLSearchParams( query );
-    this.asset = params.get( 'asset' );
+    if (params.get('asset')) {
+      this.uri = '/assets/' + params.get('asset');
+    } else if (params.get('plan')) {
+      this.uri = '/plans/' + params.get( 'plan' );
+    } else if (process.env.VUE_APP_DEFAULT_PLAN) {
+      this.uri = '/plans/' + process.env.VUE_APP_DEFAULT_PLAN;
+    }
+  },
+  methods: {
+    clearHistory: function(comp) {
+      if (!this.histories.has(comp)) {
+        const history = this.histories.get(comp);
+
+        history.past.splice(0, history.past.length);
+        history.future.splice(0, history.future.length);
+      }
+    },
+    log: function(command) {
+      if (command.reversible()) {
+        const editor = command.editor;
+        const comp = editor.component;
+
+        if (!this.histories.has(comp)) {
+          this.histories.set(comp, new History);
+        }
+
+        const history = this.histories.get(comp);
+
+        history.future.splice(0, history.future.length);
+
+        if (editor.modified && !editor.modified.modified) {
+          const dirtycmd = new DirtyCmd(editor);
+          dirtycmd.execute();
+          command = new MacroCmd(editor, command, dirtycmd);
+        }
+
+        history.past.unshift(command);
+
+        if (history.past.length > this.maxhistlen) {
+          history.past.splice(this.maxhistlen - 1,
+              history.past.length - this.maxhistlen);
+        }
+      }
+    },
+    undo: function(component, n = 1) {
+      if (!this.histories.has(component)) {
+        this.histories.set(component, new History);
+      }
+
+      const history = this.histories.get(component);
+
+      for (let i = 0, l = history.past.length; i < n && i < l; ++i) {
+        const command = history.past.shift();
+        command.unexecute();
+
+        history.future.unshift(command);
+      }
+    },
+    redo: function(component, n = 1) {
+      if (!this.histories.has(component)) {
+        this.histories.set(component, new History);
+      }
+
+      const history = this.histories.get(component);
+
+      for (let i = 0, l = history.future.length; i < n && i < l; ++i) {
+        const command = history.future.shift();
+        command.execute();
+
+        history.past.unshift(command);
+      }
+    },
   },
 };
 </script>
@@ -65,13 +143,14 @@ export default {
 #app {
     background-color: #2d2d2d;
 }
-#logo {
+#meta {
     background-color: transparent;
+    color: #fdfdfd;
     position: absolute;
-    bottom: -50px;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
+    bottom: 0px;
+    margin: 10px;
+    text-align: right;
+    width: 95%;
     user-select: none;
     pointer-events: none;
     z-index: 1;

@@ -20,12 +20,15 @@
  * WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import {Raycaster} from 'three';
-import {Vector2} from 'three';
+import {BufferGeometry} from 'three';
+import {BufferAttribute} from 'three';
+import {Line} from 'three';
+import {LineBasicMaterial} from 'three';
 
-import {GrowingVertices} from '../growing-vertices.js';
+import {Component} from '../component.js';
+import {GrowingVertices} from '../rubberbands/growing-vertices.js';
 import {PasteCmd} from '../commands/paste-cmd.js';
-import {ScribbleVertexManip} from '../scribble-vertex-manip.js';
+import {ScribbleVertexManip} from '../manipulators/scribble-vertex-manip.js';
 import {Tool} from './tool.js';
 
 /**
@@ -36,6 +39,9 @@ function DrawTool() {
   Tool.call( this );
 
   this.type = 'DrawTool';
+
+  this.color = 0xff33bb;
+  this.linewidth = 5;
 }
 
 DrawTool.prototype = Object.assign( Object.create( Tool.prototype ), {
@@ -49,22 +55,10 @@ DrawTool.prototype = Object.assign( Object.create( Tool.prototype ), {
    * @return {Manipulator}
    */
   create: function( viewer, event ) {
-    let manipulator = null;
-
-    const mouse = new Vector2;
-    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-    const raycaster = new Raycaster;
-    raycaster.setFromCamera( mouse, viewer.camera );
-    const intersects = raycaster.intersectObject( viewer.mesh() );
-
-    if ( intersects.length > 0 ) {
-      const gv = new GrowingVertices([], [], 0, 0);
-      manipulator = new ScribbleVertexManip( viewer, gv );
+    if (event.type == 'mousedown') {
+      return new ScribbleVertexManip( viewer, new GrowingVertices, this );
     }
-
-    return manipulator;
+    return null;
   },
 
   /**
@@ -72,7 +66,25 @@ DrawTool.prototype = Object.assign( Object.create( Tool.prototype ), {
    * @return {Command}
    */
   interpret: function( manipulator ) {
-    return new PasteCmd( manipulator.viewer.editor(), [] );
+    if (manipulator.rubberband.count > 0) {
+      const doomed = manipulator.rubberband.geometry.attributes.position.array;
+
+      const positions = new Float32Array( manipulator.rubberband.count );
+      for (let i = 0, l = manipulator.rubberband.count; i < l; ++i) {
+        positions[i] = doomed[i];
+      }
+
+      const geometry = new BufferGeometry();
+      geometry.setAttribute( 'position', new BufferAttribute( positions, 3 ) );
+      geometry.setDrawRange( 0, manipulator.rubberband.count / 3 );
+      const material = new LineBasicMaterial({color: this.color,
+        linewidth: this.linewidth});
+
+      const line = new Line( geometry, material );
+
+      return new PasteCmd( manipulator.viewer.editor(), [new Component(line)] );
+    }
+    return null;
   },
 });
 

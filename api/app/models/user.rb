@@ -50,6 +50,10 @@ class User
     update(confirmation_token: nil, confirmed_at: DateTime.now)
   end
 
+  def destroy
+    update({ deleted: true, deleted_at: DateTime.now })
+  end
+
   def init_password_reset(redirect_url)
     update(reset_password_token: SecureRandom.hex,
            reset_password_sent_at: DateTime.now,

@@ -23,42 +23,46 @@
 import {Command} from './command.js';
 
 /**
- * Description: paste command
+ * Description: command containing a sequence of other commands to execute
  * @constructor
  * @param {Editor} editor: the editor the command acts within
- * @param {Array} clipboard: an array of Component objects that will
- * interpret the command
+ * @param {Command} c1
+ * @param {Command} c2
  */
-function PasteCmd( editor, clipboard ) {
-  Command.call( this, editor, clipboard );
-  this.type = 'PasteCmd';
+function MacroCmd( editor, c1, c2 ) {
+  Command.call( this, editor );
+  this.type = 'MacroCmd';
+  this.cmds = [];
+  if (c1) this.cmds.unshift(c1);
+  if (c2) this.cmds.unshift(c2);
 }
 
-PasteCmd.prototype = Object.assign( Object.create( Command.prototype ), {
-  constructor: PasteCmd,
+MacroCmd.prototype = Object.assign( Object.create( Command.prototype ), {
+  constructor: MacroCmd,
 
-  isPasteCmd: true,
-
-  executed: false,
+  isMacroCmd: true,
 
   execute: function() {
-    this.editor.component.interpret(this);
-    this.executed = true;
+    for (let i = 0, l = this.cmds.length; i < l; ++i) {
+      this.cmds[i].execute();
+    }
   },
 
   unexecute: function() {
-    this.editor.component.uninterpret(this);
-    this.executed = false;
+    for (let i = 0, l = this.cmds.length; i < l; ++i) {
+      this.cmds[i].unexecute();
+    }
   },
 
-  /**
-   * If true, the command can be unexecuted.
-   * @return {boolean}
-   */
   reversible: function() {
-    return ( this.clipboard && this.clipboard.length > 0 );
+    for (let i = 0, l = this.cmds.length; i < l; ++i) {
+      if (this.cmds[i].reversible()) {
+        return true;
+      }
+    }
+    return false;
   },
 
 });
 
-export {PasteCmd};
+export {MacroCmd};

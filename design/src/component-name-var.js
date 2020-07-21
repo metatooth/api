@@ -20,31 +20,43 @@
  * WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import {NameVar} from './name-var.js';
+
 /**
- * Description: manipulation semantics
+ * Description: state variables allow for dataflow and
+ * component-component commuinication
+ * @constructor
+ * @param {Component} component
+ * @param {Catalog} catalog
  */
-function Manipulator() { }
+function ComponentNameVar(component, catalog) {
+  NameVar.call(this, catalog.name(component));
+  this.type = 'ComponentNameVar';
+  this.component = component;
+  this.catalog = catalog;
 
-Object.assign( Manipulator.prototype, {
-  /**
-   * @param {Event} event - the starting event
-   */
-  grasp: function( event ) {
-  },
+  if (this.component) {
+    const name = this.catalog.name(this.component);
+    console.log('set name ~> ', name);
+    this.name = name;
+  }
+}
 
-  /**
-   * @param {Event} event - the subsequent events
-   * @return {boolean}
-   */
-  manipulating: function( event ) {
-    return false;
-  },
+ComponentNameVar.prototpye =
+    Object.assign( Object.create( NameVar.prototype ), {
+      constructor: ComponentNameVar,
 
-  /**
-   * @param {Event} event - the final event
-   */
-  effect: function( event ) {
-  },
-});
+      isComponentNameVar: true,
 
-export {Manipulator};
+      updateName: function() {
+        if (!this.component) {
+          this.name = null;
+        } else {
+          const name = this.catalog.name(this.component);
+          console.log('updateName ~> ', name);
+          this.name = name;
+        }
+      },
+    });
+
+export {ComponentNameVar};

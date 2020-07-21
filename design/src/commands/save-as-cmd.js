@@ -23,42 +23,48 @@
 import {Command} from './command.js';
 
 /**
- * Description: paste command
+ * Description: save as command
  * @constructor
  * @param {Editor} editor: the editor the command acts within
- * @param {Array} clipboard: an array of Component objects that will
- * interpret the command
  */
-function PasteCmd( editor, clipboard ) {
-  Command.call( this, editor, clipboard );
-  this.type = 'PasteCmd';
+function SaveAsCmd( editor ) {
+  Command.call( this, editor, null );
+  this.type = 'SaveAsCmd';
 }
 
-PasteCmd.prototype = Object.assign( Object.create( Command.prototype ), {
-  constructor: PasteCmd,
+SaveAsCmd.prototype = Object.assign( Object.create( Command.prototype ), {
+  constructor: SaveAsCmd,
 
-  isPasteCmd: true,
-
-  executed: false,
+  isSaveAsCmd: true,
 
   execute: function() {
-    this.editor.component.interpret(this);
-    this.executed = true;
-  },
+    const comp = this.editor.component;
+    const namevar = this.editor.name;
+    const oldname = namevar.name;
 
-  unexecute: function() {
-    this.editor.component.uninterpret(this);
-    this.executed = false;
-  },
+    const modifvar = this.editor.modified;
+    const unidraw = this.editor.unidraw();
 
-  /**
-   * If true, the command can be unexecuted.
-   * @return {boolean}
-   */
-  reversible: function() {
-    return ( this.clipboard && this.clipboard.length > 0 );
+    console.log('catalog.create with ', oldname);
+
+    unidraw.catalog.create(comp, oldname)
+        .then((ok) => {
+          if (ok) {
+            console.log(modifvar);
+            console.log(namevar);
+            console.log(unidraw);
+            modifvar.modified = false;
+            unidraw.clearHistory(comp);
+            console.log(unidraw.catalog.compMap);
+            const name = unidraw.catalog.name(comp);
+            console.log(name);
+            namevar.name = name;
+          } else {
+            console.log('save as -- not ok!');
+          }
+        });
   },
 
 });
 
-export {PasteCmd};
+export {SaveAsCmd};

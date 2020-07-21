@@ -43,7 +43,7 @@ class App
       asset.errors.each do |err|
         puts "ERR #{err}"
       end
-      
+
       halt 500
     end
   end
@@ -84,10 +84,10 @@ class App
   end
 
   def asset_params
-    return params[:data]&.slice(:url, :name, :mime_type) unless params.empty?
+    return params[:data]&.slice(:url, :mime_type) unless params.empty?
 
     request.body.rewind
     check = JSON.parse(request.body.read)
-    check['data']&.slice('url', 'name', 'mime_type')
+    check['data']&.slice('url', 'mime_type', 'service', 'bucket', 's3key', 'etag')
   end
 end

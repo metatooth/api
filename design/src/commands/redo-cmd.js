@@ -23,32 +23,21 @@
 import {Command} from './command.js';
 
 /**
- * Description: paste command
+ * Description: redo command
  * @constructor
  * @param {Editor} editor: the editor the command acts within
- * @param {Array} clipboard: an array of Component objects that will
- * interpret the command
  */
-function PasteCmd( editor, clipboard ) {
-  Command.call( this, editor, clipboard );
-  this.type = 'PasteCmd';
+function RedoCmd( editor ) {
+  Command.call( this, editor, null );
 }
 
-PasteCmd.prototype = Object.assign( Object.create( Command.prototype ), {
-  constructor: PasteCmd,
+RedoCmd.prototype = Object.assign( Object.create( Command.prototype ), {
+  constructor: RedoCmd,
 
-  isPasteCmd: true,
-
-  executed: false,
+  isRedoCmd: true,
 
   execute: function() {
-    this.editor.component.interpret(this);
-    this.executed = true;
-  },
-
-  unexecute: function() {
-    this.editor.component.uninterpret(this);
-    this.executed = false;
+    this.editor.unidraw().redo(this.editor.component);
   },
 
   /**
@@ -56,9 +45,9 @@ PasteCmd.prototype = Object.assign( Object.create( Command.prototype ), {
    * @return {boolean}
    */
   reversible: function() {
-    return ( this.clipboard && this.clipboard.length > 0 );
+    return false;
   },
 
 });
 
-export {PasteCmd};
+export {RedoCmd};

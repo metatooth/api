@@ -23,42 +23,41 @@
 import {Command} from './command.js';
 
 /**
- * Description: paste command
- * @constructor
+ * Description: command sets the modified flag for the root component
  * @param {Editor} editor: the editor the command acts within
- * @param {Array} clipboard: an array of Component objects that will
- * interpret the command
  */
-function PasteCmd( editor, clipboard ) {
-  Command.call( this, editor, clipboard );
-  this.type = 'PasteCmd';
+function DirtyCmd( editor ) {
+  Command.call( this, editor, null );
+  this.type = 'DirtyCmd';
 }
 
-PasteCmd.prototype = Object.assign( Object.create( Command.prototype ), {
-  constructor: PasteCmd,
+DirtyCmd.prototype = Object.assign( Object.create( Command.prototype ), {
+  constructor: DirtyCmd,
 
-  isPasteCmd: true,
+  isDirtyCmd: true,
 
-  executed: false,
+  reverse: false,
 
   execute: function() {
-    this.editor.component.interpret(this);
-    this.executed = true;
+    if (this.reverse) {
+      this.reverse = false;
+      this.unexecute();
+      this.reverse = true;
+    } else {
+      if (this.editor.modified) this.editor.modified.modified = true;
+    }
   },
 
   unexecute: function() {
-    this.editor.component.uninterpret(this);
-    this.executed = false;
-  },
-
-  /**
-   * If true, the command can be unexecuted.
-   * @return {boolean}
-   */
-  reversible: function() {
-    return ( this.clipboard && this.clipboard.length > 0 );
+    if (this.reverse) {
+      this.reverse = false;
+      this.execute();
+      this.reverse = true;
+    } else {
+      if (this.editor.modified) this.editor.modified.modified = false;
+    }
   },
 
 });
 
-export {PasteCmd};
+export {DirtyCmd};

@@ -31,9 +31,14 @@
 function Command( editor, clipboard ) {
   this.editor = editor;
   this.clipboard = clipboard;
+  this.type = 'Command';
 }
 
 Object.assign( Command.prototype, {
+  constructor: Command,
+
+  isCommand: true,
+
   /**
    * Do something
    */
@@ -60,7 +65,7 @@ Object.assign( Command.prototype, {
    * Log the command.
    */
   log: function() {
-
+    this.editor.unidraw().log(this);
   },
 
 });

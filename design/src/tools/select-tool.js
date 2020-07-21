@@ -20,45 +20,37 @@
  * WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import {Command} from './command.js';
+import {Rubberband} from '../rubberbands/rubberband.js';
+import {DragManip} from '../manipulators/drag-manip.js';
+import {Tool} from './tool.js';
 
 /**
- * Description: paste command
+ * Description: A tool for selecting.
  * @constructor
- * @param {Editor} editor: the editor the command acts within
- * @param {Array} clipboard: an array of Component objects that will
- * interpret the command
  */
-function PasteCmd( editor, clipboard ) {
-  Command.call( this, editor, clipboard );
-  this.type = 'PasteCmd';
+function SelectTool() {
+  Tool.call( this );
+
+  this.type = 'SelectTool';
 }
 
-PasteCmd.prototype = Object.assign( Object.create( Command.prototype ), {
-  constructor: PasteCmd,
+SelectTool.prototype = Object.assign( Object.create( Tool.prototype ), {
+  constructor: SelectTool,
 
-  isPasteCmd: true,
-
-  executed: false,
-
-  execute: function() {
-    this.editor.component.interpret(this);
-    this.executed = true;
-  },
-
-  unexecute: function() {
-    this.editor.component.uninterpret(this);
-    this.executed = false;
-  },
+  isSelectTool: true,
 
   /**
-   * If true, the command can be unexecuted.
-   * @return {boolean}
+   * @param {Viewer} viewer - the container
+   * @param {Event} event - the starting event
+   * @return {Manipulator}
    */
-  reversible: function() {
-    return ( this.clipboard && this.clipboard.length > 0 );
+  create: function( viewer, event ) {
+    if (event.type == 'mousedown') {
+      return new DragManip( viewer, new Rubberband, this );
+    }
+    return null;
   },
 
 });
 
-export {PasteCmd};
+export {SelectTool};

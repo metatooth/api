@@ -22,6 +22,7 @@
 
 import {Raycaster} from 'three';
 import {Vector2} from 'three';
+import {Vector3} from 'three';
 
 import {VertexManip} from './vertex-manip.js';
 
@@ -38,6 +39,7 @@ function ScribbleVertexManip( viewer, gv, tool ) {
   this.type = 'ScribbleVertexManip';
 
   this.raycaster = new Raycaster;
+  this.mouse = new Vector2;
 
   this.first = true;
 
@@ -54,38 +56,57 @@ ScribbleVertexManip.prototype = Object.assign( Object.create(
   isScribbleVertexManip: true,
 
   /**
+   * Track points on the mesh under the mouse location.
+   * @param {Event} event - use the client X & Y
+   */
+  raycast: function(event) {
+    this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    this.rubberband.track( this.mouse );
+
+    const points = this.rubberband.points();
+
+    console.log(points);
+
+    for (let i = 0, l = points.length; i < l; i++) {
+      this.raycaster.setFromCamera( this.mouse, this.viewer.camera );
+      const intersects = this.raycaster.intersectObject( this.viewer.mesh() );
+
+      if ( intersects.length > 0 ) {
+        console.log(intersects[0]);
+        const a = intersects[0];
+        const positions = this.viewer.mesh().geometry.getAttribute('position');
+        this.rubberband.addVertex(new Vector3(positions.array[3*a],
+            positions.array[3*a+1],
+            positions.array[3*a+2]));
+      }
+    }
+  },
+
+  /**
+   * @param {Event} event - the mousedown event to start the drag
+   */
+  grasp: function( event ) {
+    this.viewer.controls.enabled = false;
+    this.viewer.controls.saveState();
+
+    this.raycast(event);
+
+    this.viewer.scene.add(this.rubberband);
+  },
+
+  /**
    * @param {Event} event - is dragging
    * @return {boolean}
    */
   manipulating: function( event ) {
-    const x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    const y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
     if ( event.type == 'mousemove' ) {
       if ( !this.first ) {
-        this.raycaster.setFromCamera( new Vector2( x, y ), this.viewer.camera );
-        const intersects = this.raycaster.intersectObject( this.viewer.mesh() );
-
-        if ( intersects.length > 0 ) {
-          const positions = this.viewer.line.geometry.attributes.position.array;
-
-          positions[this.viewer.count++] = intersects[0].point.x;
-          positions[this.viewer.count++] = intersects[0].point.y;
-          positions[this.viewer.count++] = intersects[0].point.z;
-
-          this.viewer.line.geometry.setDrawRange( 0, this.viewer.count / 3 );
-          this.viewer.line.geometry.attributes.position.needsUpdate = true;
-
-          this.rubberband.addVertex(intersects[0].point.x,
-              intersects[0].point.y,
-              intersects[0].point.z);
-        }
-
-        this.rubberband.track( x, y );
+        this.raycast(event);
+      } else {
+        this.first = false;
       }
-    } else if ( event.type == 'mousedown' && event.button == 0 ) {
-      console.log('mouse down!');
-      this.first = false;
     } else if ( event.type == 'mouseup' ) {
       return false;
     }

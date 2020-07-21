@@ -20,45 +20,25 @@
  * WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import {Command} from './command.js';
+import {StateVar} from './state-var.js';
 
 /**
- * Description: paste command
+ * Description: state variables allow for dataflow and
+ * component-component commuinication
  * @constructor
- * @param {Editor} editor: the editor the command acts within
- * @param {Array} clipboard: an array of Component objects that will
- * interpret the command
+ * @param {String} name: the name to track
  */
-function PasteCmd( editor, clipboard ) {
-  Command.call( this, editor, clipboard );
-  this.type = 'PasteCmd';
+function NameVar(name) {
+  StateVar.call(this);
+  this.type = 'NameVar';
+  this.name = name;
 }
 
-PasteCmd.prototype = Object.assign( Object.create( Command.prototype ), {
-  constructor: PasteCmd,
+NameVar.prototype = Object.assign( Object.create( StateVar.prototype ), {
+  constructor: NameVar,
 
-  isPasteCmd: true,
-
-  executed: false,
-
-  execute: function() {
-    this.editor.component.interpret(this);
-    this.executed = true;
-  },
-
-  unexecute: function() {
-    this.editor.component.uninterpret(this);
-    this.executed = false;
-  },
-
-  /**
-   * If true, the command can be unexecuted.
-   * @return {boolean}
-   */
-  reversible: function() {
-    return ( this.clipboard && this.clipboard.length > 0 );
-  },
+  isNameVar: true,
 
 });
 
-export {PasteCmd};
+export {NameVar};

@@ -29,21 +29,15 @@
  */
 
 import {AmbientLight} from 'three';
-import {BufferAttribute} from 'three';
-import {BufferGeometry} from 'three';
-import {CameraHelper} from 'three';
 import {DirectionalLight} from 'three';
-import {Line} from 'three';
-import {LineBasicMaterial} from 'three';
 import {OrthographicCamera} from 'three';
-import {Raycaster} from 'three';
 import {Scene} from 'three';
-import {Vector2} from 'three';
 import {WebGLRenderer} from 'three';
 
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
-import {Component} from './components/component.js';
+import {CameraHelper} from './camera-helper.js';
+import {Component} from './component.js';
 import {Tool} from './tools/tool.js';
 
 export default {
@@ -76,21 +70,22 @@ export default {
       black: 0x2d2d2d,
       camera: null,
       controls: null,
-      count: 0,
+      cyan: 0x00bbee,
       frustum: 1000,
       highlighted: null,
+      index: null,
+      jet: 0x2d2d2d,
       line: null,
       linewidth: 7,
+      malachite: 0x00dd77,
       manipulator: null,
       max: 500,
+      orange: 0xff7700,
+      pink: 0xff33bb,
       primary: 0x00bbee,
-      raycaster: new Raycaster,
       renderer: new WebGLRenderer,
       scene: new Scene,
       secondary: '#ff33bb',
-      selected: null,
-      shift: false,
-      start: new Vector2,
       threshold: 5,
       white: 0xffffff,
     };
@@ -127,7 +122,6 @@ export default {
           this.manipulator = null;
         }
       } else if (this.tool) {
-        console.log(this.tool.type, ' ~> ', event.type);
         this.manipulator = this.tool.create( this, event );
         if (this.manipulator) {
           this.manipulator.grasp( event );
@@ -146,20 +140,6 @@ export default {
       this.initRenderer();
 
       this.initControls();
-
-      this.scene.add( this.component );
-
-      const positions = new Float32Array( this.max * 3);
-      const geometry = new BufferGeometry;
-      geometry.setAttribute( 'position', new BufferAttribute( positions, 3 ) );
-      geometry.setDrawRange( 0, 0 );
-
-      const material = new LineBasicMaterial(
-          {color: this.luminance(this.secondary, 0.2),
-            linewidth: this.linewidth} );
-      this.line = new Line( geometry, material );
-
-      this.scene.add( this.line );
 
       window.addEventListener( 'resize', this.resize, false );
     },
@@ -230,14 +210,23 @@ export default {
       return rgb;
     },
     mesh: function() {
-      return this.component.children[0];
+      if (this.index == null) {
+        this.index = 0;
+        console.log(this.component);
+        while (this.component.children[this.index]) {
+          console.log(this.component.children[this.index].type);
+          if (this.component.children[this.index].type == 'Mesh') {
+            break;
+          }
+          this.index++;
+        }
+      }
+      return this.component.children[this.index];
     },
     render: function() {
       this.renderer.render( this.scene, this.camera );
     },
     resize: function() {
-      console.log( 'resize' );
-
       this.aspect = window.innerWidth / window.innerHeight;
 
       this.camera.left = - this.frustum * this.aspect / 2;

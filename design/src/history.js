@@ -20,45 +20,21 @@
  * WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-import {Command} from './command.js';
 
 /**
- * Description: paste command
+ * Description: maintain a history of past & future commands to allow
+ * for undo & redo operations.
  * @constructor
- * @param {Editor} editor: the editor the command acts within
- * @param {Array} clipboard: an array of Component objects that will
- * interpret the command
  */
-function PasteCmd( editor, clipboard ) {
-  Command.call( this, editor, clipboard );
-  this.type = 'PasteCmd';
+function History() {
+  this.type = 'History';
+  this.past = [];
+  this.future = [];
 }
 
-PasteCmd.prototype = Object.assign( Object.create( Command.prototype ), {
-  constructor: PasteCmd,
+History.prototype = Object.create( Object.assign, {
 
-  isPasteCmd: true,
-
-  executed: false,
-
-  execute: function() {
-    this.editor.component.interpret(this);
-    this.executed = true;
-  },
-
-  unexecute: function() {
-    this.editor.component.uninterpret(this);
-    this.executed = false;
-  },
-
-  /**
-   * If true, the command can be unexecuted.
-   * @return {boolean}
-   */
-  reversible: function() {
-    return ( this.clipboard && this.clipboard.length > 0 );
-  },
 
 });
 
-export {PasteCmd};
+export {History};

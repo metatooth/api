@@ -17,9 +17,7 @@ class PasswordReset
       errors.append('password must be present') if blank?(password)
     else
       errors.append('email must be present') if blank?(email)
-      if blank?(reset_password_redirect_url)
-        errors.append('reset_password_redirect_url must be present')
-      end
+      errors.append('reset_password_redirect_url must be present') if blank?(reset_password_redirect_url)
     end
 
     errors

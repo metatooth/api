@@ -20,65 +20,70 @@
  * WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import {Raycaster} from 'three';
+import {Vector2} from 'three';
+import {Vector3} from 'three';
+
 import {Manipulator} from './manipulator';
 
 /**
- * Description: Mousedown. Drag... Mouseup.
- * @param {Viewer} viewer - for visualization
- * @param {Rubberband} rubberband - used to track mouse movement
- * @param {Tool} tool - for user interaction
+ * Description: A single click. Mousedown will raycast from mouse
+ * location and create a SphereGeometry if an interesect with the
+ * viewer's mesh occurs.
+ * @param {Viewer} viewer: the owning viewer, used for raycasting
+ * @param {Tool} tool: for user interaction
  */
-function DragManip( viewer, rubberband, tool ) {
+function ClickManip( viewer, tool ) {
   Manipulator.call( this );
 
-  this.type = 'DragManip';
+  this.type = 'ClickManip';
 
   this.viewer = viewer;
-  this.rubberband = rubberband;
   this.tool = tool;
+
+  this.raycaster = new Raycaster;
+  this.found = false;
+  this.point = new Vector3;
 }
 
-DragManip.prototype = Object.assign( Object.create( Manipulator.prototype ), {
-  constructor: DragManip,
+ClickManip.prototype = Object.assign( Object.create( Manipulator.prototype ), {
+  constructor: ClickManip,
 
-  isDragManip: true,
+  isClickManip: true,
 
   /**
-   * @param {Event} event - the mousedown event to start the drag
+   * Description: checks the mouse position of the event to see if it
+   * intersects with the target mesh.
+   * @param {Event} event - event to check for interesection
    */
   grasp: function( event ) {
-    this.viewer.controls.saveState();
-    this.viewer.controls.enabled = false;
+    if (event.type == 'mousedown') {
+      this.viewer.controls.enabled = false;
+      this.viewer.controls.saveState();
 
-    this.grasp = event;
+      const mouse = new Vector2;
+      mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+      mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-    const x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    const y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    this.rubberband.track( x, y );
-  },
+      this.raycaster.setFromCamera( mouse, this.viewer.camera );
+      const intersects = this.raycaster.intersectObject( this.viewer.mesh() );
 
-  /**
-   * @param {Event} event - is dragging
-   * @return {boolean}
-   */
-  manipulating: function( event ) {
-    if ( event.shiftKey && event.type == 'mousemove' ) {
-      const x = ( event.clientX / window.innerWidth ) * 2 - 1;
-      const y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-      this.rubberband.track( x, y );
-    } else if ( !event.shiftKey || event.type == 'mouseup' ) {
-      return false;
+      if ( intersects.length > 0 ) {
+        this.point = intersects[0].point;
+        this.found = true;
+      }
     }
-    return true;
   },
 
   /**
-   * @param {Event} event - mouseup to end the drag
+   * @param {Event} event
    */
   effect: function( event ) {
     this.viewer.controls.reset();
     this.viewer.controls.enabled = true;
   },
+
+
 });
 
-export {DragManip};
+export {ClickManip};
