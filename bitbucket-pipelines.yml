@@ -16,7 +16,7 @@ pipelines:
    - step:
       script:
         # deploy each sub-directory
-        - VERSION="7.$BITBUCKET_BUILD_NUMBER"
+        - VERSION="DEV.$BITBUCKET_BUILD_NUMBER"
         - ./heroku-deploy.sh api $STAGING_API $VERSION
         - ./heroku-deploy.sh www $STAGING_WWW $VERSION
         - ./heroku-deploy.sh kaleidocycle $STAGING_KALEIDOCYCLE $VERSION
