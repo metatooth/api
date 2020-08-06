@@ -16,11 +16,11 @@ pipelines:
    - step:
       script:
         # deploy each sub-directory
-        - VERSION="DEV.$BITBUCKET_BUILD_NUMBER"
+        - VERSION="8.$BITBUCKET_BUILD_NUMBER"
         - ./heroku-deploy.sh api $STAGING_API $VERSION
         - ./heroku-deploy.sh www $STAGING_WWW $VERSION
         - ./heroku-deploy.sh kaleidocycle $STAGING_KALEIDOCYCLE $VERSION
-        - ./heroku-deploy.sh design $STAGING_DESIGN $VERSION
+        - ./heroku-deploy.sh design $PRODUCTION_DESIGN $VERSION
         # push tags
         - git tag -a "${VERSION}" -m "Tagging for release ${VERSION}"
         - git push origin ${VERSION}
