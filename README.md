@@ -1,4 +1,4 @@
-# api
+# api.metatooth.com
 
 > A Sinatra.rb project
 
@@ -12,6 +12,15 @@
 $ sudo apt-get update
 $ sudo apt-get install libpq-dev libxml2-dev postgresql postgresql-server-dev-11 ruby-bundler ruby-dev
 ```
+
+### get code & install dependencies
+
+``` bash
+$ git clone https://github.com/metatooth/api.git
+$ cd api
+$ bundle install --path vendor/bundle
+```
+
 ### initialize database & environment variables
 
 ``` bash
@@ -22,11 +31,6 @@ postgres=# grant all privileges on database metaspace_development to metaspace;
 GRANT
 postgres=# \q
 $ echo "DATABASE_URL=postgres://metaspace:metaspace@localhost/metaspace_development" > .env
-```
-
-### install dependencies
-```
-$ bundle install --path vendor/bundle
 ```
 
 ### serve with hot reload at localhost:9393
