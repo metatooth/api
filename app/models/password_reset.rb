@@ -69,7 +69,7 @@ class PasswordReset
              user_with_token
            end
 
-    raise Exception unless user
+    raise StandardError unless user
 
     user
   end
