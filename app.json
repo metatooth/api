@@ -1,9 +1,9 @@
 {
   "environments": {
-    "test": {
+"    "test": {
       "scripts": {
-        "test-setup": 'gem install rubocop',
-        "test": 'rubocop . & rspec'
+        "test-setup": "gem install rubocop",
+        "test": "rubocop . & rspec"
       }
     }
   }
