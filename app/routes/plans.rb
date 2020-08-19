@@ -45,7 +45,7 @@ class App
 
     if plan.save
       status 200
-      { data: JSON.parse(plan.to_json(:methods => [:revisions])) }.to_json
+      { data: JSON.parse(plan.to_json(methods: [:revisions])) }.to_json
     else
       halt 500
     end
@@ -54,7 +54,7 @@ class App
   get '/plans/:id' do
     if plan
       status 200
-      { data: JSON.parse(plan.to_json(:methods => [:revisions])) }.to_json
+      { data: JSON.parse(plan.to_json(methods: [:revisions])) }.to_json
     else
       resource_not_found
     end
@@ -65,7 +65,7 @@ class App
       resource_not_found
     elsif plan.update(plan_params)
       status :ok
-      { data: JSON.parse(plan.to_json(:methods => [:revisions])) }.to_json
+      { data: JSON.parse(plan.to_json(methods: [:revisions])) }.to_json
     else
       unprocessable_entity!(plan)
     end

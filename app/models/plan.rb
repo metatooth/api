@@ -19,7 +19,7 @@ class Plan
   validates_presence_of :name
 
   def new(params)
-    rev_params = params.delete!(:location, :service, :bucket, :etag, :s3key)  
+    rev_params = params.delete!(:location, :service, :bucket, :etag, :s3key)
     super
     revisions << Revision.new(rev_params)
   end

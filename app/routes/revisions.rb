@@ -37,12 +37,12 @@ class App
 
   post '/plans/:pid/revisions' do
     plan = Plan.first(locator: params[:pid])
-    puts "PLAN"
+    puts 'PLAN'
     puts plan.to_json
     revision
     revision.plan = plan
     revision.number = plan.latest + 1
-    puts "REVISION"
+    puts 'REVISION'
     puts revision.to_json
 
     if revision.save
@@ -98,6 +98,6 @@ class App
     check = JSON.parse(request.body.read)
     puts "CHECK #{check}"
     check['data']&.slice('description', 'location', 'mime_type', 'service',
-        'bucket', 's3key')
+                         'bucket', 's3key')
   end
 end

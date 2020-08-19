@@ -12,7 +12,7 @@ require_relative 'authentication'
 class App
   include Authentication
 
-  @@ACCEPTED_MEDIA_TYPES = {
+  @accepted_media_types = {
     '*/*' => :metaspace_json_v1,
     'application/*' => :metaspace_json_v1,
     'application/vnd.metaspace.v1+json' => :metaspace_json_v1
@@ -91,7 +91,7 @@ class App
     accept = Rack::Accept::MediaType.new(accept_header).qvalues
 
     accept.each do |media_type, _q|
-      return media_type if @@ACCEPTED_MEDIA_TYPES[media_type]
+      return media_type if @accepted_media_types[media_type]
     end
 
     nil
@@ -106,7 +106,7 @@ class App
     halt(406, {
       error: {
         message: "No acceptable media type in Accept header: #{accept}",
-        acceptable_media_types: @@ACCEPTED_MEDIA_TYPES.keys
+        acceptable_media_types: @accepted_media_types.keys
       }
     }.to_json)
   end
