@@ -3,6 +3,6 @@
 # The version.
 class Version
   def self.string
-    File.read('VERSION').gsub("\n", '')
+    "DEV.#{File.read('BUILDID').gsub("\n", '')}"
   end
 end
