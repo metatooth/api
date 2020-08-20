@@ -37,13 +37,9 @@ class App
 
   post '/plans/:pid/revisions' do
     plan = Plan.first(locator: params[:pid])
-    puts 'PLAN'
-    puts plan.to_json
     revision
     revision.plan = plan
     revision.number = plan.latest + 1
-    puts 'REVISION'
-    puts revision.to_json
 
     if revision.save
       status 200
@@ -67,7 +63,6 @@ class App
   end
 
   put '/plans/:pid/revisions/:id' do
-    puts "REV #{revision}"
     if revision.nil?
       resource_not_found
     elsif revision.update(revision_params)
@@ -94,10 +89,13 @@ class App
   end
 
   def revision_params
-    request.body.rewind
-    check = JSON.parse(request.body.read)
-    puts "CHECK #{check}"
-    check['data']&.slice('description', 'location', 'mime_type', 'service',
-                         'bucket', 's3key')
+    begin
+      request.body.rewind
+      check = JSON.parse(request.body.read)
+    rescue StandardError
+      check = params
+    end
+    check['data']&.slice('number', 'description', 'location', 'mime_type',
+                         'service', 'bucket', 's3key')
   end
 end
