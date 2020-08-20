@@ -12,12 +12,6 @@ require_relative 'authentication'
 class App
   include Authentication
 
-  @@accepted_media_types = {
-    '*/*' => :metaspace_json_v1,
-    'application/*' => :metaspace_json_v1,
-    'application/vnd.metaspace.v1+json' => :metaspace_json_v1
-  }
-
   register do
     def auth(_type)
       condition do
@@ -86,12 +80,20 @@ class App
     @accepted_media_type ||= find_acceptable
   end
 
+  def accepted_media_types
+    @accepted_media_types ||= {
+      '*/*' => :metaspace_json_v1,
+      'application/*' => :metaspace_json_v1,
+      'application/vnd.metaspace.v1+json' => :metaspace_json_v1
+    }
+  end
+
   def find_acceptable
     accept_header = request.env['HTTP_ACCEPT']
     accept = Rack::Accept::MediaType.new(accept_header).qvalues
 
     accept.each do |media_type, _q|
-      return media_type if @@accepted_media_types[media_type]
+      return media_type if accepted_media_types[media_type]
     end
 
     nil
