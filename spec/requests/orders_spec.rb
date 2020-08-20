@@ -91,7 +91,7 @@ RSpec.describe 'Orders', type: :request do
 
         context 'with valid parameters' do
           let(:params) do
-            { shipped_impression_kit_at: '1974-06-21T00:00:00-04:00' }
+            { shipped_impression_kit_at: '1974-06-21T00:00:00+00:00' }
           end
 
           it 'gets HTTP status 200' do
@@ -100,13 +100,14 @@ RSpec.describe 'Orders', type: :request do
 
           it 'receives the updated resource' do
             expect(json_body['data']['shipped_impression_kit_at']).to eq(
-              '1974-06-21T00:00:00-04:00'
+              '1974-06-21T00:00:00+00:00'
             )
           end
 
           it 'updates the record in the database' do
-            expect(Order.get(b.id).shipped_impression_kit_at).to eq(
-              DateTime.new(1974, 6, 21, 0, 0, 0, Rational(-4, 24))
+            offset = Time.now.strftime('%:z')
+            expect(DateTime.new(1974, 6, 21, 0, 0, 0, offset)).to eq(
+              Order.get(b.id).shipped_impression_kit_at
             )
           end
         end
