@@ -4,8 +4,8 @@ require 'sinatra'
 
 require_relative '../models/user'
 
-require_relative '../../commit'
-require_relative '../../version'
+require_relative '../commit'
+require_relative '../version'
 require_relative 'authentication'
 
 # The application.
@@ -50,7 +50,7 @@ class App
     response['Access-Control-Allow-Origin'] = '*'
   end
 
-  error do
+  error StandardError do
     resource_not_found
   end
 
