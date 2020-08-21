@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set
-
-echo 'fffffffffffffffffffffffffffffffffffffffffff' > COMMIT
-echo '2001' > BUILD
+echo $HEROKU_APP_NAME > BUILDMACHINE
+echo $HEROKU_RELEASE_CREATED_AT > BUILDDATE
+echo $HEROKU_RELEASE_VERSION > BUILDID
+echo $HEROKU_SLUG_COMMIT > COMMIT
