@@ -16,8 +16,6 @@ gem 'pony'
 gem 'puma'
 gem 'rack-accept'
 gem 'rack-cors', require: 'rack/cors'
-gem 'rubocop'
-gem 'ruby-lint'
 gem 'sinatra'
 
 group :development, :test do
@@ -27,5 +25,7 @@ group :development, :test do
   gem 'pry-remote'
   gem 'rack-test'
   gem 'rspec'
+  gem 'rubocop'
+  gem 'ruby-lint'
   gem 'shotgun'
 end

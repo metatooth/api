@@ -3,6 +3,11 @@
 # The version.
 class Version
   def self.string
-    "DEV.#{File.read('BUILDID').gsub("\n", '')[1..]}"
+    commit = if ENV['HEROKU_SLUG_COMMIT']
+               ENV['HEROKU_SLUG_COMMIT'][0..6]
+             else
+               '1974'
+             end
+    "DEV.#{commit}"
   end
 end

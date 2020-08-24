@@ -4,7 +4,6 @@ require 'sinatra'
 
 require_relative '../models/user'
 
-require_relative '../commit'
 require_relative '../version'
 require_relative 'authentication'
 
@@ -60,10 +59,6 @@ class App
 
   get '/' do
     'OK'
-  end
-
-  get '/commit' do
-    { commit: Commit.string }.to_json
   end
 
   get '/version' do
