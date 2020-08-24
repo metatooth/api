@@ -8,6 +8,6 @@ class Version
              else
                '1974'
              end
-    "DEV.#{commit}"
+    "7.#{commit}"
   end
 end
