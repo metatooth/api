@@ -25,6 +25,8 @@ $ bundle install --path vendor/bundle
 
 ``` bash
 $ sudo -u postgres psql
+postgres=# create database metaspace_development;
+CREATE DATABASE
 postgres=# create user metaspace with password 'metaspace';
 CREATE ROLE
 postgres=# grant all privileges on database metaspace_development to metaspace;
