@@ -43,7 +43,7 @@ class App
 
     if revision.save
       status 200
-      revision.to_json
+      { data: revision }.to_json
     else
       revision.errors.each do |err|
         puts "ERR #{err}"

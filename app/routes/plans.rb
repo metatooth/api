@@ -47,6 +47,9 @@ class App
       status 200
       { data: JSON.parse(plan.to_json(methods: [:revisions])) }.to_json
     else
+      plan.errors.each do |err|
+        puts "ERR #{err}"
+      end
       halt 500
     end
   end
