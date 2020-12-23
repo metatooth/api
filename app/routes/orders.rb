@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/order'
-
 # The orders endpoints.
 class App
   options '/orders' do
@@ -30,7 +28,7 @@ class App
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    orders = Order.all(user: current_user)
+    orders = orders.by_user(current_user).to_a
     orders.select! { |v| v.created_at > from && v.created_at < to }
 
     status 200

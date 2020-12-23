@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/asset'
-
 # The assets endpoints.
 class App
   options '/assets' do
@@ -28,8 +26,7 @@ class App
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    assets = Asset.all
-    assets.select! { |v| v.created_at > from && v.created_at < to }
+    assets = assets.by_created_at(from, to).to_a
 
     status 200
     { data: assets }.to_json

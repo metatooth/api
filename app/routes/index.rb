@@ -2,8 +2,6 @@
 
 require 'sinatra'
 
-require_relative '../models/user'
-
 require_relative '../version'
 require_relative 'authentication'
 

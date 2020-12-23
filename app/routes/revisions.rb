@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/revision'
-
 # The revisions endpoints.
 class App
   options '/plans/:pid/revisions' do

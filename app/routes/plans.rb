@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/plan'
-
 # The plans endpoints.
 class App
   options '/plans' do
@@ -28,8 +26,7 @@ class App
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    plans = Plan.all
-    plans.select! { |v| v.created_at > from && v.created_at < to }
+    plans = plans.by_created_at(from, to)
 
     status 200
     { data: plans }.to_json
