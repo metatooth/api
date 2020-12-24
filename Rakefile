@@ -8,7 +8,7 @@ require 'securerandom'
 namespace :db do
   task :setup do
     configuration = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
-    ROM::SQL::RakeSupport.env = configuraion
+    ROM::SQL::RakeSupport.env = configuration
   end
 end
 
@@ -16,10 +16,8 @@ end
 namespace :admin do
   # creates an API KEY for clients to use
   task :generate_key do
-    api_keys = MAIN_CONTAINER.relations[:api_keys]
-    create = api_keys.command(:create_api_key)
-    create.call(api_key: SecureRandom.hex)
-    last = api_keys.to_a.last
-    puts "#{last[:id]}:#{last[:api_key]}"
+    api_key_repo = ApiKeyRepo.new(MAIN_CONTAINER)
+    key = api_key_repo.generate
+    puts "#{key[:id]}:#{key[:api_key]}"
   end
 end

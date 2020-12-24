@@ -26,8 +26,8 @@ class App
     from ||= now - 30 * 24 * 60 * 60
     to ||= now
 
-    revisions = Plan.first(locator: params[:pid]).revisions
-    revisions.select! { |v| v.created_at > from && v.created_at < to }
+    plan_repo = PlanRepo.new(MAIN_CONTAINER)
+    revisions = plan_repo.plan_with_revisions
 
     status 200
     { data: revisions }.to_json
@@ -83,7 +83,10 @@ class App
   private
 
   def revision
-    @revision ||= params[:id] ? Revision.first(locator: params[:id]) : Revision.new(revision_params)
+    revision_repo = RevisionRepo.new(MAIN_CONTAINER)
+    @revision ||= params[:id] ?
+                    revision_repo.by_locator(params[:id]) :
+                    revision_params
   end
 
   def revision_params
