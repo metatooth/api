@@ -11,10 +11,11 @@ gem 'json'
 gem 'pg'
 gem 'pony'
 gem 'puma'
-gem 'rom'
-gem 'rom-sql'
 gem 'rack-accept'
 gem 'rack-cors', require: 'rack/cors'
+gem 'rake'
+gem 'rom'
+gem 'rom-sql'
 gem 'sinatra'
 
 group :development, :test do
