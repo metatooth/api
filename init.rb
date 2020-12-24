@@ -18,7 +18,7 @@ configuration = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
 configuration.register_relation(AccessTokens, Addresses, ApiKeys, Assets)
 configuration.register_relation(OrderItems, Orders, Plans, Products, Revisions)
 configuration.register_relation(Users)
-configuration.register_command(CreateApiKey, GenerateKey)
+configuration.register_command(CreateApiKey)
 
 MAIN_CONTAINER = ROM.container(configuration)
 
