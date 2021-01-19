@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Orders < ROM::Relation[:sql]
   schema(:orders, infer: true) do
     associations do

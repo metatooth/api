@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'dry-validation'
 require 'rack/accept'
 require 'rom'
 require 'rom-sql'
@@ -10,7 +11,7 @@ class App < Sinatra::Base
   set :app_file, __FILE__
 end
 
-Dir.glob('./app/{commands,helpers,routes,relations,repositories}/*.rb').each do |f|
+Dir.glob('./app/**/*.rb').sort.each do |f|
   require f
 end
 
@@ -21,4 +22,3 @@ configuration.register_relation(Users)
 configuration.register_command(CreateApiKey)
 
 MAIN_CONTAINER = ROM.container(configuration)
-

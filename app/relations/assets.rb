@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Assets < ROM::Relation[:sql]
   schema(infer: true)
 

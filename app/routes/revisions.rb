@@ -84,9 +84,11 @@ class App
 
   def revision
     revision_repo = RevisionRepo.new(MAIN_CONTAINER)
-    @revision ||= params[:id] ?
-                    revision_repo.by_locator(params[:id]) :
+    @revision ||= if params[:id]
+                    revision_repo.by_locator(params[:id])
+                  else
                     revision_params
+                  end
   end
 
   def revision_params

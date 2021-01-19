@@ -3,20 +3,28 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Users', type: :request do
-  let(:a) { create(:user) }
-  let(:b) { create(:user) }
-  let(:c) { create(:user) }
+  let(:user_repo) { UserRepo.new(MAIN_CONTAINER) }
+
+  let(:a) { Factory[:user] }
+  let(:b) { Factory[:user] }
+  let(:c) { Factory[:user] }
   let(:users) { [a, b, c] }
 
-  before { users }
+  before do
+    user_repo
+    users
+  end
 
   context 'with valid API Key' do
-    let(:key) { ApiKey.create }
-    let(:key_str) { key.to_s }
+    let(:key) { ApiKeyRepo.new(MAIN_CONTAINER).generate }
+    let(:key_str) { "#{key.id}:#{key.api_key}" }
 
     context 'with valid access token' do
-      let(:access_token) { create(:access_token, api_key: key, user: a) }
-      let(:token) { access_token.generate_token }
+      let(:access_token) { Factory[:access_token, api_key: key, user: a] }
+
+      let(:token) do
+        AccessTokenRepo.new(MAIN_CONTAINER).generate(access_token.id)
+      end
       let(:token_str) { "#{a.id}:#{token}" }
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
@@ -80,7 +88,7 @@ RSpec.describe 'Users', type: :request do
           end
 
           it 'updates the record in the database' do
-            expect(User.get(b.id).name).to eq('Bobby')
+            expect(user_repo.by_id(b.id).name).to eq('Bobby')
           end
         end
 
@@ -93,12 +101,12 @@ RSpec.describe 'Users', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'email' => ['Email must not be blank']
+              'email' => ['email must be filled']
             )
           end
 
           it 'does not update a record in the database' do
-            expect(User.get(b.id).email).to eq b.email
+            expect(user_repo.by_id(b.id).email).to eq b.email
           end
         end
       end
@@ -110,8 +118,11 @@ RSpec.describe 'Users', type: :request do
             expect(last_response.status).to eq 204
           end
 
+          users = MAIN_CONTAINER.relations[:users]
+
           it 'deletes the user from the database' do
-            expect(User.count).to eq 2
+            expect(users.to_a.length).to eq 3
+            expect(users.where(deleted: false).to_a.length).to eq 2
           end
         end
 
@@ -127,7 +138,7 @@ RSpec.describe 'Users', type: :request do
     context 'with invalid access token' do
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
-        "Metaspace-Token api_key=#{key}, access_token=1:fake" }
+        "Metaspace-Token api_key=#{key_str}, access_token=1:fake" }
       end
 
       describe 'GET /users' do
@@ -154,7 +165,7 @@ RSpec.describe 'Users', type: :request do
 
     context 'without access token' do
       let(:headers) do
-        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key}" }
+        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key_str}" }
       end
 
       describe 'GET /users' do
@@ -189,13 +200,15 @@ RSpec.describe 'Users', type: :request do
             expect(json_body['data']['email']).to eq 'someone@example.com'
           end
 
+          users = MAIN_CONTAINER.relations[:users]
+
           it 'adds a record in the database' do
-            expect(User.count).to eq 4
+            expect(users.to_a.length).to eq 4
           end
 
           it 'gets the new resource location in the Location header' do
             expect(last_response.headers['Location']).to eq(
-              "http://example.org/users/#{User.last.id}"
+              "http://example.org/users/#{users.to_a.last[:id]}"
             )
           end
         end
@@ -211,7 +224,7 @@ RSpec.describe 'Users', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'email' => ['Email must not be blank']
+              'email' => ['email must be filled']
             )
           end
         end

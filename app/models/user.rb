@@ -1,43 +1,9 @@
 # frozen_string_literal: true
 
-require_relative './locator'
-
 # A User model.
-class User
-  include DataMapper::Resource
-  has n, :access_tokens
-  has n, :addresses
-  has n, :orders
-
-  property :id, Serial
-  property :locator, Locator
-  property :type, Discriminator
-  property :email, String, length: 256, index: true, unique: true
-  property :password_digest, String, length: 256
-  property :name, String, length: 256
-  property :last_logged_in_at, DateTime
-  property :confirmation_token, APIKey, unique: true
-  property :confirmation_redirect_url, String
-  property :confirmed_at, DateTime
-  property :confirmation_sent_at, DateTime
-  property :reset_password_token, APIKey, unique: true
-  property :reset_password_redirect_url, String
-  property :reset_password_sent_at, DateTime
-  property :failed_attempts, Integer, default: 0
-  property :created_at, DateTime
-  property :updated_at, DateTime
-  property :deleted, ParanoidBoolean, default: false, lazy: false
-  property :deleted_at, ParanoidDateTime
-
-  validates_uniqueness_of :email
-  validates_presence_of :email
-  validates_format_of :email, as: :email_address
-
-  before :valid?, :set_name
-  before :valid?, :downcase_email
-
+class User < ROM::Struct
   def admin?
-    (@type == 'Admin')
+    false
   end
 
   def authenticate(password)
@@ -78,7 +44,7 @@ class User
   def password_confirmation=(confirm_password); end
 
   def user_manager?
-    ((@type == 'UserManager') || admin?)
+    false
   end
 
   private
@@ -98,16 +64,14 @@ end
 
 # UserManager role can CRUD user records
 class UserManager < User
-  def initialize(params)
-    super(params)
-    @type = 'UserManager'
+  def user_manager?
+    true
   end
 end
 
 # Admin role can CRUD all records
 class Admin < UserManager
-  def initialize(params)
-    super(params)
-    @type = 'Admin'
+  def admin?
+    true
   end
 end

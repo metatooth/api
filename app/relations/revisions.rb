@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Revisions < ROM::Relation[:sql]
   schema(:revisions, infer: true) do
     associations do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/user_mailer'
-
 # The users endpoints.
 class App
   options '/users' do
@@ -19,22 +17,31 @@ class App
   get '/users' do
     authenticate_user
 
-    users = User.all
-
     status 200
-    { data: users }.to_json
+    { data: users.to_a }.to_json
   end
 
   post '/users' do
-    if user.save
+    errors = UserContract.new.call(user_params).errors(full: true).to_h
+
+    if errors.empty?
+      user = user_repo.create(
+        email: user_params[:email],
+        name: user_params[:name],
+        password: user_params[:password],
+        role: user_params[:role],
+        confirmation_redirect_url: user_params[:confirmation_redirect_url]
+      )
       UserMailer.confirmation_email(user)
       response.headers['Location'] =
-        "#{request.scheme}://#{request.host}/users/#{user.id}"
+        "#{request.scheme}://#{request.host}/users/#{user[:id]}"
       status :created
-      { data: user }.to_json
+      { data: user.to_h }.to_json
     else
-      unprocessable_entity!(user)
+      unprocessable_entity!(errors)
     end
+  rescue StandardError => e
+    puts "ERROR #{e}"
   end
 
   get '/users/:id' do
@@ -42,7 +49,7 @@ class App
 
     if user
       status 200
-      { data: user }.to_json
+      { data: user.to_h }.to_json
     else
       resource_not_found
     end
@@ -53,11 +60,21 @@ class App
 
     if user.nil?
       resource_not_found
-    elsif user.update(user_params)
-      status :ok
-      { data: user }.to_json
     else
-      unprocessable_entity!(user)
+      user_hash = user.to_h
+      user_params.each do |k, v|
+        user_hash[k.to_sym] = v
+      end
+
+      errors = UserContract.new.call(user_hash).errors(full: true).to_h
+
+      if errors.empty?
+        updated_user = user_repo.update(user.id, user_hash)
+        status :ok
+        { data: updated_user.to_h }.to_json
+      else
+        unprocessable_entity!(errors)
+      end
     end
   end
 
@@ -67,7 +84,7 @@ class App
     if user.nil?
       resource_not_found
     else
-      user.destroy
+      user_repo.delete(user.id)
       status :no_content
     end
   end
@@ -75,7 +92,9 @@ class App
   private
 
   def user
-    @user ||= params[:id] ? User.get(params[:id]) : User.new(user_params)
+    @user ||= UserRepo.new(MAIN_CONTAINER).by_id(params[:id])
+  rescue StandardError
+    nil
   end
 
   def user_params
@@ -84,5 +103,13 @@ class App
                          :name,
                          :role,
                          :confirmation_redirect_url)
+  end
+
+  def user_repo
+    @user_repo ||= UserRepo.new(MAIN_CONTAINER)
+  end
+
+  def users
+    @users ||= MAIN_CONTAINER.relations[:users]
   end
 end

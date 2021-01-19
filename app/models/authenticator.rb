@@ -14,10 +14,7 @@ class Authenticator
     return nil unless id && key
 
     api_key_repo = ApiKeyRepo.new(MAIN_CONTAINER)
-
     api_key = api_key_repo.by_id(id)
-
-    puts "API KEY #{api_key.inspect}"
 
     return nil unless api_key
 
@@ -31,13 +28,18 @@ class Authenticator
 
     return nil unless id && token
 
-    user_repo = UserRepo.new(MAIN_CONTAINER)
-    user = user_repo.by_id(id)
+    begin
+      user = UserRepo.new(MAIN_CONTAINER).by_id(id)
+    rescue StandardError
+      user = nil
+    end
 
     return nil unless user && api_key
-    
-    access_token_repo = AccesTokenReport.new(MAIN_CONTAINER)
-    access_token = access_token_repo.query({user: user, api_key: api_key}).first
+
+    access_token = AccessTokenRepo.new(MAIN_CONTAINER)
+                                  .query(user_id: user[:id],
+                                         api_key_id: api_key[:id])
+                                  .first
 
     check_access_token(access_token, token)
   end
@@ -47,9 +49,14 @@ class Authenticator
   def check_access_token(access_token, token)
     return nil unless access_token
 
-    return nil if access_token.expired? && access_token.destroy
+    expired = ((access_token.created_at + 14 * 24 * 60 * 60) < Time.now)
 
-    return access_token if access_token.authenticate(token)
+    access_token_repo = AccessTokenRepo.new(MAIN_CONTAINER)
+
+    return nil if expired && access_token_repo.destroy(access_token.id)
+
+    return access_token if access_token_repo.authenticate(access_token.id,
+                                                          token)
   end
 
   def credentials

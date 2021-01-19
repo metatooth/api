@@ -106,11 +106,11 @@ class App
     }.to_json)
   end
 
-  def unprocessable_entity!(resource)
+  def unprocessable_entity!(errors)
     halt(422, {
       error: {
-        message: "Invalid parameters for resource #{resource.class}.",
-        invalid_params: resource.errors
+        message: "Invalid parameters for resource #{errors.class}.",
+        invalid_params: errors
       }
     }.to_json)
   end
