@@ -2,15 +2,9 @@
 
 require_relative '../spec_helper'
 
-RSpec.describe AccessToken, type: :model do
-  let(:access_token) { create(:access_token) }
-
-  it 'has a valid factory' do
-    expect(build(:access_token).valid?).to eq true
-  end
-
-  it { should validate_presence_of(:user_id) }
-  it { should validate_presence_of(:api_key_id) }
+# Specify an access token model.
+RSpec.describe AccessToken do
+  let(:access_token) { AccessToken.new }
 
   describe '#authenticate' do
     context 'when valid' do
@@ -30,14 +24,14 @@ RSpec.describe AccessToken, type: :model do
   describe '#expired?' do
     context 'when expired' do
       it 'returns true' do
-        access_token.update(created_at: DateTime.now - 15)
+        access_token[:created_at] = Time.now - 15 * 24 * 60 * 60
         expect(access_token.expired?).to eq true
       end
     end
 
     context 'when not expired' do
       it 'returns false' do
-        access_token.update(created_at: DateTime.now - 10)
+        access_token[:created_at] = Time.now - 10 * 24 * 60 * 60
         expect(access_token.expired?).to eq false
       end
     end
@@ -46,7 +40,7 @@ RSpec.describe AccessToken, type: :model do
   describe '#generate_token' do
     it 'generates an access token digest' do
       access_token.generate_token
-      expect(access_token.token_digest).to_not eq nil
+      expect(access_token[:token_digest]).to_not eq nil
     end
 
     it 'returns an access token' do

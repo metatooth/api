@@ -15,40 +15,41 @@ class App
   end
 
   get '/assets' do
-    from = DateTime.parse(params[:from]) if params[:from]
-    to = DateTime.parse(params[:to]) if params[:to]
-
-    # :NOTE: 20190605 Terry: Inclusive of the 'to' date.
-
-    to += 24 * 60 * 60 if to
-
     now = DateTime.now
-    from ||= now - 30 * 24 * 60 * 60
-    to ||= now
+    from = params[:from] ? DateTime.parse(params[:from]) : now - 30
+    to = params[:to] ? DateTime.parse(params[:to]) - 1 : now
 
-    assets = assets.by_created_at(from, to).to_a
+    asset_repo = AssetRepo.new(MAIN_CONTAINER)
+
+    assets = asset_repo.by_created_at(from, to)
 
     status 200
-    { data: assets }.to_json
+    { data: assets.to_a }.to_json
   end
 
   post '/assets' do
-    if asset.save
-      status 200
-      asset.to_json
-    else
-      asset.errors.each do |err|
-        puts "ERR #{err}"
+    errors = AssetContract.new.call(asset_params).errors(full: true).to_h
+
+    if errors.empty?
+      asset_hash = {}
+      asset_params.each do |k, v|
+        asset_hash[k.to_sym] = v
       end
 
-      halt 500
+      new_asset = asset_repo.create(asset_hash)
+      response.headers['Location'] =
+        "#{request.scheme}://#{request.host}/assets/#{new_asset.locator}"
+      status 201
+      { data: new_asset.to_h }.to_json
+    else
+      unprocessable_entity!(errors)
     end
   end
 
   get '/assets/:id' do
     if asset
       status 200
-      { data: asset }.to_json
+      { data: asset.to_h }.to_json
     else
       resource_not_found
     end
@@ -57,11 +58,21 @@ class App
   put '/assets/:id' do
     if asset.nil?
       resource_not_found
-    elsif asset.update(asset_params)
-      status :ok
-      { data: asset }.to_json
     else
-      unprocessable_entity!(asset)
+      asset_hash = asset.to_h
+      asset_params.each do |k, v|
+        asset_hash[k.to_sym] = v
+      end
+
+      errors = AssetContract.new.call(asset_hash).errors(full: true).to_h
+
+      if errors.empty?
+        updated_asset = asset_repo.update(asset.id, asset_hash)
+        status :ok
+        { data: updated_asset.to_h }.to_json
+      else
+        unprocessable_entity!(errors)
+      end
     end
   end
 
@@ -69,7 +80,7 @@ class App
     if asset.nil?
       resource_not_found
     else
-      asset.destroy
+      asset_repo.delete(asset.id)
       status :no_content
     end
   end
@@ -77,7 +88,13 @@ class App
   private
 
   def asset
-    @asset ||= params[:id] ? Asset.first(locator: params[:id]) : Asset.new(asset_params)
+    @asset ||= AssetRepo.new(MAIN_CONTAINER).by_locator(params[:id])
+  rescue StandardError
+    nil
+  end
+
+  def asset_repo
+    @asset_repo ||= AssetRepo.new(MAIN_CONTAINER)
   end
 
   def asset_params

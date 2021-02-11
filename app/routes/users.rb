@@ -22,26 +22,27 @@ class App
   end
 
   post '/users' do
-    errors = UserContract.new.call(user_params).errors(full: true).to_h
+    user = User.new(user_params)
+    user.password = params[:data][:password]
+
+    errors = UserContract.new.call(user.attributes).errors(full: true).to_h
 
     if errors.empty?
-      user = user_repo.create(
-        email: user_params[:email],
-        name: user_params[:name],
-        password: user_params[:password],
-        role: user_params[:role],
-        confirmation_redirect_url: user_params[:confirmation_redirect_url]
-      )
-      UserMailer.confirmation_email(user)
+      user_hash = {}
+      user.attributes.each do |k, v|
+        user_hash[k.to_sym] = v
+      end
+
+      new_user = user_repo.create(user_hash)
+
+      UserMailer.confirmation_email(new_user)
       response.headers['Location'] =
-        "#{request.scheme}://#{request.host}/users/#{user[:id]}"
+        "#{request.scheme}://#{request.host}/users/#{new_user[:id]}"
       status :created
-      { data: user.to_h }.to_json
+      { data: new_user.to_h }.to_json
     else
       unprocessable_entity!(errors)
     end
-  rescue StandardError => e
-    puts "ERROR #{e}"
   end
 
   get '/users/:id' do
@@ -49,7 +50,7 @@ class App
 
     if user
       status 200
-      { data: user.to_h }.to_json
+      { data: user.attributes }.to_json
     else
       resource_not_found
     end
@@ -61,7 +62,7 @@ class App
     if user.nil?
       resource_not_found
     else
-      user_hash = user.to_h
+      user_hash = user.attributes
       user_params.each do |k, v|
         user_hash[k.to_sym] = v
       end
@@ -69,7 +70,7 @@ class App
       errors = UserContract.new.call(user_hash).errors(full: true).to_h
 
       if errors.empty?
-        updated_user = user_repo.update(user.id, user_hash)
+        updated_user = user_repo.update(user[:id], user_hash)
         status :ok
         { data: updated_user.to_h }.to_json
       else
@@ -84,7 +85,7 @@ class App
     if user.nil?
       resource_not_found
     else
-      user_repo.delete(user.id)
+      user_repo.delete(user[:id])
       status :no_content
     end
   end
@@ -99,7 +100,6 @@ class App
 
   def user_params
     params[:data]&.slice(:email,
-                         :password,
                          :name,
                          :role,
                          :confirmation_redirect_url)
@@ -110,6 +110,6 @@ class App
   end
 
   def users
-    @users ||= MAIN_CONTAINER.relations[:users]
+    @users ||= MAIN_CONTAINER.relations[:users].call
   end
 end

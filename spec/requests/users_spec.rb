@@ -16,11 +16,13 @@ RSpec.describe 'Users', type: :request do
   end
 
   context 'with valid API Key' do
-    let(:key) { ApiKeyRepo.new(MAIN_CONTAINER).generate }
+    let(:key) { Factory[:api_key] }
     let(:key_str) { "#{key.id}:#{key.api_key}" }
 
     context 'with valid access token' do
-      let(:access_token) { Factory[:access_token, api_key: key, user: a] }
+      let(:access_token) do
+        Factory[:access_token, api_key_id: key.id, user_id: a.id]
+      end
 
       let(:token) do
         AccessTokenRepo.new(MAIN_CONTAINER).generate(access_token.id)
@@ -88,7 +90,7 @@ RSpec.describe 'Users', type: :request do
           end
 
           it 'updates the record in the database' do
-            expect(user_repo.by_id(b.id).name).to eq('Bobby')
+            expect(user_repo.by_id(b.id)[:name]).to eq('Bobby')
           end
         end
 
@@ -106,7 +108,7 @@ RSpec.describe 'Users', type: :request do
           end
 
           it 'does not update a record in the database' do
-            expect(user_repo.by_id(b.id).email).to eq b.email
+            expect(user_repo.by_id(b.id)[:email]).to eq b.email
           end
         end
       end
@@ -118,9 +120,8 @@ RSpec.describe 'Users', type: :request do
             expect(last_response.status).to eq 204
           end
 
-          users = MAIN_CONTAINER.relations[:users]
-
           it 'deletes the user from the database' do
+            users = MAIN_CONTAINER.relations[:users]
             expect(users.to_a.length).to eq 3
             expect(users.where(deleted: false).to_a.length).to eq 2
           end
@@ -207,9 +208,8 @@ RSpec.describe 'Users', type: :request do
           end
 
           it 'gets the new resource location in the Location header' do
-            expect(last_response.headers['Location']).to eq(
-              "http://example.org/users/#{users.to_a.last[:id]}"
-            )
+            expect(last_response.headers['Location'])
+              .to eq "http://example.org/users/#{users.to_a.last[:id]}"
           end
         end
 

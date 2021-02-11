@@ -3,18 +3,19 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Plans', type: :request do
-  let(:a) { create(:plan) }
-  let(:b) { create(:plan) }
-  let(:c) { create(:plan) }
+  let(:a) { Factory[:plan] }
+  let(:b) { Factory[:plan] }
+  let(:c) { Factory[:plan] }
   let(:plans) { [a, b, c] }
+  let(:plan_repo) { PlanRepo.new(MAIN_CONTAINER) }
 
   before do
     plans
   end
 
   context 'with valid API Key' do
-    let(:key) { ApiKey.create }
-    let(:key_str) { key.to_s }
+    let(:key) { Factory[:api_key] }
+    let(:key_str) { "#{key.id}:#{key.api_key}" }
 
     let(:headers) do
       { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key_str}" }
@@ -50,6 +51,7 @@ RSpec.describe 'Plans', type: :request do
 
         it 'receives plan' do
           expect(json_body['data']['locator']).to eq a.locator
+          expect(json_body['data']['name']).to eq a.name
         end
       end
 
@@ -58,6 +60,57 @@ RSpec.describe 'Plans', type: :request do
           get '/plans/23456234', nil, headers do
             expect(last_response.status).to eq 404
           end
+        end
+      end
+    end
+
+    describe 'POST /plans' do
+      before { post '/plans', params, headers }
+
+      context 'with valid parameters' do
+        let(:params) do
+          { data: { name: 'Metatooth RSpec',
+                    location: 'http://example.org/asset.json' } }
+        end
+
+        it 'gets HTTP status 201' do
+          expect(last_response.status).to eq 201
+        end
+
+        it 'receives the newly created resource' do
+          expect(json_body['data']['name']).to eq 'Metatooth RSpec'
+        end
+
+        plans = MAIN_CONTAINER.relations[:plans]
+
+        it 'adds a record in the database' do
+          expect(plans.to_a.length).to eq 4
+        end
+
+        it 'gets the new resource location in the Location header' do
+          expect(last_response.headers['Location'])
+            .to eq "http://example.org/plans/#{plans.to_a.last[:locator]}"
+        end
+      end
+
+      context 'with invalid parameters' do
+        let(:params) do
+          { data: { name: '' } }
+        end
+
+        it 'returns HTTP status 422' do
+          expect(last_response.status).to eq 422
+        end
+
+        it 'receives the error details' do
+          expect(json_body['error']['invalid_params'])
+            .to eq 'name' => ['name must be filled']
+        end
+
+        plans = MAIN_CONTAINER.relations[:plans]
+
+        it 'does not create a record in the database' do
+          expect(plans.to_a.length).to eq 3
         end
       end
     end
@@ -81,7 +134,7 @@ RSpec.describe 'Plans', type: :request do
         end
 
         it 'updates the record in the database' do
-          expect(Plan.get(b.id).name).to eq(
+          expect(plan_repo.by_id(b.id).name).to eq(
             'Metatooth RSpec'
           )
         end
@@ -97,12 +150,12 @@ RSpec.describe 'Plans', type: :request do
         it 'receives the error details' do
           expect(json_body['error']['invalid_params']).to eq(
             'name' =>
-            ['Name must not be blank']
+            ['name must be filled']
           )
         end
 
         it 'does not update a record in the database' do
-          expect(Plan.get(b.id).name).to eq(
+          expect(plan_repo.by_id(b.id).name).to eq(
             b.name
           )
         end
@@ -117,7 +170,9 @@ RSpec.describe 'Plans', type: :request do
         end
 
         it 'deletes the plan from the database' do
-          expect(Plan.count).to eq 2
+          plans = MAIN_CONTAINER.relations[:plans]
+          expect(plans.to_a.length).to eq 3
+          expect(plans.where(deleted: false).to_a.length).to eq 2
         end
       end
 

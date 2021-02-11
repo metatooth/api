@@ -3,18 +3,19 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Assets', type: :request do
-  let(:a) { create(:asset) }
-  let(:b) { create(:asset) }
-  let(:c) { create(:asset) }
+  let(:a) { Factory[:asset] }
+  let(:b) { Factory[:asset] }
+  let(:c) { Factory[:asset] }
   let(:assets) { [a, b, c] }
+  let(:asset_repo) { AssetRepo.new(MAIN_CONTAINER) }
 
   before do
     assets
   end
 
   context 'with valid API Key' do
-    let(:key) { ApiKey.create }
-    let(:key_str) { key.to_s }
+    let(:key) { Factory[:api_key] }
+    let(:key_str) { "#{key.id}:#{key.api_key}" }
 
     let(:headers) do
       { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key_str}" }
@@ -62,6 +63,52 @@ RSpec.describe 'Assets', type: :request do
       end
     end
 
+    describe 'POST /assets' do
+      before { post '/assets', params, headers }
+
+      context 'with valid parameters' do
+        let(:params) do
+          { data: { url: 'http://example.com/path/to/asset.png' } }
+        end
+
+        it 'gets HTTP status 201' do
+          expect(last_response.status).to eq 201
+        end
+
+        it 'receives the newly created resource' do
+          expect(json_body['data']['url']).to eq 'http://example.com/path/to/asset.png'
+        end
+
+        assets = MAIN_CONTAINER.relations[:assets]
+
+        it 'adds a record in the database' do
+          expect(assets.to_a.length).to eq 4
+        end
+
+        it 'gets the new resource location in the Location header' do
+          expect(last_response.headers['Location'])
+            .to eq "http://example.org/assets/#{assets.to_a.last[:locator]}"
+        end
+      end
+
+      context 'with invalid parameters' do
+        let(:params) { { name: '' } }
+
+        it 'gets HTTP status 422' do
+          expect(last_response.status).to eq 422
+        end
+
+        it 'receives the error details' do
+          expect(json_body['error']['invalid_params'])
+            .to eq 'url' => ['url is missing']
+        end
+
+        it 'does not create a record in the database' do
+          expect(assets.to_a.length).to eq 3
+        end
+      end
+    end
+
     describe 'PUT /assets/:id' do
       before { put "/assets/#{b.locator}", { data: params }, headers }
 
@@ -81,7 +128,7 @@ RSpec.describe 'Assets', type: :request do
         end
 
         it 'updates the record in the database' do
-          expect(Asset.get(b.id).mime_type).to eq(
+          expect(asset_repo.by_id(b.id).mime_type).to eq(
             'model/glft+json'
           )
         end
@@ -97,12 +144,12 @@ RSpec.describe 'Assets', type: :request do
         it 'receives the error details' do
           expect(json_body['error']['invalid_params']).to eq(
             'url' =>
-            ['Url must not be blank']
+            ['url must be filled']
           )
         end
 
         it 'does not update a record in the database' do
-          expect(Asset.get(b.id).url).to eq(
+          expect(asset_repo.by_id(b.id).url).to eq(
             b.url
           )
         end
@@ -116,8 +163,11 @@ RSpec.describe 'Assets', type: :request do
           expect(last_response.status).to eq 204
         end
 
+        assets = MAIN_CONTAINER.relations[:assets]
+
         it 'deletes the asset from the database' do
-          expect(Asset.count).to eq 2
+          expect(assets.to_a.length).to eq 3
+          expect(assets.where(deleted: false).to_a.length).to eq 2
         end
       end
 

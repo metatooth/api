@@ -12,7 +12,7 @@ class App
 
   post '/password_resets' do
     if reset.create
-      UserMailer.reset_password(reset.user)
+      UserMailer.reset_password(reset.user.attributes)
       halt(204, location: reset.user)
     else
       unprocessable_entity!(reset)

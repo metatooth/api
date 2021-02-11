@@ -32,3 +32,5 @@ group :development, :test do
   gem 'ruby-lint'
   gem 'shotgun'
 end
+
+gem 'dry-validation-matchers', '~> 1.2'

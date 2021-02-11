@@ -7,13 +7,13 @@ RSpec.describe 'UserConfirmations', type: :request do
     context 'with existing token' do
       context 'with confirmation redirect url' do
         subject { get "/user_confirmations/#{john.confirmation_token}" }
-        let(:john) { create(:user, :confirmation_redirect_url) }
+        let(:john) { Factory[:user, :confirmation_redirect_url] }
         it 'redirects to http://google.com' do
           expect(subject).to redirect_to('http://google.com')
         end
       end
       context 'without confirmation redirect url' do
-        let(:john) { create(:user, :confirmation_no_redirect_url) }
+        let(:john) { Factory[:user, :confirmation_no_redirect_url] }
         before { get "/user_confirmations/#{john.confirmation_token}" }
         it 'returns HTTP status 200' do
           expect(last_response.status).to eq 200

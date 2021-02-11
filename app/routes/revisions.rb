@@ -15,46 +15,34 @@ class App
   end
 
   get '/plans/:pid/revisions' do
-    from = DateTime.parse(params[:from]) if params[:from]
-    to = DateTime.parse(params[:to]) if params[:to]
-
-    # :NOTE: 20190605 Terry: Inclusive of the 'to' date.
-
-    to += 24 * 60 * 60 if to
-
-    now = DateTime.now
-    from ||= now - 30 * 24 * 60 * 60
-    to ||= now
-
-    plan_repo = PlanRepo.new(MAIN_CONTAINER)
-    revisions = plan_repo.plan_with_revisions
+    plan = plan_repo.plan_with_revisions(params[:pid])
 
     status 200
-    { data: revisions }.to_json
+    { data: plan.revisions.to_a }.to_json
   end
 
   post '/plans/:pid/revisions' do
-    plan = Plan.first(locator: params[:pid])
-    revision
-    revision.plan = plan
-    revision.number = plan.latest + 1
+    plan = plan_repo.by_locator(params[:pid])
+    revision_hash = revision_params.to_h
+    revision_hash[:plan_id] = plan.id
+    revision_hash[:number] = plan.latest + 1
 
-    if revision.save
+    errors = RevisionContract.new.call(revision_hash).errors(full: true).to_h
+
+    if errors.empty?
+      new_revision = revision_repo.create(revision_hash)
+
       status 200
-      { data: revision }.to_json
+      { data: new_revision.to_h }.to_json
     else
-      revision.errors.each do |err|
-        puts "ERR #{err}"
-      end
-
-      halt 500
+      unprocessable_entity!(errors)
     end
   end
 
   get '/plans/:pid/revisions/:id' do
     if revision
       status 200
-      { data: revision }.to_json
+      { data: revision.to_h }.to_json
     else
       resource_not_found
     end
@@ -63,11 +51,21 @@ class App
   put '/plans/:pid/revisions/:id' do
     if revision.nil?
       resource_not_found
-    elsif revision.update(revision_params)
-      status :ok
-      { data: revision }.to_json
     else
-      unprocessable_entity!(revision)
+      revision_hash = revision.to_h
+      revision_params.each do |k, v|
+        revision_hash[k.to_sym] = v
+      end
+
+      errors = RevisionContract.new.call(revision_hash).errors(full: true).to_h
+
+      if errors.empty?
+        updated_revision = revision_repo.update(revision.id, revision_hash)
+        status :ok
+        { data: updated_revision.to_h }.to_json
+      else
+        unprocessable_entity!(errors)
+      end
     end
   end
 
@@ -75,20 +73,25 @@ class App
     if revision.nil?
       resource_not_found
     else
-      revision.destroy
+      revision_repo.delete(revision.id)
       status :no_content
     end
   end
 
   private
 
+  def plan_repo
+    @plan_repo ||= PlanRepo.new(MAIN_CONTAINER)
+  end
+
+  def revision_repo
+    @revision_repo ||= RevisionRepo.new(MAIN_CONTAINER)
+  end
+
   def revision
-    revision_repo = RevisionRepo.new(MAIN_CONTAINER)
-    @revision ||= if params[:id]
-                    revision_repo.by_locator(params[:id])
-                  else
-                    revision_params
-                  end
+    @revision ||= revision_repo.by_locator(params[:id])
+  rescue StandardError
+    nil
   end
 
   def revision_params

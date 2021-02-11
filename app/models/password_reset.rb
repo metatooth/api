@@ -8,7 +8,7 @@ class PasswordReset
   def create
     (!user.nil? &&
        valid? &&
-       user.init_password_reset(reset_password_redirect_url))
+       user_repo.init_password_reset(user[:id], reset_password_redirect_url))
   end
 
   def errors
@@ -38,7 +38,9 @@ class PasswordReset
 
   def update
     self.updating = true
-    (!user.nil? && valid? && user.complete_password_reset(password))
+    (!user.nil? &&
+     valid? &&
+     user_repo.complete_password_reset(user[:id], password))
   end
 
   def user
@@ -75,15 +77,23 @@ class PasswordReset
   end
 
   def user_with_email
-    User.first(email: email.downcase)
+    user_repo.by_email(email.downcase)
+  rescue StandardError
+    nil
   end
 
   def user_with_token
-    User.first(reset_password_token: reset_token)
+    user_repo.by_token(reset_token)
+  rescue StandardError
+    nil
+  end
+
+  def user_repo
+    @user_repo ||= UserRepo.new(MAIN_CONTAINER)
   end
 
   def build_redirect_url
-    url = user.reset_password_redirect_url
+    url = user[:reset_password_redirect_url]
     query_params = Rack::Utils.parse_query(URI(url).query)
     if query_params.any?
       "#{url}&reset_token=#{reset_token}"

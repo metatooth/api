@@ -3,11 +3,12 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Revisions', type: :request do
-  let(:plan) { create(:plan) }
-  let(:a) { create(:revision, plan: plan) }
-  let(:b) { create(:revision, plan: plan) }
-  let(:c) { create(:revision, plan: plan) }
+  let(:plan) { Factory[:plan] }
+  let(:a) { Factory[:revision, plan_id: plan.id] }
+  let(:b) { Factory[:revision, plan_id: plan.id] }
+  let(:c) { Factory[:revision, plan_id: plan.id] }
   let(:revisions) { [a, b, c] }
+  let(:revision_repo) { RevisionRepo.new(MAIN_CONTAINER) }
 
   before do
     plan
@@ -15,8 +16,8 @@ RSpec.describe 'Revisions', type: :request do
   end
 
   context 'with valid API Key' do
-    let(:key) { ApiKey.create }
-    let(:key_str) { key.to_s }
+    let(:key) { Factory[:api_key] }
+    let(:key_str) { "#{key.id}:#{key.api_key}" }
 
     let(:headers) do
       { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key_str}" }
@@ -83,7 +84,7 @@ RSpec.describe 'Revisions', type: :request do
         end
 
         it 'updates the record in the database' do
-          expect(Revision.get(b.id).description).to eq(
+          expect(revision_repo.by_id(b.id).description).to eq(
             'Metatooth RSpec'
           )
         end
@@ -99,12 +100,12 @@ RSpec.describe 'Revisions', type: :request do
         it 'receives the error details' do
           expect(json_body['error']['invalid_params']).to eq(
             'number' =>
-            ['Number must be an integer', 'Number must not be blank']
+            ['number must be filled']
           )
         end
 
         it 'does not update a record in the database' do
-          expect(Revision.get(b.id).number).to eq(
+          expect(revision_repo.by_id(b.id).number).to eq(
             b.number
           )
         end
@@ -118,8 +119,11 @@ RSpec.describe 'Revisions', type: :request do
           expect(last_response.status).to eq 204
         end
 
+        revisions = MAIN_CONTAINER.relations[:revisions]
+
         it 'deletes the revision from the database' do
-          expect(Revision.count).to eq 2
+          expect(revisions.to_a.length).to eq 3
+          expect(revisions.where(deleted: false).to_a.length).to eq 2
         end
       end
 

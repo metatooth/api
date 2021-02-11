@@ -11,52 +11,48 @@ class Authenticator
 
     id, key = credentials['api_key'].split(':')
 
-    return nil unless id && key
+    return nil unless key
 
     api_key_repo = ApiKeyRepo.new(MAIN_CONTAINER)
     api_key = api_key_repo.by_id(id)
 
-    return nil unless api_key
+    return nil unless api_key[:active] == true
 
-    return api_key if secure_compare_with_hashing(api_key.api_key, key)
+    return api_key if secure_compare_with_hashing(api_key[:api_key], key)
+  rescue StandardError
+    nil
   end
 
   def access_token
     return nil unless credentials_have_access_token?
 
     id, token = credentials['access_token'].split(':')
+    return nil unless token
 
-    return nil unless id && token
-
-    begin
-      user = UserRepo.new(MAIN_CONTAINER).by_id(id)
-    rescue StandardError
-      user = nil
-    end
+    user = UserRepo.new(MAIN_CONTAINER).by_id(id)
 
     return nil unless user && api_key
 
-    access_token = AccessTokenRepo.new(MAIN_CONTAINER)
-                                  .query(user_id: user[:id],
-                                         api_key_id: api_key[:id])
-                                  .first
+    access_token = access_token_repo
+                   .query(user_id: user[:id], api_key_id: api_key[:id]).first
 
     check_access_token(access_token, token)
+  rescue StandardError
+    nil
   end
 
   private
 
+  def access_token_repo
+    @access_token_repo ||= AccessTokenRepo.new(MAIN_CONTAINER)
+  end
+
   def check_access_token(access_token, token)
     return nil unless access_token
 
-    expired = ((access_token.created_at + 14 * 24 * 60 * 60) < Time.now)
+    return nil if access_token.expired? && access_token_repo.delete(access_token[:id])
 
-    access_token_repo = AccessTokenRepo.new(MAIN_CONTAINER)
-
-    return nil if expired && access_token_repo.destroy(access_token.id)
-
-    return access_token if access_token_repo.authenticate(access_token.id,
-                                                          token)
+    return access_token if access_token.authenticate(token)
   end
 
   def credentials

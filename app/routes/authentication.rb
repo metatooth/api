@@ -33,7 +33,9 @@ module Authentication
   end
 
   def current_user
-    @current_user ||= access_token.user
+    @current_user ||= UserRepo.new(MAIN_CONTAINER).by_id(access_token[:user_id])
+  rescue StandardError
+    nil
   end
 
   def unauthorized!(realm)

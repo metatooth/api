@@ -5,18 +5,16 @@ require_relative 'application_mailer'
 # Class to handle user mail
 class UserMailer < ApplicationMailer
   def self.confirmation_email(user)
-    users = MAIN_CONTAINER.relations[:users]
-    update_user = users.by_pk(user[:id]).command(:update)
-    @user = update_user.call(confirmation_sent_at: DateTime.now)
+    user_repo = UserRepo.new(MAIN_CONTAINER)
+    @user = user_repo.update(user[:id], confirmation_sent_at: Time.now)
     mail(to: @user[:email],
          subject: 'Confirm your account!',
          template: 'user_confirmation_email')
   end
 
   def self.reset_password(user)
-    users = MAIN_CONTAINER.relations[:users]
-    update_user = users.by_pk(user.id).command(:update)
-    @user = update_user.call(reset_password_sent_at: DateTime.now)
+    user_repo = UserRepo.new(MAIN_CONTAINER)
+    @user = user_repo.update(user[:id], reset_password_sent_at: Time.now)
     mail(to: @user[:email],
          subject: 'Reset your password',
          template: 'user_reset_password')

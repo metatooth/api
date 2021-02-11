@@ -2,12 +2,13 @@
 
 ENV['RACK_ENV'] = 'test'
 
-require 'rom-factory'
-require 'rack/test'
-require 'rspec'
 require 'database_cleaner'
-require 'uri'
+require 'dry-validation-matchers'
 require 'pry-remote'
+require 'rack/test'
+require 'rom-factory'
+require 'rspec'
+require 'uri'
 
 require_relative '../init'
 

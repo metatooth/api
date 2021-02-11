@@ -21,21 +21,21 @@ RSpec.describe 'Authentication', type: :request do
       end
 
       context 'with invalid API Key' do
-        let(:key) { ApiKey.new }
+        let(:key) { Factory.structs[:api_key] }
         it 'gets HTTP status 401 Unauthorized' do
           expect(last_response.status).to eq 401
         end
       end
 
       context 'with disabled API Key' do
-        let(:key) { ApiKey.create.tap(&:disable) }
+        let(:key) { Factory[:api_key, active: false] }
         it 'gets HTTP status 401 Unauthorized' do
           expect(last_response.status).to eq 401
         end
       end
 
       context 'with valid API Key' do
-        let(:key) { ApiKey.create }
+        let(:key) { Factory[:api_key] }
         it 'gets HTTP status 200' do
           expect(last_response.status).to eq 200
         end
