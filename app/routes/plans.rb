@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/plan'
-
 # The plans endpoints.
 class App
   options '/plans' do
@@ -17,47 +15,54 @@ class App
   end
 
   get '/plans' do
-    from = DateTime.parse(params[:from]) if params[:from]
-    to = DateTime.parse(params[:to]) if params[:to]
+    now = Time.now
+    from = params[:from] ? Time.parse(params[:from]) : now - (30 * 24 * 60 * 60)
+    to = params[:to] ? Time.parse(params[:to]) : now + (1 * 24 * 60 * 60)
 
-    # :NOTE: 20190605 Terry: Inclusive of the 'to' date.
-
-    to += 24 * 60 * 60 if to
-
-    now = DateTime.now
-    from ||= now - 30 * 24 * 60 * 60
-    to ||= now
-
-    plans = Plan.all
-    plans.select! { |v| v.created_at > from && v.created_at < to }
+    all_plans = plans.to_a
+    all_plans.select! { |p| p[:created_at] > from && p[:created_at] < to }
 
     status 200
-    { data: plans }.to_json
+    { data: all_plans }.to_json
   end
 
   post '/plans' do
-    request.body.rewind
-    body = JSON.parse(request.body.read)
-    body['data'].delete('name')
-    body['data']['number'] = 0
+    errors = PlanContract.new.call(plan_params).errors(full: true).to_h
 
-    plan.revisions << Revision.new(body['data'])
-
-    if plan.save
-      status 200
-      { data: JSON.parse(plan.to_json(methods: [:revisions])) }.to_json
-    else
-      plan.errors.each do |err|
-        puts "ERR #{err}"
+    if errors.empty?
+      plan_hash = {}
+      plan_params.each do |k, v|
+        plan_hash[k.to_sym] = v
       end
-      halt 500
+
+      new_plan = plan_repo.create(plan_hash)
+
+      revision_hash = plan_hash
+      revision_hash[:plan_id] = new_plan[:id]
+      revision_hash[:number] = 0
+
+      errors = RevisionContract.new.call(revision_hash).errors(full: true).to_h
+
+      if errors.empty?
+        revision_repo.create(revision_hash)
+        updated_plan = plan_repo.plan_with_revisions(new_plan.locator).one!
+
+        response.headers['Location'] =
+          "#{request.scheme}://#{request.host}/plans/#{new_plan.locator}"
+        status 201
+        { data: updated_plan.to_h }.to_json
+      else
+        unprocessable_entity!(errors)
+      end
+    else
+      unprocessable_entity!(errors)
     end
   end
 
   get '/plans/:id' do
     if plan
       status 200
-      { data: JSON.parse(plan.to_json(methods: [:revisions])) }.to_json
+      { data: plan.to_h }.to_json
     else
       resource_not_found
     end
@@ -66,11 +71,22 @@ class App
   put '/plans/:id' do
     if plan.nil?
       resource_not_found
-    elsif plan.update(plan_params)
-      status :ok
-      { data: JSON.parse(plan.to_json(methods: [:revisions])) }.to_json
     else
-      unprocessable_entity!(plan)
+      plan_hash = plan.to_h
+      plan_params.each do |k, v|
+        plan_hash[k.to_sym] = v
+      end
+
+      errors = PlanContract.new.call(plan_hash).errors(full: true).to_h
+
+      if errors.empty?
+        updated_plan = plan_repo.update(plan.id, plan_hash)
+
+        status :ok
+        { data: updated_plan.to_h }.to_json
+      else
+        unprocessable_entity!(errors)
+      end
     end
   end
 
@@ -78,7 +94,7 @@ class App
     if plan.nil?
       resource_not_found
     else
-      plan.destroy
+      plan_repo.delete(plan.id)
       status :no_content
     end
   end
@@ -86,14 +102,24 @@ class App
   private
 
   def plan
-    @plan ||= params[:id] ? Plan.first(locator: params[:id]) : Plan.new(plan_params)
+    @plan ||= plan_repo.plan_with_revisions(params[:id]).one!
+  rescue StandardError
+    nil
+  end
+
+  def plans
+    @plans ||= MAIN_CONTAINER.relations[:plans].call
   end
 
   def plan_params
-    return params[:data]&.slice(:name) unless params.empty?
+    return params[:data]&.slice(:name, :location) unless params.empty?
 
     request.body.rewind
     check = JSON.parse(request.body.read)
-    check['data']&.slice('name')
+    check['data']&.slice('name', 'location')
+  end
+
+  def plan_repo
+    @plan_repo ||= PlanRepo.new(MAIN_CONTAINER)
   end
 end

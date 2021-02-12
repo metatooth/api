@@ -1,38 +1,20 @@
 # frozen_string_literal: true
 
-require_relative 'locator'
-
-# An Plan model.
+# A Plan model.
 class Plan
-  include DataMapper::Resource
-  has n, :revisions
+  attr_reader :attributes
 
-  property :id, Serial, index: true
-  property :locator, Locator
-  property :name, String, length: 256
-  property :created_at, DateTime
-  property :updated_at, DateTime
-  property :deleted, ParanoidBoolean, default: false, lazy: false
-  property :deleted_at, ParanoidDateTime
-
-  validates_uniqueness_of :locator
-  validates_presence_of :name
-
-  def new(params)
-    rev_params = params.delete!(:location, :service, :bucket, :etag, :s3key)
-    super
-    revisions << Revision.new(rev_params)
+  def initialize(attributes)
+    @attributes = attributes
   end
 
-  def destroy
-    update({ deleted: true, deleted_at: DateTime.now })
+  def [](name)
+    attributes[name]
   end
 
   def latest
-    latest = 0
-    revisions.each do |rev|
-      latest = rev.number if rev.number > latest
-    end
-    latest
+    puts "PLAN ATTR #{attributes}"
+
+    1
   end
 end

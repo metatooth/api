@@ -15,29 +15,37 @@ class App
   end
 
   get '/products' do
-    products = Product.all
     status 200
-    { data: products }.to_json
+    { data: products.to_a }.to_json
   end
 
   post '/products' do
     authenticate_user
 
-    if product.save
+    errors = ProductContract.new.call(product_params).errors(full: true).to_h
+
+    if errors.empty?
+      product_hash = {}
+      product_params.each do |k, v|
+        product_hash[k.to_sym] = v
+      end
+
+      product = product_repo.create(product_hash)
+
       UserMailer.new_product(current_user, product)
       response.headers['Location'] =
         "#{request.scheme}://#{request.host}/products/#{product.locator}"
       status :created
-      { data: product }.to_json
+      { data: product.to_h }.to_json
     else
-      unprocessable_entity!(product)
+      unprocessable_entity!(errors)
     end
   end
 
   get '/products/:id' do
     if product
       status 200
-      { data: product }.to_json
+      { data: product.to_h }.to_json
     else
       resource_not_found
     end
@@ -48,11 +56,21 @@ class App
 
     if product.nil?
       resource_not_found
-    elsif product.update(product_params)
-      status :ok
-      { data: product }.to_json
     else
-      unprocessable_entity!(product)
+      product_hash = product.to_h
+      product_params.each do |k, v|
+        product_hash[k.to_sym] = v
+      end
+
+      errors = ProductContract.new.call(product_hash).errors(full: true).to_h
+
+      if errors.empty?
+        updated_product = product_repo.update(product.id, product_hash)
+        status :ok
+        { data: updated_product.to_h }.to_json
+      else
+        unprocessable_entity!(errors)
+      end
     end
   end
 
@@ -62,7 +80,7 @@ class App
     if product.nil?
       resource_not_found
     else
-      product.destroy
+      product_repo.delete(product.id)
       status :no_content
     end
   end
@@ -70,12 +88,20 @@ class App
   private
 
   def product
-    @product ||= Product.get(params[:id]) if params[:id]
-    @product ||= Product.new(product_params) unless params[:id]
-    @product
+    @product ||= product_repo.by_id(params[:id])
+  rescue StandardError
+    nil
+  end
+
+  def products
+    @products ||= MAIN_CONTAINER.relations[:products].call
   end
 
   def product_params
     params[:data]&.slice(:name, :description)
+  end
+
+  def product_repo
+    @product_repo ||= ProductRepo.new(MAIN_CONTAINER)
   end
 end

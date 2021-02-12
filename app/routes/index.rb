@@ -2,8 +2,6 @@
 
 require 'sinatra'
 
-require_relative '../models/user'
-
 require_relative '../version'
 require_relative 'authentication'
 
@@ -49,12 +47,14 @@ class App
     response['Access-Control-Allow-Origin'] = '*'
   end
 
-  error StandardError do
-    resource_not_found
-  end
-
   def acceptable?
     unacceptable! unless accepted_media_type
+  end
+
+  error StandardError do
+    e = env['sinatra.error']
+    puts "Application error\n#{e}\n#{e.backtrace.join("\n")}"
+    resource_not_found
   end
 
   get '/' do
@@ -108,11 +108,11 @@ class App
     }.to_json)
   end
 
-  def unprocessable_entity!(resource)
+  def unprocessable_entity!(errors)
     halt(422, {
       error: {
-        message: "Invalid parameters for resource #{resource.class}.",
-        invalid_params: resource.errors
+        message: "Invalid parameters for resource #{errors.class}.",
+        invalid_params: errors
       }
     }.to_json)
   end

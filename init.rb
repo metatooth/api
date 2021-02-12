@@ -1,27 +1,23 @@
 # frozen_string_literal: true
 
-require 'rubygems'
-require 'dm-core'
-require 'dm-types'
-require 'dm-migrations'
-require 'dm-validations'
-require 'dm-serializer'
-require 'dm-timestamps'
-require 'sinatra'
-require 'pony'
+require 'dry-validation'
 require 'rack/accept'
+require 'rom'
+require 'rom-sql'
+require 'sinatra'
 
 # The Sinatra application
 class App < Sinatra::Base
   set :app_file, __FILE__
 end
 
-Dir.glob('./app/{helpers,routes,models}/*.rb').sort.each { |file| require file }
+Dir.glob('./app/**/*.rb').sort.each do |f|
+  require f
+end
 
-# DataMapper::Logger.new($stdout, :debug)
-# DataMapper::Model.raise_on_save_failure = true
+configuration = ROM::Configuration.new(:sql, ENV['DATABASE_URL'])
+configuration.register_relation(AccessTokens, Addresses, ApiKeys, Assets)
+configuration.register_relation(OrderItems, Orders, Plans, Products, Revisions)
+configuration.register_relation(Users)
 
-DataMapper.setup(:default, ENV['DATABASE_URL'])
-
-DataMapper.finalize
-DataMapper.auto_upgrade!
+MAIN_CONTAINER = ROM.container(configuration)

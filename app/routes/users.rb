@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/user_mailer'
-
 # The users endpoints.
 class App
   options '/users' do
@@ -19,21 +17,31 @@ class App
   get '/users' do
     authenticate_user
 
-    users = User.all
-
     status 200
-    { data: users }.to_json
+    { data: users.to_a }.to_json
   end
 
   post '/users' do
-    if user.save
-      UserMailer.confirmation_email(user)
+    user = User.new(user_params)
+    user.password = params[:data][:password]
+
+    errors = UserContract.new.call(user.attributes).errors(full: true).to_h
+
+    if errors.empty?
+      user_hash = {}
+      user.attributes.each do |k, v|
+        user_hash[k.to_sym] = v
+      end
+
+      new_user = user_repo.create(user_hash)
+
+      UserMailer.confirmation_email(new_user)
       response.headers['Location'] =
-        "#{request.scheme}://#{request.host}/users/#{user.id}"
+        "#{request.scheme}://#{request.host}/users/#{new_user[:id]}"
       status :created
-      { data: user }.to_json
+      { data: new_user.to_h }.to_json
     else
-      unprocessable_entity!(user)
+      unprocessable_entity!(errors)
     end
   end
 
@@ -42,7 +50,7 @@ class App
 
     if user
       status 200
-      { data: user }.to_json
+      { data: user.attributes }.to_json
     else
       resource_not_found
     end
@@ -53,11 +61,21 @@ class App
 
     if user.nil?
       resource_not_found
-    elsif user.update(user_params)
-      status :ok
-      { data: user }.to_json
     else
-      unprocessable_entity!(user)
+      user_hash = user.attributes
+      user_params.each do |k, v|
+        user_hash[k.to_sym] = v
+      end
+
+      errors = UserContract.new.call(user_hash).errors(full: true).to_h
+
+      if errors.empty?
+        updated_user = user_repo.update(user[:id], user_hash)
+        status :ok
+        { data: updated_user.to_h }.to_json
+      else
+        unprocessable_entity!(errors)
+      end
     end
   end
 
@@ -67,7 +85,7 @@ class App
     if user.nil?
       resource_not_found
     else
-      user.destroy
+      user_repo.delete(user[:id])
       status :no_content
     end
   end
@@ -75,14 +93,23 @@ class App
   private
 
   def user
-    @user ||= params[:id] ? User.get(params[:id]) : User.new(user_params)
+    @user ||= UserRepo.new(MAIN_CONTAINER).by_id(params[:id])
+  rescue StandardError
+    nil
   end
 
   def user_params
     params[:data]&.slice(:email,
-                         :password,
                          :name,
                          :role,
                          :confirmation_redirect_url)
+  end
+
+  def user_repo
+    @user_repo ||= UserRepo.new(MAIN_CONTAINER)
+  end
+
+  def users
+    @users ||= MAIN_CONTAINER.relations[:users].call
   end
 end

@@ -3,11 +3,12 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Products', type: :request do
-  let(:a) { create(:product) }
-  let(:b) { create(:product) }
-  let(:c) { create(:product) }
+  let(:a) { Factory[:product] }
+  let(:b) { Factory[:product] }
+  let(:c) { Factory[:product] }
   let(:products) { [a, b, c] }
-  let(:user) { create(:user) }
+  let(:user) { Factory[:user] }
+  let(:product_repo) { ProductRepo.new(MAIN_CONTAINER) }
 
   before do
     products
@@ -15,12 +16,13 @@ RSpec.describe 'Products', type: :request do
   end
 
   context 'with valid API Key' do
-    let(:key) { ApiKey.create }
-    let(:key_str) { key.to_s }
+    let(:key) { Factory[:api_key] }
+    let(:key_str) { "#{key.id}:#{key.api_key}" }
 
     context 'with valid access token' do
-      let(:access_token) { create(:access_token, api_key: key, user: user) }
-      let(:token) { access_token.generate_token }
+      let(:access_token) { Factory[:access_token, api_key_id: key.id, user_id: user.id] }
+      access_token_repo = AccessTokenRepo.new(MAIN_CONTAINER)
+      let(:token) { access_token_repo.generate(access_token.id) }
       let(:token_str) { "#{user.id}:#{token}" }
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
@@ -61,7 +63,7 @@ RSpec.describe 'Products', type: :request do
           end
 
           it 'updates the record in the database' do
-            expect(Product.get(b.id).name).to eq('Bobby')
+            expect(product_repo.by_id(b.id).name).to eq('Bobby')
           end
         end
 
@@ -74,12 +76,12 @@ RSpec.describe 'Products', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'name' => ['Name must not be blank']
+              'name' => ['name must be filled']
             )
           end
 
           it 'does not update a record in the database' do
-            expect(Product.get(b.id).name).to eq b.name
+            expect(product_repo.by_id(b.id).name).to eq b.name
           end
         end
       end
@@ -92,7 +94,8 @@ RSpec.describe 'Products', type: :request do
           end
 
           it 'deletes the product from the database' do
-            expect(Product.count).to eq 2
+            products = MAIN_CONTAINER.relations[:products]
+            expect(products.where(deleted: false).to_a.length).to eq 2
           end
         end
 
@@ -108,7 +111,7 @@ RSpec.describe 'Products', type: :request do
     context 'with invalid access token' do
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
-        "Metaspace-Token api_key=#{key}, access_token=1:fake" }
+        "Metaspace-Token api_key=#{key_str}, access_token=1:fake" }
       end
 
       describe 'POST /products' do
@@ -135,7 +138,7 @@ RSpec.describe 'Products', type: :request do
 
     context 'without access token' do
       let(:headers) do
-        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key}" }
+        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key_str}" }
       end
 
       describe 'GET /products' do

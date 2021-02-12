@@ -3,14 +3,16 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Access Tokens', type: :request do
-  let(:john) { create(:user) }
+  let(:john) { Factory[:user] }
 
   describe 'POST /access_tokens' do
     context 'with valid API key' do
-      let(:key) { ApiKey.create }
+      let(:key) { Factory[:api_key] }
+      let(:key_str) { "#{key.id}:#{key.api_key}" }
+
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
-        "Metaspace-Token api_key=#{key}" }
+        "Metaspace-Token api_key=#{key_str}" }
       end
 
       before { post '/access_tokens', params, headers }
@@ -60,18 +62,18 @@ RSpec.describe 'Access Tokens', type: :request do
 
   describe 'DELETE /access_token' do
     context 'with valid API key' do
-      let(:api_key) { ApiKey.create }
+      let(:api_key) { Factory[:api_key] }
       let(:api_key_str) { "#{api_key.id}:#{api_key.api_key}" }
 
       before { delete '/access_tokens', nil, headers }
 
       context 'with valid access token' do
         let(:access_token) do
-          create(:access_token,
-                 api_key: api_key,
-                 user: john)
+          Factory[:access_token, user_id: john.id, api_key_id: api_key.id]
         end
-        let(:token) { access_token.generate_token }
+        access_token_repo = AccessTokenRepo.new(MAIN_CONTAINER)
+
+        let(:token) { access_token_repo.generate(access_token.id) }
         let(:token_str) { "#{john.id}:#{token}" }
         let(:headers) do
           {
@@ -85,7 +87,11 @@ RSpec.describe 'Access Tokens', type: :request do
         end
 
         it 'destroys the access token' do
-          expect(john.reload.access_tokens.size).to eq 0
+          tokens = access_token_repo.query(user_id: john.id)
+          tokens.select! do |token|
+            token[:deleted] == false
+          end
+          expect(tokens.size).to eq 0
         end
       end
 

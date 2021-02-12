@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../models/revision'
-
 # The revisions endpoints.
 class App
   options '/plans/:pid/revisions' do
@@ -17,46 +15,43 @@ class App
   end
 
   get '/plans/:pid/revisions' do
-    from = DateTime.parse(params[:from]) if params[:from]
-    to = DateTime.parse(params[:to]) if params[:to]
-
-    # :NOTE: 20190605 Terry: Inclusive of the 'to' date.
-
-    to += 24 * 60 * 60 if to
-
-    now = DateTime.now
-    from ||= now - 30 * 24 * 60 * 60
-    to ||= now
-
-    revisions = Plan.first(locator: params[:pid]).revisions
-    revisions.select! { |v| v.created_at > from && v.created_at < to }
+    plan = plan_repo.plan_with_revisions(params[:pid]).one!
 
     status 200
-    { data: revisions }.to_json
+    { data: plan.revisions.to_a }.to_json
   end
 
   post '/plans/:pid/revisions' do
-    plan = Plan.first(locator: params[:pid])
-    revision
-    revision.plan = plan
-    revision.number = plan.latest + 1
+    plan = plan_repo.plan_with_revisions(params[:pid]).one!
 
-    if revision.save
-      status 200
-      { data: revision }.to_json
+    revision_hash = {}
+    revision_hash[:plan_id] = plan.id
+    revision_hash[:number] = plan.revisions.length
+    revision_params.each do |k, v|
+      revision_hash[k.to_sym] = v
+    end
+
+    puts "revision hash #{revision_hash}"
+
+    errors = RevisionContract.new.call(revision_hash).errors(full: true).to_h
+
+    if errors.empty?
+      new_revision = revision_repo.create(revision_hash)
+
+      response.headers['Location'] =
+        "#{request.scheme}://#{request.host}/plans/#{plan.locator}/revisions/#{new_revision.locator}"
+
+      status 201
+      { data: new_revision.to_h }.to_json
     else
-      revision.errors.each do |err|
-        puts "ERR #{err}"
-      end
-
-      halt 500
+      unprocessable_entity!(errors)
     end
   end
 
   get '/plans/:pid/revisions/:id' do
     if revision
       status 200
-      { data: revision }.to_json
+      { data: revision.to_h }.to_json
     else
       resource_not_found
     end
@@ -65,11 +60,21 @@ class App
   put '/plans/:pid/revisions/:id' do
     if revision.nil?
       resource_not_found
-    elsif revision.update(revision_params)
-      status :ok
-      { data: revision }.to_json
     else
-      unprocessable_entity!(revision)
+      revision_hash = revision.to_h
+      revision_params.each do |k, v|
+        revision_hash[k.to_sym] = v
+      end
+
+      errors = RevisionContract.new.call(revision_hash).errors(full: true).to_h
+
+      if errors.empty?
+        updated_revision = revision_repo.update(revision.id, revision_hash)
+        status :ok
+        { data: updated_revision.to_h }.to_json
+      else
+        unprocessable_entity!(errors)
+      end
     end
   end
 
@@ -77,15 +82,25 @@ class App
     if revision.nil?
       resource_not_found
     else
-      revision.destroy
+      revision_repo.delete(revision.id)
       status :no_content
     end
   end
 
   private
 
+  def plan_repo
+    @plan_repo ||= PlanRepo.new(MAIN_CONTAINER)
+  end
+
+  def revision_repo
+    @revision_repo ||= RevisionRepo.new(MAIN_CONTAINER)
+  end
+
   def revision
-    @revision ||= params[:id] ? Revision.first(locator: params[:id]) : Revision.new(revision_params)
+    @revision ||= revision_repo.by_locator(params[:id])
+  rescue StandardError
+    nil
   end
 
   def revision_params
@@ -95,7 +110,7 @@ class App
     rescue StandardError
       check = params
     end
-    check['data']&.slice('number', 'description', 'location', 'mime_type',
-                         'service', 'bucket', 's3key')
+    check['data']
+      &.slice('bucket', 'etag', 'location', 'mime_type', 's3key', 'service')
   end
 end

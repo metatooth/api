@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
-ruby '2.7.0'
+ruby '2.7.1'
 
 source 'https://rubygems.org'
 
 gem 'bcrypt'
-gem 'data_mapper', '1.2.0'
-gem 'dm-postgres-adapter'
-gem 'dm-validations'
-gem 'factory_bot'
+gem 'dry-validation'
 gem 'foreman'
 gem 'json'
 gem 'pg'
@@ -16,16 +13,24 @@ gem 'pony'
 gem 'puma'
 gem 'rack-accept'
 gem 'rack-cors', require: 'rack/cors'
+gem 'rake'
+gem 'rom'
+gem 'rom-sql'
 gem 'sinatra'
 
 group :development, :test do
   gem 'database_cleaner'
-  gem 'dm-rspec'
   gem 'pry'
   gem 'pry-remote'
   gem 'rack-test'
+  gem 'rerun'
+  gem 'rom-factory'
   gem 'rspec'
   gem 'rubocop'
+  gem 'rubocop-rake', '~> 0.5.1'
+  gem 'rubocop-rspec', '~> 2.1'
   gem 'ruby-lint'
   gem 'shotgun'
 end
+
+gem 'dry-validation-matchers', '~> 1.2'

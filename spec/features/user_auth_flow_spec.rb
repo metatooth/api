@@ -6,18 +6,18 @@ RSpec.describe 'User Auth Flow', type: :request do
   Pony.override_options = { via: :test }
 
   def headers(user_id = nil, token = nil)
-    api_key_str = "#{api_key.id}:#{api_key.api_key}"
+    key_str = "#{key.id}:#{key.api_key}"
     if user_id && token
       token_str = "#{user_id}:#{token}"
       { 'HTTP_AUTHORIZATION' =>
-      "Metaspace-Token api_key=#{api_key_str}, access_token=#{token_str}" }
+      "Metaspace-Token api_key=#{key_str}, access_token=#{token_str}" }
     else
       { 'HTTP_AUTHORIZATION' =>
-        "Metaspace-Token api_key=#{api_key_str}" }
+        "Metaspace-Token api_key=#{key_str}" }
     end
   end
 
-  let(:api_key) { ApiKey.create }
+  let(:key) { Factory[:api_key] }
   let(:email) { 'john@gmail.com' }
   let(:password) { 'password' }
   let(:params) { { email: email, password: password, name: 'Johnny' } }

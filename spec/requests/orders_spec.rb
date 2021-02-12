@@ -3,13 +3,14 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Orders', type: :request do
-  let(:user) { create(:user) }
-  let(:address) { create(:address, user: user) }
-  let(:a) { create(:order, user: user, bill: address, ship: address) }
-  let(:b) { create(:order, user: a.user, bill: a.bill, ship: a.ship) }
-  let(:c) { create(:order, user: a.user, bill: a.bill, ship: a.ship) }
+  let(:user) { Factory[:user] }
+  let(:address) { Factory[:address, user_id: user.id] }
+  let(:a) { Factory[:order, user_id: user.id, bill_id: address.id, ship_id: address.id] }
+  let(:b) { Factory[:order, user_id: user.id, bill_id: address.id, ship_id: address.id] }
+  let(:c) { Factory[:order, user_id: user.id, bill_id: address.id, ship_id: address.id] }
   let(:orders) { [a, b, c] }
-  let(:product) { create(:product) }
+  let(:product) { Factory[:product] }
+  let(:order_repo) { OrderRepo.new(MAIN_CONTAINER) }
 
   before do
     user
@@ -17,27 +18,23 @@ RSpec.describe 'Orders', type: :request do
     orders
     product
 
-    a.order_items << OrderItem.create(product: product)
-    b.order_items << OrderItem.create(product: product)
-    c.order_items << OrderItem.create(product: product)
-
-    a.save
-    b.save
-    c.save
-
-    user.orders << a
-    user.orders << b
-    user.orders << c
-    user.save
+    Factory[:order_item, order_id: a.id, product_id: product.id]
+    Factory[:order_item, order_id: b.id,  product_id: product.id]
+    Factory[:order_item, order_id: c.id,  product_id: product.id]
   end
 
   context 'with valid API Key' do
-    let(:key) { ApiKey.create }
-    let(:key_str) { key.to_s }
+    let(:key) { Factory[:api_key] }
+    let(:key_str) { "#{key.id}:#{key.api_key}" }
 
     context 'with valid access token' do
-      let(:access_token) { create(:access_token, api_key: key, user: user) }
-      let(:token) { access_token.generate_token }
+      let(:access_token) do
+        Factory[:access_token, api_key_id: key.id, user_id: user.id]
+      end
+
+      let(:token) do
+        AccessTokenRepo.new(MAIN_CONTAINER).generate(access_token.id)
+      end
       let(:token_str) { "#{user.id}:#{token}" }
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
@@ -91,7 +88,7 @@ RSpec.describe 'Orders', type: :request do
 
         context 'with valid parameters' do
           let(:params) do
-            { shipped_impression_kit_at: '1974-06-21T00:00:00+00:00' }
+            { shipped_impression_kit_at: '1974-06-21 00:00:00 -0400' }
           end
 
           it 'gets HTTP status 200' do
@@ -100,14 +97,14 @@ RSpec.describe 'Orders', type: :request do
 
           it 'receives the updated resource' do
             expect(json_body['data']['shipped_impression_kit_at']).to eq(
-              '1974-06-21T00:00:00+00:00'
+              '1974-06-21 00:00:00 -0400'
             )
           end
 
           it 'updates the record in the database' do
-            offset = Time.now.strftime('%:z')
-            expect(DateTime.new(1974, 6, 21, 0, 0, 0, offset)).to eq(
-              Order.get(b.id).shipped_impression_kit_at
+            updated_order = order_repo.by_id(b.id)
+            expect(Time.new(1974, 6, 21, 0, 0, 0)).to eq(
+              updated_order[:shipped_impression_kit_at]
             )
           end
         end
@@ -122,12 +119,12 @@ RSpec.describe 'Orders', type: :request do
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
               'shipped_impression_kit_at' =>
-              ['Shipped impression kit at must be of type DateTime']
+              ['shipped_impression_kit_at must_be_a_valid_date']
             )
           end
 
           it 'does not update a record in the database' do
-            expect(Order.get(b.id).shipped_impression_kit_at).to eq(
+            expect(order_repo.by_id(b.id).shipped_impression_kit_at).to eq(
               b.shipped_impression_kit_at
             )
           end
@@ -142,7 +139,9 @@ RSpec.describe 'Orders', type: :request do
           end
 
           it 'deletes the order from the database' do
-            expect(Order.count).to eq 2
+            orders = MAIN_CONTAINER.relations[:orders]
+            expect(orders.to_a.length).to eq 3
+            expect(orders.where(deleted: false).to_a.length).to eq 2
           end
         end
 
@@ -158,7 +157,7 @@ RSpec.describe 'Orders', type: :request do
     context 'with invalid access token' do
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
-        "Metaspace-Token api_key=#{key}, access_token=1:fake" }
+        "Metaspace-Token api_key=#{key_str}, access_token=1:fake" }
       end
 
       describe 'GET /orders' do
@@ -185,7 +184,7 @@ RSpec.describe 'Orders', type: :request do
 
     context 'without access token' do
       let(:headers) do
-        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key}" }
+        { 'HTTP_AUTHORIZATION' => "Metaspace-Token api_key=#{key_str}" }
       end
 
       describe 'GET /orders' do
@@ -214,8 +213,6 @@ RSpec.describe 'Orders', type: :request do
 
           it 'gets HTTP status 401' do
             expect(last_response.status).to eq 401
-          end
-          it 'receives the newly created resource' do
           end
         end
 

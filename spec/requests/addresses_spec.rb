@@ -3,25 +3,29 @@
 require_relative '../spec_helper'
 
 RSpec.describe 'Addresses', type: :request do
-  let(:user) { create(:user) }
-  let(:a) { create(:address, user: user) }
-  let(:b) { create(:address, user: user) }
-  let(:c) { create(:address, user: user) }
+  let(:user) { Factory[:user] }
+  let(:a) { Factory[:address, user_id: user.id] }
+  let(:b) { Factory[:address, user_id: user.id] }
+  let(:c) { Factory[:address, user_id: user.id] }
+  let(:addresses) { [a, b, c] }
 
   before do
-    user.addresses << a
-    user.addresses << b
-    user.addresses << c
-    user.save
+    user
+    addresses
   end
 
+  let(:address_repo) { AddressRepo.new(MAIN_CONTAINER) }
+
   context 'with valid API Key' do
-    let(:key) { ApiKey.create }
-    let(:key_str) { key.to_s }
+    let(:key) { Factory[:api_key] }
+    let(:key_str) { "#{key.id}:#{key.api_key}" }
 
     context 'with valid access token' do
-      let(:access_token) { create(:access_token, api_key: key, user: user) }
-      let(:token) { access_token.generate_token }
+      let(:access_token) do
+        Factory[:access_token, api_key_id: key.id, user_id: user.id]
+      end
+      access_token_repo = AccessTokenRepo.new(MAIN_CONTAINER)
+      let(:token) { access_token_repo.generate(access_token.id) }
       let(:token_str) { "#{user.id}:#{token}" }
       let(:headers) do
         { 'HTTP_AUTHORIZATION' =>
@@ -91,7 +95,7 @@ RSpec.describe 'Addresses', type: :request do
           end
 
           it 'updates the record in the database' do
-            expect(Address.get(b.id).name).to eq('Bobby')
+            expect(address_repo.by_id(b.id).name).to eq('Bobby')
           end
         end
 
@@ -104,12 +108,12 @@ RSpec.describe 'Addresses', type: :request do
 
           it 'receives the error details' do
             expect(json_body['error']['invalid_params']).to eq(
-              'name' => ['Name must not be blank', 'Name must not be blank']
+              'name' => ['name must be filled']
             )
           end
 
           it 'does not update a record in the database' do
-            expect(Address.get(b.id).name).to eq b.name
+            expect(address_repo.by_id(b.id).name).to eq b.name
           end
         end
       end
@@ -125,14 +129,17 @@ RSpec.describe 'Addresses', type: :request do
             expect(last_response.status).to eq 204
           end
 
+          addresses = MAIN_CONTAINER.relations[:addresses]
+
           it 'deletes the address from the database' do
-            expect(Address.count).to eq 2
+            expect(addresses.to_a.length).to eq 3
+            expect(addresses.where(deleted: false).to_a.length).to eq 2
           end
         end
 
         context 'with nonexisting resource' do
           it 'gets HTTP status 404' do
-            delete "/users/#{user.id}/users/342523455", nil, headers
+            delete "/users/#{user.id}/addresses/342523455", nil, headers
             expect(last_response.status).to eq 404
           end
         end
@@ -198,8 +205,6 @@ RSpec.describe 'Addresses', type: :request do
 
           it 'gets HTTP status 401' do
             expect(last_response.status).to eq 401
-          end
-          it 'receives the newly created resource' do
           end
         end
 

@@ -2,23 +2,32 @@
 
 ENV['RACK_ENV'] = 'test'
 
-require 'dm-rspec'
-require 'factory_bot'
-require 'rack/test'
-require 'rspec'
-require 'dm-transactions'
 require 'database_cleaner'
-require 'uri'
+require 'dry-validation-matchers'
 require 'pry-remote'
+require 'rack/test'
+require 'rom-factory'
+require 'rspec'
+require 'uri'
 
 require_relative '../init'
 
+Factory = ROM::Factory.configure do |config|
+  config.rom = MAIN_CONTAINER
+end
+
+Dir["#{File.dirname(__FILE__)}/support/factories/*.rb"].sort.each do |file|
+  require file
+end
+
+# RSpec Helpers
 module Helpers
   def json_body
     JSON.parse(last_response.body)
   end
 end
 
+# RSpec Mixins
 module RSpecMixin
   include Rack::Test::Methods
   def app
@@ -39,17 +48,13 @@ RSpec.configure do |config|
 
   config.include Helpers
   config.include Rack::Test::Methods
-  config.include DataMapper::Matchers
   config.include RSpecMixin
-  config.include FactoryBot::Syntax::Methods
 
   config.before(:each) do
     header 'Accept', 'application/vnd.metaspace.v1+json'
   end
 
   config.before(:suite) do
-    FactoryBot.find_definitions
-    DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
   end
 
