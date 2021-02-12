@@ -40,6 +40,18 @@ $ echo "DATABASE_URL=postgres://metaspace:metaspace@localhost/metaspace_developm
 bundle exec foreman run shotgun
 ```
 
+### Pull a copy from Heroku
+
+``` bash
+$ sudo -u postgres psql
+postgres=# alter user metaspace createdb;
+ALTER ROLE
+postgres=# drop database metaspace_development;
+DROP DATABASE
+postgres=# \q
+$ heroku pg:pull SOURCE postgres://metaspace@localhost/metaspace_development
+```
+
 ## License
 
 Copyright 2020 Metatooth LLC
