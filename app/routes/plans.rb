@@ -45,10 +45,12 @@ class App
 
       if errors.empty?
         revision_repo.create(revision_hash)
+        updated_plan = plan_repo.plan_with_revisions(new_plan.locator).one!
+
         response.headers['Location'] =
           "#{request.scheme}://#{request.host}/plans/#{new_plan.locator}"
         status 201
-        { data: new_plan.to_h }.to_json
+        { data: updated_plan.to_h }.to_json
       else
         unprocessable_entity!(errors)
       end
@@ -100,7 +102,7 @@ class App
   private
 
   def plan
-    @plan ||= plan_repo.by_locator(params[:id])
+    @plan ||= plan_repo.plan_with_revisions(params[:id]).one!
   rescue StandardError
     nil
   end

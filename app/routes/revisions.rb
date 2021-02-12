@@ -15,24 +15,33 @@ class App
   end
 
   get '/plans/:pid/revisions' do
-    plan = plan_repo.plan_with_revisions(params[:pid])
+    plan = plan_repo.plan_with_revisions(params[:pid]).one!
 
     status 200
     { data: plan.revisions.to_a }.to_json
   end
 
   post '/plans/:pid/revisions' do
-    plan = plan_repo.by_locator(params[:pid])
-    revision_hash = revision_params.to_h
+    plan = plan_repo.plan_with_revisions(params[:pid]).one!
+
+    revision_hash = {}
     revision_hash[:plan_id] = plan.id
-    revision_hash[:number] = plan.latest + 1
+    revision_hash[:number] = plan.revisions.length
+    revision_params.each do |k, v|
+      revision_hash[k.to_sym] = v
+    end
+
+    puts "revision hash #{revision_hash}"
 
     errors = RevisionContract.new.call(revision_hash).errors(full: true).to_h
 
     if errors.empty?
       new_revision = revision_repo.create(revision_hash)
 
-      status 200
+      response.headers['Location'] =
+        "#{request.scheme}://#{request.host}/plans/#{plan.locator}/revisions/#{new_revision.locator}"
+
+      status 201
       { data: new_revision.to_h }.to_json
     else
       unprocessable_entity!(errors)
@@ -101,7 +110,7 @@ class App
     rescue StandardError
       check = params
     end
-    check['data']&.slice('number', 'description', 'location', 'mime_type',
-                         'service', 'bucket', 's3key')
+    check['data']
+      &.slice('bucket', 'etag', 'location', 'mime_type', 's3key', 'service')
   end
 end
