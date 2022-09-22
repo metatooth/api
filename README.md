@@ -6,11 +6,11 @@
 
 ### Prerequisites
 
-#### Ubuntu 20.04
+#### Ubuntu 22.04
 
 ```
 $ sudo apt-get update
-$ sudo apt-get install libpq-dev libxml2-dev postgresql postgresql-server-dev-11 ruby-bundler ruby-dev
+$ sudo apt-get install libpq-dev libxml2-dev postgresql postgresql-server-dev-14 ruby-bundler ruby-dev
 ```
 
 ### get code & install dependencies
@@ -18,7 +18,8 @@ $ sudo apt-get install libpq-dev libxml2-dev postgresql postgresql-server-dev-11
 ``` bash
 $ git clone https://github.com/metatooth/api.git
 $ cd api
-$ bundle install --path vendor/bundle
+$ bundle config set --local path 'vendor/bundle'
+$ bundle install
 ```
 
 ### initialize database & environment variables
